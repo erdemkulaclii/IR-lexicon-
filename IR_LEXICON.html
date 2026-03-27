@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IR Lexicon — Uluslararası İlişkiler Kelime Ezber</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#0a0e1a;color:#e8e4d9;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;}
+.app{max-width:880px;margin:0 auto;padding:0 16px 60px;}
+header{display:flex;align-items:center;justify-content:space-between;padding:24px 0 26px;border-bottom:1px solid #1e2d47;margin-bottom:26px;flex-wrap:wrap;gap:12px;}
+.logo-main{font-family:Georgia,serif;font-size:26px;font-weight:900;color:#c8a96e;}
+.logo-sub{font-size:10px;color:#6b7a96;letter-spacing:3px;text-transform:uppercase;margin-top:3px;font-family:monospace;}
+.stats-bar{display:flex;gap:22px;}
+.stat{text-align:center;}
+.stat-num{font-family:Georgia,serif;font-size:22px;font-weight:700;color:#c8a96e;}
+.stat-label{font-size:9px;color:#6b7a96;letter-spacing:2px;text-transform:uppercase;font-family:monospace;}
+.tabs{display:flex;gap:4px;margin-bottom:22px;background:#111827;padding:4px;border-radius:10px;border:1px solid #1e2d47;}
+.tab{flex:1;padding:9px 10px;background:none;border:1px solid transparent;color:#6b7a96;font-family:monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border-radius:7px;transition:all .2s;}
+.tab.active{background:#0a0e1a;color:#c8a96e;border-color:#1e2d47;}
+.panel{display:none;}
+.panel.active{display:block;animation:fadeIn .25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.card{background:#111827;border:1px solid #1e2d47;border-radius:14px;padding:26px 24px;margin-bottom:18px;}
+.card-title{font-family:Georgia,serif;font-size:18px;font-weight:700;color:#c8a96e;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #1e2d47;}
+input,select{background:#0a0e1a;border:1px solid #1e2d47;border-radius:8px;color:#e8e4d9;font-family:inherit;font-size:14px;padding:10px 13px;outline:none;transition:border-color .2s;}
+input:focus,select:focus{border-color:#4a9eff;}
+input::placeholder{color:#6b7a96;}
+.btn{padding:9px 20px;border:none;border-radius:8px;font-family:monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;font-weight:500;transition:all .2s;}
+.btn-primary{background:#c8a96e;color:#0a0e1a;}
+.btn-primary:hover{background:#d4b882;}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;}
+.btn-secondary{background:#1a2235;color:#a0aec0;border:1px solid #1e2d47;}
+.btn-secondary:hover{border-color:#a0aec0;color:#e8e4d9;}
+.btn-blue{background:rgba(74,158,255,.15);color:#4a9eff;border:1px solid rgba(74,158,255,.3);}
+.btn-blue:hover{background:rgba(74,158,255,.25);}
+
+/* QUIZ */
+.mode-row{display:flex;gap:8px;margin-bottom:18px;}
+.quiz-card{background:#111827;border:1px solid #1e2d47;border-radius:14px;padding:36px 24px;text-align:center;position:relative;overflow:hidden;}
+.quiz-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#c8a96e,#4a9eff);border-radius:14px 14px 0 0;}
+.quiz-progress{font-family:monospace;font-size:10px;color:#6b7a96;letter-spacing:2px;margin-bottom:18px;}
+.quiz-word{font-family:Georgia,serif;font-size:38px;font-weight:700;color:#e8e4d9;margin-bottom:6px;line-height:1.2;word-break:break-word;}
+.quiz-hint{font-size:12px;color:#6b7a96;font-family:monospace;margin-bottom:28px;}
+.quiz-input-wrap{max-width:380px;margin:0 auto 14px;}
+.quiz-input{width:100%;padding:13px 16px;font-size:16px;text-align:center;border-width:2px;border-radius:10px;}
+.quiz-input.correct{border-color:#4ade80!important;background:rgba(74,222,128,.05);}
+.quiz-input.wrong{border-color:#f87171!important;background:rgba(248,113,113,.05);}
+.quiz-feedback{min-height:24px;font-size:14px;font-weight:500;margin-bottom:10px;}
+.quiz-feedback.correct{color:#4ade80;}
+.quiz-feedback.wrong{color:#f87171;}
+.answer-reveal{background:#1a2235;border:1px solid #1e2d47;border-radius:10px;padding:12px 20px;margin:10px auto;font-size:17px;color:#c8a96e;font-family:Georgia,serif;max-width:380px;display:none;}
+.answer-reveal.show{display:block;animation:fadeIn .25s ease;}
+.quiz-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:4px;}
+.streak-badge{margin-top:12px;font-size:12px;color:#c8a96e;font-family:monospace;}
+
+/* RESULTS */
+.results{text-align:center;padding:40px 20px;}
+.results-score{font-family:Georgia,serif;font-size:72px;font-weight:900;color:#c8a96e;line-height:1;}
+.results-label{font-family:monospace;font-size:10px;letter-spacing:2px;color:#6b7a96;text-transform:uppercase;margin-bottom:28px;margin-top:4px;}
+.results-row{display:flex;justify-content:center;gap:40px;margin-bottom:28px;}
+.rb-num{font-family:Georgia,serif;font-size:30px;font-weight:700;}
+.rb-label{font-size:10px;color:#6b7a96;letter-spacing:2px;text-transform:uppercase;font-family:monospace;}
+
+/* WORD LIST */
+.list-controls{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.bulk-bar{display:none;align-items:center;gap:10px;margin-bottom:10px;padding:10px 14px;background:#111827;border:1px solid #1e2d47;border-radius:10px;flex-wrap:wrap;}
+.bulk-bar.show{display:flex;}
+.word-item.selected-word{border-color:#f87171;background:rgba(248,113,113,.05);}
+.word-checkbox{width:16px;height:16px;border:1.5px solid #2a3f5f;border-radius:4px;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:10px;margin-top:4px;transition:all .2s;}
+.word-checkbox.checked{background:#f87171;border-color:#f87171;color:#fff;}
+.list-controls input{flex:1;min-width:160px;}
+.word-list{display:flex;flex-direction:column;gap:6px;max-height:480px;overflow-y:auto;padding-right:4px;}
+.word-list::-webkit-scrollbar{width:4px;}
+.word-list::-webkit-scrollbar-thumb{background:#1e2d47;border-radius:2px;}
+.word-item{background:#111827;border:1px solid #1e2d47;border-radius:10px;padding:11px 14px;display:flex;align-items:flex-start;gap:10px;transition:border-color .2s;}
+.word-item:hover{border-color:#c8a96e;}
+.mastery-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:6px;}
+.m0{background:#6b7a96}.m1{background:#f87171}.m2{background:#fbbf24}.m3{background:#4ade80}
+.word-main{flex:1;min-width:0;}
+.word-en{font-family:Georgia,serif;font-size:17px;font-weight:700;}
+.word-tr{color:#c8a96e;font-size:13px;}
+.word-example{margin-top:7px;padding:7px 10px;background:rgba(74,158,255,.04);border-left:2px solid #2a3f5f;border-radius:0 6px 6px 0;}
+.word-example .ex-en{font-size:12px;color:#c8d8e8;font-style:normal;line-height:1.5;}
+.word-example .ex-tr{font-size:11px;color:#6b7a96;margin-top:2px;line-height:1.5;padding-left:10px;}
+.word-example .ex-tr::before{content:"↳ ";color:#4a9eff;font-size:10px;}
+.word-example .ex-en .hl{color:#4a9eff;font-weight:700;font-style:normal;}
+.word-example .ex-tr .hl{color:#c8a96e;font-weight:700;}
+.ex-generate-btn{margin-top:7px;background:none;border:1px dashed #2a3f5f;border-radius:6px;color:#4a6a8a;font-size:11px;font-family:monospace;padding:5px 10px;cursor:pointer;transition:all .2s;width:100%;}
+.ex-generate-btn:hover{border-color:#4a9eff;color:#4a9eff;background:rgba(74,158,255,.05);}
+.ex-loading{margin-top:7px;font-size:11px;color:#4a6a8a;font-family:monospace;padding:5px 0;display:flex;align-items:center;gap:8px;}
+
+.word-cat{font-family:monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 7px;background:#1a2235;border:1px solid #1e2d47;border-radius:4px;color:#6b7a96;flex-shrink:0;}
+.word-del{background:none;border:none;color:#6b7a96;cursor:pointer;font-size:16px;padding:3px 5px;flex-shrink:0;}
+.word-del:hover{color:#f87171;}
+.empty{text-align:center;padding:50px 20px;color:#6b7a96;font-family:monospace;font-size:13px;}
+
+/* ADD */
+.form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:14px;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-label{font-family:monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#6b7a96;}
+.form-group input,.form-group select{width:100%;}
+
+/* AI */
+.ai-topic{width:100%;font-size:15px;margin-bottom:12px;}
+.ai-buttons{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:0;}
+.ai-results-box{margin-top:16px;background:#0a0e1a;border:1px solid #1e2d47;border-radius:10px;overflow:hidden;display:none;}
+.ai-results-box.show{display:block;}
+.ai-list{max-height:360px;overflow-y:auto;}
+.ai-item{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;cursor:pointer;border-bottom:1px solid #1e2d47;transition:background .15s;}
+.ai-item:hover{background:#111827;}
+.ai-item.selected{background:rgba(200,169,110,.08);}
+.ai-item.exists{opacity:.4;pointer-events:none;}
+.ai-check{width:18px;height:18px;border:1.5px solid #1e2d47;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;transition:all .2s;margin-top:2px;}
+.ai-item.selected .ai-check{background:#c8a96e;border-color:#c8a96e;color:#0a0e1a;}
+.ai-en{font-family:Georgia,serif;font-size:15px;font-weight:700;flex:0 0 200px;color:#e8e4d9;}
+.ai-tr{color:#c8a96e;font-size:13px;flex:1;}
+.ai-example{margin-top:7px;padding:7px 10px;background:rgba(74,158,255,.04);border-left:2px solid #2a3f5f;border-radius:0 6px 6px 0;}
+.ai-example .ex-en{font-size:12px;color:#c8d8e8;font-style:normal;line-height:1.5;}
+.ai-example .ex-tr{font-size:11px;color:#6b7a96;margin-top:2px;line-height:1.5;padding-left:10px;}
+.ai-example .ex-tr::before{content:"↳ ";color:#4a9eff;font-size:10px;}
+.ai-example .ex-en .hl{color:#4a9eff;font-weight:700;}
+.ai-example .ex-tr .hl{color:#c8a96e;font-weight:700;}
+
+.ai-item-inner{flex:1;min-width:0;}
+
+.word-item{background:#111827;border:1px solid #1e2d47;border-radius:10px;padding:11px 14px;display:flex;align-items:flex-start;gap:10px;transition:border-color .2s;}
+.word-item:hover{border-color:#c8a96e;}
+.mastery-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:6px;}
+.ai-footer{padding:13px 16px;border-top:1px solid #1e2d47;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.ai-loading{display:none;align-items:center;gap:12px;color:#6b7a96;font-family:monospace;font-size:12px;padding:22px 14px;}
+.ai-loading.show{display:flex;}
+.spinner{width:20px;height:20px;border:2px solid #1e2d47;border-top-color:#c8a96e;border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ai-error{color:#f87171;font-size:13px;padding:14px;font-family:monospace;display:none;}
+.ai-error.show{display:block;}
+
+/* API KEY BANNER */
+.apikey-banner{background:#111827;border:1px solid #1e2d47;border-left:3px solid #4a9eff;border-radius:10px;padding:14px 18px;margin-bottom:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.apikey-banner input{flex:1;min-width:220px;font-family:monospace;font-size:12px;}
+.apikey-note{font-size:11px;color:#6b7a96;margin-top:4px;}
+
+/* NOTIF */
+.notif{position:fixed;bottom:20px;right:20px;background:#1a2235;border:1px solid #1e2d47;border-radius:10px;padding:12px 18px;font-size:13px;color:#e8e4d9;z-index:999;box-shadow:0 8px 24px rgba(0,0,0,.4);max-width:270px;animation:fadeIn .3s ease;}
+.notif.success{border-left:3px solid #4ade80;}
+.notif.error{border-left:3px solid #f87171;}
+.notif.info{border-left:3px solid #4a9eff;}
+
+/* LEGEND */
+.legend{margin-top:10px;font-family:monospace;font-size:10px;color:#6b7a96;letter-spacing:1px;}
+
+@media(max-width:600px){
+  .quiz-word{font-size:26px;}
+  .mode-row{flex-direction:column;}
+  .ai-en{flex:0 0 140px;}
+  header{flex-direction:column;text-align:center;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div>
+      <div class="logo-main">IR Lexicon</div>
+      <div class="logo-sub">Uluslararası İlişkiler · Kelime Ezber</div>
+    </div>
+    <div class="stats-bar">
+      <div class="stat"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Kelime</div></div>
+      <div class="stat"><div class="stat-num" id="statMastered">0</div><div class="stat-label">Ezber</div></div>
+      <div class="stat"><div class="stat-num" id="statPct">0%</div><div class="stat-label">İlerleme</div></div>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('quiz')">🎯 Quiz</button>
+    <button class="tab" onclick="showTab('list')">📚 Kelimeler</button>
+    <button class="tab" onclick="showTab('add')">✏️ Ekle</button>
+    <button class="tab" onclick="showTab('ai')">🤖 AI Araştır</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="panel active" id="tab-quiz">
+    <div class="mode-row">
+      <button class="btn btn-primary" id="mode-en-tr" onclick="setMode('en-tr')">EN → TR</button>
+      <button class="btn btn-secondary" id="mode-tr-en" onclick="setMode('tr-en')">TR → EN</button>
+      <button class="btn btn-secondary" id="mode-random" onclick="setMode('random')">Karışık</button>
+    </div>
+    <div id="quizArea">
+      <div class="quiz-card">
+        <div class="quiz-progress" id="qProgress">— / —</div>
+        <div class="quiz-word" id="qWord">Yükleniyor...</div>
+        <div class="quiz-hint" id="qHint">Türkçe karşılığını yazın</div>
+        <div class="quiz-input-wrap">
+          <input type="text" class="quiz-input" id="qInput" placeholder="Cevabınızı yazın..." autocomplete="off" autocorrect="off" spellcheck="false" onkeydown="if(event.key==='Enter')checkAnswer()">
+        </div>
+        <div class="quiz-feedback" id="qFeedback"></div>
+        <div class="answer-reveal" id="qReveal"></div>
+        <div class="quiz-actions">
+          <button class="btn btn-primary" id="checkBtn" onclick="checkAnswer()">Kontrol Et</button>
+          <button class="btn btn-secondary" onclick="skipWord()">Geç →</button>
+          <button class="btn btn-secondary" id="revealBtn" onclick="revealAnswer()">Göster</button>
+        </div>
+        <div class="streak-badge" id="streakBadge"></div>
+      </div>
+    </div>
+    <div id="resultsArea" style="display:none">
+      <div class="card results">
+        <div class="results-score" id="rScore">—</div>
+        <div class="results-label">Başarı Oranı</div>
+        <div class="results-row">
+          <div><div class="rb-num" id="rCorrect" style="color:#4ade80">0</div><div class="rb-label">Doğru</div></div>
+          <div><div class="rb-num" id="rWrong" style="color:#f87171">0</div><div class="rb-label">Yanlış</div></div>
+        </div>
+        <button class="btn btn-primary" onclick="startQuiz()" style="margin-right:10px">Tekrar Başla</button>
+        <button class="btn btn-secondary" onclick="showTab('list')">Kelimeleri Gör</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIST -->
+  <div class="panel" id="tab-list">
+    <div class="list-controls">
+      <input type="text" id="searchInput" placeholder="Kelime ara..." oninput="renderList()">
+      <select id="catFilter" onchange="renderList()">
+        <option value="">Tüm Kategoriler</option>
+        <option>Temel Kavramlar</option><option>Diplomasi</option><option>Güvenlik</option>
+        <option>Ekonomi</option><option>Uluslararası Hukuk</option><option>Örgütler</option>
+        <option>Teoriler</option><option>Diğer</option>
+      </select>
+      <button class="btn btn-secondary" onclick="toggleSelectMode()" id="selectModeBtn">☑ Seç</button>
+    </div>
+    <div class="bulk-bar" id="bulkBar">
+      <button class="btn btn-secondary" onclick="selectAllVisible()" style="font-size:10px">Tümünü Seç</button>
+      <button class="btn btn-secondary" onclick="clearSelection()" style="font-size:10px">Seçimi Temizle</button>
+      <span id="selectedCount" style="color:#6b7a96;font-family:monospace;font-size:11px;">0 seçili</span>
+      <button class="btn" style="background:rgba(248,113,113,.15);color:#f87171;border:1px solid rgba(248,113,113,.3);font-size:10px;margin-left:auto;" onclick="deleteSelected()">🗑 Seçilileri Sil</button>
+      <button class="btn btn-secondary" style="font-size:10px" onclick="toggleSelectMode()">İptal</button>
+    </div>
+    <div class="word-list" id="wordList"></div>
+    <div class="legend">⬤ Yeni &nbsp; 🔴 Başlangıç &nbsp; 🟡 Gelişiyor &nbsp; 🟢 Ezber</div>
+  </div>
+
+  <!-- ADD -->
+  <div class="panel" id="tab-add">
+    <div class="card">
+      <div class="card-title">Manuel Kelime Ekle</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">İngilizce</label>
+          <input type="text" id="addEn" placeholder="Sovereignty" onkeydown="if(event.key==='Enter')addWord()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Türkçe Anlam</label>
+          <input type="text" id="addTr" placeholder="Egemenlik" onkeydown="if(event.key==='Enter')addWord()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Kategori</label>
+          <select id="addCat">
+            <option>Temel Kavramlar</option><option>Diplomasi</option><option>Güvenlik</option>
+            <option>Ekonomi</option><option>Uluslararası Hukuk</option><option>Örgütler</option>
+            <option>Teoriler</option><option>Diğer</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="addWord()">+ Kelime Ekle</button>
+    </div>
+  </div>
+
+  <!-- AI -->
+  <div class="panel" id="tab-ai">
+    <div class="card">
+      <div class="card-title">📚 Konuya Göre Kelime Araştır (Diplomasi Havuzu)</div>
+
+      <div class="apikey-banner" style="border-left-color:#4ade80;">
+        <div style="flex:1">
+          <div style="font-size:12px;color:#4ade80;font-family:monospace;margin-bottom:4px">✅ ÜCRETSİZ MOD — API YOK</div>
+          <div class="apikey-note" style="color:#a0aec0;">Bu bölüm, <strong>Diplomasi</strong> odaklı yerleşik kelime havuzundan konuya göre eşleştirerek öneri çıkarır. İnternet/API gerekmez.</div>
+        </div>
+      </div>
+
+      <p style="color:#a0aec0;font-size:13px;margin-bottom:14px;line-height:1.7;">Bir konu girin, AI o alana ait önemli kelimeleri listelesin. Beğendiklerinizi seçip listenize ekleyin.</p>
+      <input type="text" class="ai-topic" id="aiTopic" placeholder="Örn: realism, NATO, Türk dış politikası, nuclear deterrence..." onkeydown="if(event.key==='Enter')fetchAI()">
+      <div class="ai-buttons">
+        <button class="btn btn-blue" onclick="fetchAI()">🔍 Araştır</button>
+        <button class="btn btn-secondary" onclick="fetchAI('genel uluslararası ilişkiler terimleri')">📋 Genel IR</button>
+        <button class="btn btn-secondary" onclick="fetchAI('diplomasi ve müzakere')">🤝 Diplomasi</button>
+        <button class="btn btn-secondary" onclick="fetchAI('uluslararası güvenlik savunma')">🛡️ Güvenlik</button>
+        <button class="btn btn-secondary" onclick="fetchAI('uluslararası ekonomi ticaret')">💹 Ekonomi</button>
+      </div>
+
+      <div class="ai-results-box" id="aiBox">
+        <div class="ai-loading" id="aiLoading"><div class="spinner"></div> Kelimeler araştırılıyor...</div>
+        <div class="ai-error" id="aiError"></div>
+        <div class="ai-list" id="aiList"></div>
+        <div class="ai-footer" id="aiFooter" style="display:none">
+          <button class="btn btn-primary" onclick="addSelected()" id="addSelBtn">Seçilileri Ekle (0)</button>
+          <button class="btn btn-secondary" onclick="selectAllAI()">Tümünü Seç</button>
+          <button class="btn btn-blue" onclick="aiOffset+=25; fetchAI(currentTopic)">🔄 Farklı Kelimeler</button>
+          <span style="color:#6b7a96;font-size:11px;font-family:monospace" id="aiCount"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+const DEFAULT = [
+  {en:"Sovereignty",tr:"Egemenlik",cat:"Temel Kavramlar"},
+  {en:"Hegemony",tr:"Hegemonya / Üstünlük",cat:"Temel Kavramlar"},
+  {en:"Balance of Power",tr:"Güç Dengesi",cat:"Teoriler"},
+  {en:"Deterrence",tr:"Caydırıcılık",cat:"Güvenlik"},
+  {en:"Diplomacy",tr:"Diplomasi",cat:"Diplomasi"},
+  {en:"Multilateralism",tr:"Çok Taraflılık",cat:"Diplomasi"},
+  {en:"Unilateralism",tr:"Tek Taraflılık",cat:"Diplomasi"},
+  {en:"Bilateralism",tr:"İkili İlişkiler",cat:"Diplomasi"},
+  {en:"Realism",tr:"Realizm / Gerçekçilik",cat:"Teoriler"},
+  {en:"Liberalism",tr:"Liberalizm",cat:"Teoriler"},
+  {en:"Constructivism",tr:"Konstrüktivizm / İnşacılık",cat:"Teoriler"},
+  {en:"Anarchy",tr:"Anarşi (uluslararası sistem düzensizliği)",cat:"Temel Kavramlar"},
+  {en:"Non-state actor",tr:"Devlet Dışı Aktör",cat:"Temel Kavramlar"},
+  {en:"Geopolitics",tr:"Jeopolitik",cat:"Temel Kavramlar"},
+  {en:"Détente",tr:"Yumuşama / Gerilimin Azalması",cat:"Diplomasi"},
+  {en:"Alliance",tr:"İttifak",cat:"Güvenlik"},
+  {en:"Treaty",tr:"Antlaşma",cat:"Uluslararası Hukuk"},
+  {en:"Sanctions",tr:"Yaptırımlar",cat:"Ekonomi"},
+  {en:"Embargo",tr:"Ambargo",cat:"Ekonomi"},
+  {en:"Proxy War",tr:"Vekâlet Savaşı",cat:"Güvenlik"},
+  {en:"Nuclear Proliferation",tr:"Nükleer Silah Yayılması",cat:"Güvenlik"},
+  {en:"Soft Power",tr:"Yumuşak Güç",cat:"Temel Kavramlar"},
+  {en:"Hard Power",tr:"Sert Güç",cat:"Temel Kavramlar"},
+  {en:"Smart Power",tr:"Akıllı Güç",cat:"Temel Kavramlar"},
+  {en:"Imperialism",tr:"Emperyalizm",cat:"Temel Kavramlar"},
+  {en:"Colonialism",tr:"Sömürgecilik",cat:"Temel Kavramlar"},
+  {en:"Nation-state",tr:"Ulus-Devlet",cat:"Temel Kavramlar"},
+  {en:"Nationalism",tr:"Milliyetçilik",cat:"Temel Kavramlar"},
+  {en:"Globalization",tr:"Küreselleşme",cat:"Ekonomi"},
+  {en:"Interdependence",tr:"Karşılıklı Bağımlılık",cat:"Ekonomi"},
+  {en:"Collective Security",tr:"Kolektif Güvenlik",cat:"Güvenlik"},
+  {en:"Human Rights",tr:"İnsan Hakları",cat:"Uluslararası Hukuk"},
+  {en:"Humanitarian Intervention",tr:"İnsani Müdahale",cat:"Uluslararası Hukuk"},
+  {en:"Peacekeeping",tr:"Barışı Koruma",cat:"Güvenlik"},
+  {en:"Coercion",tr:"Zorlama / Baskı",cat:"Güvenlik"},
+  {en:"Veto Power",tr:"Veto Hakkı",cat:"Örgütler"},
+  {en:"Security Council",tr:"Güvenlik Konseyi",cat:"Örgütler"},
+  {en:"Resolution",tr:"Karar (uluslararası)",cat:"Örgütler"},
+  {en:"Supranational",tr:"Ulusüstü",cat:"Örgütler"},
+  {en:"NGO",tr:"Sivil Toplum Kuruluşu",cat:"Örgütler"},
+  {en:"IGO",tr:"Uluslararası Hükümet Örgütü",cat:"Örgütler"},
+  {en:"Trade War",tr:"Ticaret Savaşı",cat:"Ekonomi"},
+  {en:"Tariff",tr:"Gümrük Vergisi",cat:"Ekonomi"},
+  {en:"Free Trade",tr:"Serbest Ticaret",cat:"Ekonomi"},
+  {en:"Protectionism",tr:"Korumacılık",cat:"Ekonomi"},
+  {en:"WTO",tr:"Dünya Ticaret Örgütü",cat:"Örgütler"},
+  {en:"NATO",tr:"Kuzey Atlantik Antlaşma Örgütü",cat:"Örgütler"},
+  {en:"EU",tr:"Avrupa Birliği",cat:"Örgütler"},
+  {en:"UN",tr:"Birleşmiş Milletler",cat:"Örgütler"},
+  {en:"Asylum",tr:"Sığınma Hakkı",cat:"Uluslararası Hukuk"},
+  {en:"Refugee",tr:"Mülteci",cat:"Uluslararası Hukuk"},
+  {en:"Cold War",tr:"Soğuk Savaş",cat:"Temel Kavramlar"},
+  {en:"Bipolar System",tr:"İki Kutuplu Sistem",cat:"Temel Kavramlar"},
+  {en:"Multipolar System",tr:"Çok Kutuplu Sistem",cat:"Temel Kavramlar"},
+  {en:"Realpolitik",tr:"Gerçekçi Siyaset",cat:"Teoriler"},
+  {en:"Bandwagoning",tr:"Güçlüye Katılma",cat:"Teoriler"},
+  {en:"Balancing",tr:"Denge Kurma (karşı koyma)",cat:"Teoriler"},
+  {en:"Democratic Peace",tr:"Demokratik Barış Teorisi",cat:"Teoriler"},
+  {en:"Appeasement",tr:"Yatıştırma Politikası",cat:"Diplomasi"},
+  {en:"Extraterritoriality",tr:"Ülkedışılık",cat:"Uluslararası Hukuk"},
+  {en:"Intelligence",tr:"İstihbarat",cat:"Güvenlik"},
+  {en:"Capitulation",tr:"Teslimiyet / Kapitülasyon",cat:"Diplomasi"},
+  {en:"Recognition",tr:"Tanıma (devlet tanıma)",cat:"Uluslararası Hukuk"},
+  {en:"Norm",tr:"Norm / Kural",cat:"Teoriler"},
+  {en:"Propaganda",tr:"Propaganda",cat:"Güvenlik"},
+  {en:"Stateless",tr:"Vatansız",cat:"Uluslararası Hukuk"},
+  {en:"Bretton Woods",tr:"Bretton Woods Sistemi",cat:"Ekonomi"},
+  {en:"Jus cogens",tr:"Emredici Hukuk Normu",cat:"Uluslararası Hukuk"},
+  {en:"Intergovernmental",tr:"Hükümetlerarası",cat:"Örgütler"},
+  {en:"Internationalism",tr:"Uluslararasıcılık",cat:"Temel Kavramlar"},
+  {en:"Coup d'état",tr:"Askeri Darbe",cat:"Temel Kavramlar"},
+  {en:"Geostrategy",tr:"Jeostrategi",cat:"Güvenlik"},
+  {en:"Containment",tr:"Çevreleme / Kontrol Altına Alma",cat:"Güvenlik"},
+  {en:"Détente",tr:"Yumuşama Politikası",cat:"Diplomasi"},
+  {en:"Bipolarity",tr:"Çift Kutupluluk",cat:"Temel Kavramlar"},
+  {en:"Sphere of influence",tr:"Nüfuz Alanı",cat:"Temel Kavramlar"},
+  {en:"Power transition",tr:"Güç Geçişi",cat:"Teoriler"},
+];
+
+let words = [];
+let quizQueue = [], quizIdx = 0, quizCorrect = 0, quizWrong = 0;
+let quizMode = 'en-tr', wordMode = 'en-tr';
+let answerShown = false, streak = 0;
+let aiWords = [], selectedAI = new Set();
+
+// ─── DIPLOMACY POOL (FREE / OFFLINE) ──────────────────────────────────────────
+// Amaç: API'siz, konuya göre etiket eşleştirme ile "diplomasi" kelimeleri önermek.
+// Bu havuzu zamanla genişletebilirsiniz (aşağıdaki kayıt formatını koruyun).
+const DIPLOMACY_POOL = [
+  {en:"Diplomacy",tr:"Diplomasi",cat:"Diplomasi",difficulty:"basic",tags:["diplomacy","foreign policy"],example:"Effective **diplomacy** reduces misperceptions between rivals.",example_tr:"Etkili **diplomasi** rakipler arasındaki yanlış algıları azaltır."},
+  {en:"Negotiation",tr:"Müzakere",cat:"Diplomasi",difficulty:"basic",tags:["negotiation","bargaining"],example:"The parties entered **negotiation** to draft a ceasefire text.",example_tr:"Taraflar ateşkes metni hazırlamak için **müzakereye** girdi."},
+  {en:"Mediation",tr:"Arabuluculuk",cat:"Diplomasi",difficulty:"basic",tags:["mediation","third party"],example:"A neutral actor offered **mediation** to de-escalate the crisis.",example_tr:"Tarafsız bir aktör krizi yatıştırmak için **arabuluculuk** teklif etti."},
+  {en:"Good offices",tr:"Kolaylaştırıcılık (good offices)",cat:"Diplomasi",difficulty:"basic",tags:["good offices","facilitation","third party"],example:"The UN Secretary-General used **good offices** to bring sides to talks.",example_tr:"BM Genel Sekreteri tarafları görüşmeye getirmek için **good offices** kullandı."},
+  {en:"Summit diplomacy",tr:"Zirve diplomasisi",cat:"Diplomasi",difficulty:"basic",tags:["summit","leaders","diplomacy"],example:"**Summit diplomacy** can unlock stalled negotiations.",example_tr:"**Zirve diplomasisi** tıkanan müzakereleri açabilir."},
+  {en:"Shuttle diplomacy",tr:"Mekik diplomasisi",cat:"Diplomasi",difficulty:"basic",tags:["shuttle diplomacy","mediation"],example:"The envoy practiced **shuttle diplomacy** between the capitals.",example_tr:"Temsilci başkentler arasında **mekik diplomasisi** yürüttü."},
+  {en:"Track I diplomacy",tr:"Resmî diplomasi (Track I)",cat:"Diplomasi",difficulty:"basic",tags:["track I","official"],example:"**Track I diplomacy** relies on state representatives and formal mandates.",example_tr:"**Track I diplomasi** devlet temsilcileri ve resmî yetkilere dayanır."},
+  {en:"Track II diplomacy",tr:"Gayriresmî diplomasi (Track II)",cat:"Diplomasi",difficulty:"basic",tags:["track II","unofficial","dialogue"],example:"**Track II diplomacy** can test ideas before formal talks.",example_tr:"**Track II diplomasi** resmî görüşmelerden önce fikirleri test edebilir."},
+  {en:"Backchannel",tr:"Arka kanal",cat:"Diplomasi",difficulty:"basic",tags:["backchannel","secret talks"],example:"A **backchannel** helped both sides explore compromises quietly.",example_tr:"Bir **arka kanal** tarafların uzlaşıları sessizce yoklamasına yardım etti."},
+  {en:"Confidence-building measures (CBMs)",tr:"Güven artırıcı önlemler",cat:"Diplomasi",difficulty:"basic",tags:["cbms","confidence building","de-escalation"],example:"**Confidence-building measures** lowered the risk of accidental escalation.",example_tr:"**Güven artırıcı önlemler** kazara tırmanma riskini düşürdü."},
+  {en:"De-escalation",tr:"Gerginliği düşürme",cat:"Diplomasi",difficulty:"basic",tags:["de-escalation","crisis management"],example:"Both militaries adopted steps for **de-escalation** after the incident.",example_tr:"Olay sonrası iki ordu **gerginliği düşürme** adımları attı."},
+  {en:"Escalation control",tr:"Tırmanma kontrolü",cat:"Diplomasi",difficulty:"intermediate",tags:["escalation control","crisis management"],example:"Hotlines are used for **escalation control** during crises.",example_tr:"Krizlerde **tırmanma kontrolü** için hatlar (hotline) kullanılır."},
+  {en:"Crisis management",tr:"Kriz yönetimi",cat:"Diplomasi",difficulty:"basic",tags:["crisis management","incident"],example:"Effective **crisis management** prevents a small clash from becoming a war.",example_tr:"Etkili **kriz yönetimi** küçük bir çatışmanın savaşa dönüşmesini engeller."},
+  {en:"Communiqué",tr:"Ortak bildiri",cat:"Diplomasi",difficulty:"basic",tags:["communique","statement"],example:"The summit ended with a joint **communiqué**.",example_tr:"Zirve ortak bir **bildiri** ile sona erdi."},
+  {en:"Joint statement",tr:"Ortak açıklama",cat:"Diplomasi",difficulty:"basic",tags:["joint statement","statement"],example:"They issued a **joint statement** affirming commitment to dialogue.",example_tr:"Diyaloğa bağlılığı teyit eden bir **ortak açıklama** yayımladılar."},
+  {en:"Demarche",tr:"Demarş (resmî girişim)",cat:"Diplomasi",difficulty:"intermediate",tags:["demarche","protest note"],example:"The ambassador delivered a **demarche** protesting the new restrictions.",example_tr:"Büyükelçi yeni kısıtlamaları protesto eden bir **demarş** iletti."},
+  {en:"Note verbale",tr:"Nota verbale",cat:"Diplomasi",difficulty:"intermediate",tags:["note verbale","diplomatic note"],example:"A **note verbale** requested clarification of the incident.",example_tr:"Bir **nota verbale** olayın açıklığa kavuşturulmasını talep etti."},
+  {en:"Diplomatic note",tr:"Diplomatik nota",cat:"Diplomasi",difficulty:"basic",tags:["diplomatic note","note"],example:"The ministry sent a **diplomatic note** to seek assurances.",example_tr:"Bakanlık güvence istemek için **diplomatik nota** gönderdi."},
+  {en:"Protest note",tr:"Protesto notası",cat:"Diplomasi",difficulty:"basic",tags:["protest","note"],example:"A **protest note** was lodged after the airspace violation.",example_tr:"Hava sahası ihlali sonrası **protesto notası** verildi."},
+  {en:"Credentials",tr:"Güven mektubu",cat:"Diplomasi",difficulty:"intermediate",tags:["credentials","ambassador"],example:"The ambassador presented **credentials** to the head of state.",example_tr:"Büyükelçi devlet başkanına **güven mektubunu** sundu."},
+  {en:"Persona non grata",tr:"İstenmeyen kişi (persona non grata)",cat:"Diplomasi",difficulty:"intermediate",tags:["persona non grata","expulsion"],example:"The diplomat was declared **persona non grata** and expelled.",example_tr:"Diplomat **persona non grata** ilan edilip sınır dışı edildi."},
+  {en:"Diplomatic immunity",tr:"Diplomatik dokunulmazlık",cat:"Diplomasi",difficulty:"basic",tags:["immunity","vienna convention"],example:"**Diplomatic immunity** protects envoys from local prosecution.",example_tr:"**Diplomatik dokunulmazlık** elçileri yerel kovuşturmadan korur."},
+  {en:"Vienna Convention on Diplomatic Relations (VCDR)",tr:"Viyana Diplomatik İlişkiler Sözleşmesi",cat:"Diplomasi",difficulty:"intermediate",tags:["vienna convention","vcd r","diplomatic law"],example:"The **VCDR** codifies privileges and duties of diplomatic missions.",example_tr:"**VCDR** diplomatik misyonların ayrıcalık ve yükümlülüklerini kodlar."},
+  {en:"Embassy",tr:"Büyükelçilik",cat:"Diplomasi",difficulty:"basic",tags:["embassy","mission"],example:"The **embassy** facilitated consular assistance during the evacuation.",example_tr:"**Büyükelçilik** tahliye sırasında konsolosluk desteğini kolaylaştırdı."},
+  {en:"Consulate",tr:"Konsolosluk",cat:"Diplomasi",difficulty:"basic",tags:["consulate","consular"],example:"The **consulate** issued emergency travel documents.",example_tr:"**Konsolosluk** acil seyahat belgesi düzenledi."},
+  {en:"Consular services",tr:"Konsolosluk hizmetleri",cat:"Diplomasi",difficulty:"basic",tags:["consular","services"],example:"**Consular services** expanded after the new bilateral agreement.",example_tr:"Yeni ikili anlaşma sonrası **konsolosluk hizmetleri** genişletildi."},
+  {en:"Foreign ministry",tr:"Dışişleri bakanlığı",cat:"Diplomasi",difficulty:"basic",tags:["foreign ministry","mfa"],example:"The **foreign ministry** summoned the ambassador for consultations.",example_tr:"**Dışişleri bakanlığı** büyükelçiyi görüşmeye çağırdı."},
+  {en:"Summon (an ambassador)",tr:"Büyükelçiyi çağırmak",cat:"Diplomasi",difficulty:"basic",tags:["summon","demarche"],example:"The government decided to **summon the ambassador** after the remarks.",example_tr:"Hükümet açıklamalar sonrası **büyükelçiyi çağırmaya** karar verdi."},
+  {en:"Recall (an ambassador)",tr:"Büyükelçiyi geri çağırmak",cat:"Diplomasi",difficulty:"basic",tags:["recall","diplomatic crisis"],example:"The state **recalled its ambassador** as a sign of protest.",example_tr:"Devlet protesto göstergesi olarak **büyükelçisini geri çağırdı**."},
+  {en:"Expel (a diplomat)",tr:"Diplomatı sınır dışı etmek",cat:"Diplomasi",difficulty:"basic",tags:["expel","persona non grata"],example:"They threatened to **expel the diplomat** if violations continued.",example_tr:"İhlaller sürerse **diplomatı sınır dışı etmekle** tehdit ettiler."},
+  {en:"Diplomatic rupture",tr:"Diplomatik kopuş",cat:"Diplomasi",difficulty:"intermediate",tags:["rupture","relations"],example:"A **diplomatic rupture** followed the escalation on the border.",example_tr:"Sınırdaki tırmanma sonrası **diplomatik kopuş** yaşandı."},
+  {en:"Normalize relations",tr:"İlişkileri normalleştirmek",cat:"Diplomasi",difficulty:"basic",tags:["normalize","rapprochement"],example:"Both sides agreed to **normalize relations** through gradual steps.",example_tr:"Taraflar kademeli adımlarla **ilişkileri normalleştirmeyi** kabul etti."},
+  {en:"Rapprochement",tr:"Yakınlaşma",cat:"Diplomasi",difficulty:"intermediate",tags:["rapprochement","normalization"],example:"Economic incentives accelerated **rapprochement** between the neighbors.",example_tr:"Ekonomik teşvikler komşular arasındaki **yakınlaşmayı** hızlandırdı."},
+  {en:"Détente",tr:"Yumuşama",cat:"Diplomasi",difficulty:"intermediate",tags:["detente","easing"],example:"The agreement marked a period of **détente** after years of hostility.",example_tr:"Anlaşma yıllar süren düşmanlığın ardından bir **yumuşama** dönemi başlattı."},
+  {en:"Diplomatic engagement",tr:"Diplomatik angajman",cat:"Diplomasi",difficulty:"intermediate",tags:["engagement","dialogue"],example:"**Diplomatic engagement** continued despite domestic criticism.",example_tr:"İç eleştirilere rağmen **diplomatik angajman** sürdü."},
+  {en:"Dialogue mechanism",tr:"Diyalog mekanizması",cat:"Diplomasi",difficulty:"intermediate",tags:["dialogue","mechanism"],example:"They established a **dialogue mechanism** to address incidents at sea.",example_tr:"Denizdeki olayları ele almak için bir **diyalog mekanizması** kurdular."},
+  {en:"High-level visit",tr:"Üst düzey ziyaret",cat:"Diplomasi",difficulty:"basic",tags:["visit","high level"],example:"A **high-level visit** signaled a shift in bilateral priorities.",example_tr:"Bir **üst düzey ziyaret** ikili önceliklerde değişimi işaret etti."},
+  {en:"State visit",tr:"Devlet ziyareti",cat:"Diplomasi",difficulty:"basic",tags:["state visit","protocol"],example:"The president paid a **state visit** to mark the anniversary.",example_tr:"Cumhurbaşkanı yıldönümü için **devlet ziyareti** gerçekleştirdi."},
+  {en:"Protocol",tr:"Protokol",cat:"Diplomasi",difficulty:"basic",tags:["protocol","ceremony"],example:"Strict **protocol** governed seating and speaking order.",example_tr:"Oturma ve konuşma sırasını sıkı **protokol** belirledi."},
+  {en:"Diplomatic protocol",tr:"Diplomatik protokol",cat:"Diplomasi",difficulty:"basic",tags:["diplomatic protocol","protocol"],example:"**Diplomatic protocol** shapes symbols and hierarchy at ceremonies.",example_tr:"**Diplomatik protokol** törenlerde sembolleri ve hiyerarşiyi şekillendirir."},
+  {en:"Bilateral relations",tr:"İkili ilişkiler",cat:"Diplomasi",difficulty:"basic",tags:["bilateral","relations"],example:"**Bilateral relations** improved after the trade facilitation deal.",example_tr:"Ticaret kolaylaştırma anlaşmasından sonra **ikili ilişkiler** iyileşti."},
+  {en:"Multilateral diplomacy",tr:"Çok taraflı diplomasi",cat:"Diplomasi",difficulty:"basic",tags:["multilateral","un","diplomacy"],example:"**Multilateral diplomacy** is essential for managing global public goods.",example_tr:"Küresel ortak malları yönetmek için **çok taraflı diplomasi** esastır."},
+  {en:"Coalition-building",tr:"Koalisyon oluşturma",cat:"Diplomasi",difficulty:"intermediate",tags:["coalition","multilateral"],example:"Successful sanctions required **coalition-building** across regions.",example_tr:"Başarılı yaptırımlar bölgeler arası **koalisyon oluşturmayı** gerektirdi."},
+  {en:"Agenda-setting",tr:"Gündem belirleme",cat:"Diplomasi",difficulty:"intermediate",tags:["agenda","framing"],example:"Small states can exercise influence through **agenda-setting**.",example_tr:"Küçük devletler **gündem belirleme** yoluyla etki gösterebilir."},
+  {en:"Framing",tr:"Çerçeveleme",cat:"Diplomasi",difficulty:"intermediate",tags:["framing","narrative"],example:"Strategic **framing** shaped international perceptions of the crisis.",example_tr:"Stratejik **çerçeveleme** krize dair uluslararası algıları şekillendirdi."},
+  {en:"Signaling",tr:"Sinyal verme",cat:"Diplomasi",difficulty:"intermediate",tags:["signaling","deterrence","communication"],example:"Public statements served as **signaling** to both allies and adversaries.",example_tr:"Kamu açıklamaları müttefiklere ve rakiplere **sinyal verme** işlevi gördü."},
+  {en:"Strategic ambiguity",tr:"Stratejik muğlaklık",cat:"Diplomasi",difficulty:"intermediate",tags:["strategic ambiguity","signal"],example:"**Strategic ambiguity** can deter without provoking escalation.",example_tr:"**Stratejik muğlaklık** tırmandırmadan caydırabilir."},
+  {en:"Red line",tr:"Kırmızı çizgi",cat:"Diplomasi",difficulty:"basic",tags:["red line","deterrence"],example:"Crossing the **red line** would trigger a diplomatic response.",example_tr:"**Kırmızı çizginin** aşılması diplomatik tepkiyi tetikler."},
+  {en:"Ultimatum",tr:"Ültimatom",cat:"Diplomasi",difficulty:"basic",tags:["ultimatum","coercive diplomacy"],example:"The leader issued an **ultimatum** with a strict deadline.",example_tr:"Lider kesin bir süreyle **ültimatom** verdi."},
+  {en:"Coercive diplomacy",tr:"Zorlayıcı diplomasi",cat:"Diplomasi",difficulty:"advanced",tags:["coercive diplomacy","threats","compellence"],example:"**Coercive diplomacy** mixes threats with credible off-ramps.",example_tr:"**Zorlayıcı diplomasi** tehditleri inandırıcı çıkış yollarıyla birleştirir."},
+  {en:"Compellence",tr:"Zorlama (compellence)",cat:"Diplomasi",difficulty:"advanced",tags:["compellence","coercion"],example:"**Compellence** aims to change behavior rather than prevent it.",example_tr:"**Compellence** davranışı engellemekten ziyade değiştirmeyi hedefler."},
+  {en:"Carrots and sticks",tr:"Havuç-sopa yaklaşımı",cat:"Diplomasi",difficulty:"basic",tags:["incentives","sanctions"],example:"They used **carrots and sticks** to secure compliance.",example_tr:"Uyumu sağlamak için **havuç-sopa** kullandılar."},
+  {en:"Incentives",tr:"Teşvikler",cat:"Diplomasi",difficulty:"basic",tags:["incentives","bargaining"],example:"Economic **incentives** were offered to support implementation.",example_tr:"Uygulamayı desteklemek için ekonomik **teşvikler** sunuldu."},
+  {en:"Conditionality",tr:"Koşulluluk",cat:"Diplomasi",difficulty:"intermediate",tags:["conditionality","aid"],example:"Aid was tied to governance reforms through strict **conditionality**.",example_tr:"Yardım, sıkı **koşulluluk** yoluyla yönetişim reformlarına bağlandı."},
+  {en:"Off-ramp",tr:"Çıkış yolu (krizden)",cat:"Diplomasi",difficulty:"intermediate",tags:["off-ramp","de-escalation"],example:"Diplomats designed an **off-ramp** to avoid public humiliation.",example_tr:"Diplomatlar kamuya açık küçük düşürmeyi önlemek için bir **çıkış yolu** tasarladı."},
+  {en:"Face-saving",tr:"Yüz kurtarma",cat:"Diplomasi",difficulty:"intermediate",tags:["face-saving","compromise"],example:"A **face-saving** formula enabled both sides to claim success.",example_tr:"Bir **yüz kurtarma** formülü iki tarafın da başarı iddia etmesini sağladı."},
+  {en:"Concession",tr:"Taviz",cat:"Diplomasi",difficulty:"basic",tags:["concession","negotiation"],example:"Each side offered a limited **concession** to break the deadlock.",example_tr:"Tıkanmayı aşmak için her taraf sınırlı bir **taviz** verdi."},
+  {en:"Trade-off",tr:"Ödünleşim (trade-off)",cat:"Diplomasi",difficulty:"intermediate",tags:["trade-off","bargaining"],example:"Negotiators explored a security–economy **trade-off**.",example_tr:"Müzakereciler güvenlik–ekonomi **ödünleşimini** tartıştı."},
+  {en:"Package deal",tr:"Paket anlaşma",cat:"Diplomasi",difficulty:"intermediate",tags:["package deal","negotiation"],example:"A comprehensive **package deal** linked multiple contentious issues.",example_tr:"Kapsamlı bir **paket anlaşma** tartışmalı birçok konuyu birbirine bağladı."},
+  {en:"Sequencing",tr:"Sıralama (adımları)",cat:"Diplomasi",difficulty:"advanced",tags:["sequencing","implementation"],example:"Careful **sequencing** reduced spoilers’ ability to derail the process.",example_tr:"Dikkatli **sıralama** süreci sabote edenlerin etkisini azalttı."},
+  {en:"Verification",tr:"Doğrulama",cat:"Diplomasi",difficulty:"intermediate",tags:["verification","compliance"],example:"Robust **verification** mechanisms increased trust in the agreement.",example_tr:"Güçlü **doğrulama** mekanizmaları anlaşmaya güveni artırdı."},
+  {en:"Compliance",tr:"Uyum",cat:"Diplomasi",difficulty:"intermediate",tags:["compliance","implementation"],example:"Monitoring improved **compliance** with the ceasefire.",example_tr:"İzleme, ateşkese **uyumu** artırdı."},
+  {en:"Implementation",tr:"Uygulama",cat:"Diplomasi",difficulty:"basic",tags:["implementation","agreement"],example:"Delayed **implementation** undermined credibility.",example_tr:"Geciken **uygulama** inandırıcılığı zedeledi."},
+  {en:"Monitoring mission",tr:"Gözlem misyonu",cat:"Diplomasi",difficulty:"intermediate",tags:["monitoring","mission","ceasefire"],example:"A **monitoring mission** reported violations objectively.",example_tr:"Bir **gözlem misyonu** ihlalleri nesnel biçimde raporladı."},
+  {en:"Observer mission",tr:"Gözlemci misyonu",cat:"Diplomasi",difficulty:"intermediate",tags:["observer","mission"],example:"An **observer mission** was deployed to stabilize the line of contact.",example_tr:"Temas hattını istikrara kavuşturmak için bir **gözlemci misyonu** konuşlandırıldı."},
+  {en:"Ceasefire",tr:"Ateşkes",cat:"Diplomasi",difficulty:"basic",tags:["ceasefire","truce"],example:"A temporary **ceasefire** created space for negotiations.",example_tr:"Geçici bir **ateşkes** müzakere için alan açtı."},
+  {en:"Truce",tr:"Mütareke (geçici ateşkes)",cat:"Diplomasi",difficulty:"intermediate",tags:["truce","ceasefire"],example:"The **truce** held for two weeks before breaking down.",example_tr:"**Mütareke** bozulmadan önce iki hafta sürdü."},
+  {en:"Armistice",tr:"Ateşkes anlaşması (armistice)",cat:"Diplomasi",difficulty:"advanced",tags:["armistice","agreement"],example:"An **armistice** froze the conflict without resolving core disputes.",example_tr:"Bir **armistice** temel anlaşmazlıkları çözmeden çatışmayı dondurdu."},
+  {en:"Peace talks",tr:"Barış görüşmeleri",cat:"Diplomasi",difficulty:"basic",tags:["peace talks","negotiation"],example:"**Peace talks** resumed under international facilitation.",example_tr:"**Barış görüşmeleri** uluslararası kolaylaştırıcılıkla yeniden başladı."},
+  {en:"Peace process",tr:"Barış süreci",cat:"Diplomasi",difficulty:"basic",tags:["peace process","negotiation"],example:"The **peace process** required buy-in from key domestic stakeholders.",example_tr:"**Barış süreci** kilit iç paydaşların desteğini gerektirdi."},
+  {en:"Spoiler",tr:"Sabotajcı aktör (spoiler)",cat:"Diplomasi",difficulty:"advanced",tags:["spoiler","peace process"],example:"A **spoiler** used violence to derail the negotiations.",example_tr:"Bir **spoiler** müzakereleri sabote etmek için şiddet kullandı."},
+  {en:"Ripeness",tr:"Olgunluk (müzakereye elverişlilik)",cat:"Diplomasi",difficulty:"advanced",tags:["ripeness","negotiation theory"],example:"Mediation worked once the conflict reached **ripeness**.",example_tr:"Çatışma **olgunluğa** ulaştığında arabuluculuk işe yaradı."},
+  {en:"Hurting stalemate",tr:"Zarar verici çıkmaz",cat:"Diplomasi",difficulty:"advanced",tags:["hurting stalemate","ripeness"],example:"A **hurting stalemate** pushed both sides toward compromise.",example_tr:"Bir **zarar verici çıkmaz** iki tarafı uzlaşmaya itti."},
+  {en:"Bargaining zone",tr:"Pazarlık alanı",cat:"Diplomasi",difficulty:"advanced",tags:["bargaining zone","negotiation"],example:"They searched for a **bargaining zone** acceptable to both constituencies.",example_tr:"Her iki tabanın da kabul edeceği bir **pazarlık alanı** aradılar."},
+  {en:"BATNA",tr:"En iyi alternatif (BATNA)",cat:"Diplomasi",difficulty:"advanced",tags:["batna","negotiation"],example:"A strong **BATNA** improved the negotiator’s leverage.",example_tr:"Güçlü bir **BATNA** müzakerecinin pazarlık gücünü artırdı."},
+  {en:"Leverage",tr:"Pazarlık gücü",cat:"Diplomasi",difficulty:"intermediate",tags:["leverage","bargaining"],example:"Control over transit routes provided **leverage**.",example_tr:"Transit güzergâhları üzerindeki kontrol **pazarlık gücü** sağladı."},
+  {en:"Diplomatic leverage",tr:"Diplomatik baskı/etki gücü",cat:"Diplomasi",difficulty:"intermediate",tags:["leverage","diplomacy"],example:"Public support increased the government’s **diplomatic leverage**.",example_tr:"Kamu desteği hükümetin **diplomatik etki gücünü** artırdı."},
+  {en:"Bargaining chip",tr:"Pazarlık kozu",cat:"Diplomasi",difficulty:"basic",tags:["bargaining chip","leverage"],example:"Prisoner releases became a key **bargaining chip**.",example_tr:"Tutuklu salımları önemli bir **pazarlık kozu** oldu."},
+  {en:"Confidence",tr:"Güven",cat:"Diplomasi",difficulty:"basic",tags:["trust","confidence"],example:"Repeated meetings built **confidence** between delegations.",example_tr:"Tekrarlanan görüşmeler heyetler arasında **güven** oluşturdu."},
+  {en:"Trust deficit",tr:"Güven açığı",cat:"Diplomasi",difficulty:"intermediate",tags:["trust deficit","confidence"],example:"A deep **trust deficit** complicated verification talks.",example_tr:"Derin bir **güven açığı** doğrulama görüşmelerini zorlaştırdı."},
+  {en:"Diplomatic initiative",tr:"Diplomatik girişim",cat:"Diplomasi",difficulty:"basic",tags:["initiative","proposal"],example:"A new **diplomatic initiative** aimed to restart the process.",example_tr:"Yeni bir **diplomatik girişim** süreci yeniden başlatmayı hedefledi."},
+  {en:"Roadmap",tr:"Yol haritası",cat:"Diplomasi",difficulty:"basic",tags:["roadmap","plan"],example:"The parties endorsed a **roadmap** with phased commitments.",example_tr:"Taraflar aşamalı taahhütler içeren bir **yol haritasını** benimsedi."},
+  {en:"Framework agreement",tr:"Çerçeve anlaşma",cat:"Diplomasi",difficulty:"intermediate",tags:["framework","agreement"],example:"A **framework agreement** clarified principles before detailed talks.",example_tr:"Bir **çerçeve anlaşma** ayrıntılı görüşmelerden önce ilkeleri netleştirdi."},
+  {en:"Memorandum of understanding (MoU)",tr:"Mutabakat zaptı (MoU)",cat:"Diplomasi",difficulty:"intermediate",tags:["mou","memorandum"],example:"They signed an **MoU** on humanitarian coordination.",example_tr:"İnsani koordinasyon üzerine bir **MoU** imzaladılar."},
+  {en:"Letter of intent",tr:"Niyet mektubu",cat:"Diplomasi",difficulty:"intermediate",tags:["letter of intent","commitment"],example:"A **letter of intent** signaled readiness to negotiate tariff cuts.",example_tr:"Bir **niyet mektubu** gümrük indirimlerini müzakere etmeye hazır olunduğunu gösterdi."},
+  {en:"Treaty negotiation",tr:"Antlaşma müzakeresi",cat:"Diplomasi",difficulty:"intermediate",tags:["treaty","negotiation"],example:"**Treaty negotiation** required harmonizing legal language across systems.",example_tr:"**Antlaşma müzakeresi** farklı sistemlerde hukuki dili uyumlaştırmayı gerektirdi."},
+  {en:"Ratification",tr:"Onay (ratifikasyon)",cat:"Diplomasi",difficulty:"intermediate",tags:["ratification","treaty"],example:"Domestic politics delayed **ratification** of the treaty.",example_tr:"İç siyaset antlaşmanın **onayını** geciktirdi."},
+  {en:"Entry into force",tr:"Yürürlüğe girme",cat:"Diplomasi",difficulty:"intermediate",tags:["entry into force","treaty"],example:"The convention entered **into force** after the required ratifications.",example_tr:"Sözleşme gerekli onaylardan sonra **yürürlüğe girdi**."},
+  {en:"Reservation (treaty)",tr:"Çekince (antlaşma)",cat:"Diplomasi",difficulty:"advanced",tags:["reservation","treaty law"],example:"The state entered a **reservation** limiting the treaty’s domestic effect.",example_tr:"Devlet antlaşmanın iç etkisini sınırlayan bir **çekince** koydu."},
+  {en:"Interpretative declaration",tr:"Yorum beyanı",cat:"Diplomasi",difficulty:"advanced",tags:["interpretative declaration","treaty"],example:"An **interpretative declaration** clarified how the article would be applied.",example_tr:"Bir **yorum beyanı** maddenin nasıl uygulanacağını açıkladı."},
+  {en:"Diplomatic recognition",tr:"Diplomatik tanıma",cat:"Diplomasi",difficulty:"intermediate",tags:["recognition","statehood"],example:"**Diplomatic recognition** reshaped regional alignments.",example_tr:"**Diplomatik tanıma** bölgesel hizalanmaları yeniden şekillendirdi."},
+  {en:"Recognition policy",tr:"Tanıma politikası",cat:"Diplomasi",difficulty:"advanced",tags:["recognition","policy"],example:"A revised **recognition policy** balanced norms and strategic interests.",example_tr:"Güncellenen **tanıma politikası** normlar ile stratejik çıkarları dengeledi."},
+  {en:"Non-recognition",tr:"Tanımama",cat:"Diplomasi",difficulty:"intermediate",tags:["non-recognition","policy"],example:"**Non-recognition** was used to contest the legality of annexation.",example_tr:"İlhakın meşruiyetini tartışmak için **tanımama** uygulandı."},
+  {en:"Diplomatic boycott",tr:"Diplomatik boykot",cat:"Diplomasi",difficulty:"intermediate",tags:["boycott","protest"],example:"A **diplomatic boycott** signaled disapproval without cutting ties.",example_tr:"Bir **diplomatik boykot** bağları koparmadan hoşnutsuzluğu gösterdi."},
+  {en:"Sanctions diplomacy",tr:"Yaptırım diplomasisi",cat:"Diplomasi",difficulty:"advanced",tags:["sanctions","coercive diplomacy"],example:"**Sanctions diplomacy** sought to change behavior while keeping dialogue open.",example_tr:"**Yaptırım diplomasisi** diyaloğu açık tutarken davranışı değiştirmeyi hedefledi."},
+  {en:"Summitry",tr:"Zirvecilik (summitry)",cat:"Diplomasi",difficulty:"advanced",tags:["summitry","leaders"],example:"Excessive **summitry** can create expectations that are hard to meet.",example_tr:"Aşırı **summitry** karşılanması zor beklentiler yaratabilir."},
+  {en:"Public diplomacy",tr:"Kamu diplomasisi",cat:"Diplomasi",difficulty:"intermediate",tags:["public diplomacy","soft power"],example:"**Public diplomacy** targeted foreign audiences through cultural programs.",example_tr:"**Kamu diplomasisi** kültürel programlarla yabancı kitleleri hedefledi."},
+  {en:"Cultural diplomacy",tr:"Kültürel diplomasi",cat:"Diplomasi",difficulty:"intermediate",tags:["cultural diplomacy","public diplomacy"],example:"**Cultural diplomacy** strengthened ties through academic exchanges.",example_tr:"**Kültürel diplomasi** akademik değişimlerle bağları güçlendirdi."},
+  {en:"Digital diplomacy",tr:"Dijital diplomasi",cat:"Diplomasi",difficulty:"intermediate",tags:["digital diplomacy","social media"],example:"**Digital diplomacy** amplified messages but increased misinterpretation risks.",example_tr:"**Dijital diplomasi** mesajları büyüttü ama yanlış yorum riskini artırdı."},
+  {en:"Strategic communication",tr:"Stratejik iletişim",cat:"Diplomasi",difficulty:"intermediate",tags:["strategic communication","narrative"],example:"**Strategic communication** coordinated messaging across agencies.",example_tr:"**Stratejik iletişim** kurumlar arası mesajlaşmayı koordine etti."},
+  {en:"Propaganda",tr:"Propaganda",cat:"Diplomasi",difficulty:"basic",tags:["propaganda","information"],example:"State media used **propaganda** to justify the policy shift.",example_tr:"Devlet medyası politika değişimini meşrulaştırmak için **propaganda** kullandı."},
+  {en:"Narrative",tr:"Anlatı (narrative)",cat:"Diplomasi",difficulty:"intermediate",tags:["narrative","framing"],example:"Competing **narratives** shaped international reactions.",example_tr:"Rekabet eden **anlatılar** uluslararası tepkileri şekillendirdi."},
+  {en:"Diplomatic signaling",tr:"Diplomatik sinyal verme",cat:"Diplomasi",difficulty:"advanced",tags:["signaling","diplomacy"],example:"Quiet **diplomatic signaling** clarified intentions without provoking backlash.",example_tr:"Sessiz **diplomatik sinyal verme** tepki çekmeden niyetleri netleştirdi."},
+  {en:"Hotline",tr:"Acil hat (hotline)",cat:"Diplomasi",difficulty:"basic",tags:["hotline","crisis management"],example:"A military **hotline** reduced the risk of miscalculation.",example_tr:"Askerî bir **hotline** yanlış hesap riskini azalttı."},
+  {en:"Consultations",tr:"İstişareler",cat:"Diplomasi",difficulty:"basic",tags:["consultations","diplomacy"],example:"The allies held emergency **consultations** after the attack.",example_tr:"Saldırı sonrası müttefikler acil **istişareler** yaptı."},
+  {en:"Diplomatic consultation mechanism",tr:"Diplomatik istişare mekanizması",cat:"Diplomasi",difficulty:"advanced",tags:["consultations","mechanism"],example:"A **consultation mechanism** standardized crisis communication.",example_tr:"Bir **istişare mekanizması** kriz iletişimini standartlaştırdı."},
+  {en:"Bilateral working group",tr:"İkili çalışma grubu",cat:"Diplomasi",difficulty:"basic",tags:["working group","bilateral"],example:"A **bilateral working group** drafted technical annexes.",example_tr:"Bir **ikili çalışma grubu** teknik ekleri hazırladı."},
+  {en:"Technical talks",tr:"Teknik görüşmeler",cat:"Diplomasi",difficulty:"basic",tags:["technical talks","negotiation"],example:"**Technical talks** clarified timelines and verification details.",example_tr:"**Teknik görüşmeler** takvimleri ve doğrulama ayrıntılarını netleştirdi."},
+  {en:"Ministerial meeting",tr:"Bakanlar toplantısı",cat:"Diplomasi",difficulty:"basic",tags:["ministerial","meeting"],example:"A **ministerial meeting** prepared the ground for a summit.",example_tr:"Bir **bakanlar toplantısı** zirve için zemini hazırladı."},
+  {en:"Working dinner",tr:"Çalışma yemeği",cat:"Diplomasi",difficulty:"basic",tags:["working dinner","protocol"],example:"A **working dinner** enabled candid exchanges away from cameras.",example_tr:"Bir **çalışma yemeği** kameralar olmadan açık konuşmayı sağladı."},
+  {en:"Side meeting",tr:"İkili görüşme (yan görüşme)",cat:"Diplomasi",difficulty:"basic",tags:["side meeting","summit"],example:"They held a **side meeting** on the margins of the forum.",example_tr:"Forum kenarında bir **yan görüşme** yaptılar."},
+  {en:"Bilateral meeting",tr:"İkili görüşme",cat:"Diplomasi",difficulty:"basic",tags:["bilateral meeting","diplomacy"],example:"The foreign ministers held a **bilateral meeting** to resolve disputes.",example_tr:"Dışişleri bakanları sorunları çözmek için **ikili görüşme** yaptı."},
+  {en:"Multilateral forum",tr:"Çok taraflı forum",cat:"Diplomasi",difficulty:"basic",tags:["multilateral","forum"],example:"A **multilateral forum** offered a platform for coalition-building.",example_tr:"Bir **çok taraflı forum** koalisyon kurma için platform sundu."},
+  {en:"Plenary",tr:"Genel oturum",cat:"Diplomasi",difficulty:"basic",tags:["plenary","conference"],example:"The delegation raised the issue in the **plenary**.",example_tr:"Heyet konuyu **genel oturumda** gündeme getirdi."},
+  {en:"Working-level",tr:"Çalışma düzeyi",cat:"Diplomasi",difficulty:"basic",tags:["working-level","talks"],example:"**Working-level** talks produced the first draft of the text.",example_tr:"**Çalışma düzeyi** görüşmeler metnin ilk taslağını üretti."},
+  {en:"Draft text",tr:"Taslak metin",cat:"Diplomasi",difficulty:"basic",tags:["draft","text"],example:"Negotiators circulated a **draft text** for comment.",example_tr:"Müzakereciler yorum için bir **taslak metin** dolaşıma soktu."},
+  {en:"Drafting",tr:"Metin yazımı (drafting)",cat:"Diplomasi",difficulty:"intermediate",tags:["drafting","negotiation"],example:"Careful **drafting** reduced ambiguity in the agreement.",example_tr:"Dikkatli **drafting** anlaşmadaki muğlaklığı azalttı."},
+  {en:"Legal scrubbing",tr:"Hukuki gözden geçirme",cat:"Diplomasi",difficulty:"advanced",tags:["legal scrubbing","treaty"],example:"**Legal scrubbing** aligned terminology across language versions.",example_tr:"**Hukuki gözden geçirme** dil sürümleri arasında terminolojiyi uyumlaştırdı."},
+  {en:"Ambiguity",tr:"Muğlaklık",cat:"Diplomasi",difficulty:"basic",tags:["ambiguity","drafting"],example:"Excessive **ambiguity** later produced implementation disputes.",example_tr:"Aşırı **muğlaklık** daha sonra uygulama anlaşmazlıkları doğurdu."},
+  {en:"Constructive ambiguity",tr:"Yapıcı muğlaklık",cat:"Diplomasi",difficulty:"advanced",tags:["constructive ambiguity","negotiation"],example:"**Constructive ambiguity** helped parties agree while deferring contentious details.",example_tr:"**Yapıcı muğlaklık** tartışmalı ayrıntıları erteleyerek anlaşmayı kolaylaştırdı."},
+  {en:"Consensus",tr:"Oydaşma",cat:"Diplomasi",difficulty:"basic",tags:["consensus","multilateral"],example:"The resolution was adopted by **consensus**.",example_tr:"Karar **oydaşma** ile kabul edildi."},
+  {en:"Unanimity",tr:"Oybirliği",cat:"Diplomasi",difficulty:"basic",tags:["unanimity","voting"],example:"**Unanimity** was required for the amendment to pass.",example_tr:"Değişikliğin geçmesi için **oybirliği** gerekiyordu."},
+  {en:"Veto",tr:"Veto",cat:"Diplomasi",difficulty:"basic",tags:["veto","security council"],example:"A single **veto** blocked the draft resolution.",example_tr:"Tek bir **veto** taslak kararı engelledi."},
+  {en:"Diplomatic compromise",tr:"Diplomatik uzlaşma",cat:"Diplomasi",difficulty:"basic",tags:["compromise","negotiation"],example:"A **diplomatic compromise** balanced principles with pragmatism.",example_tr:"Bir **diplomatik uzlaşma** ilkelerle pragmatizmi dengeledi."},
+  {en:"Reconciliation",tr:"Uzlaşma/Barışma",cat:"Diplomasi",difficulty:"intermediate",tags:["reconciliation","post-conflict"],example:"Truth commissions supported **reconciliation** after the conflict.",example_tr:"Hakikat komisyonları çatışma sonrası **uzlaşmayı** destekledi."},
+  {en:"Reintegration",tr:"Yeniden entegrasyon",cat:"Diplomasi",difficulty:"advanced",tags:["reintegration","post-conflict"],example:"Programs aimed at **reintegration** of former combatants.",example_tr:"Programlar eski savaşçıların **yeniden entegrasyonunu** hedefledi."},
+  {en:"Normalization",tr:"Normalleşme",cat:"Diplomasi",difficulty:"basic",tags:["normalization","relations"],example:"Trade corridors accelerated **normalization**.",example_tr:"Ticaret koridorları **normalleşmeyi** hızlandırdı."},
+  {en:"Strategic partnership",tr:"Stratejik ortaklık",cat:"Diplomasi",difficulty:"intermediate",tags:["strategic partnership","bilateral"],example:"A **strategic partnership** broadened cooperation beyond security.",example_tr:"Bir **stratejik ortaklık** iş birliğini güvenliğin ötesine taşıdı."},
+  {en:"Memorandum",tr:"Muhtıra / memorandum",cat:"Diplomasi",difficulty:"basic",tags:["memorandum","mou"],example:"The parties signed a **memorandum** on border coordination.",example_tr:"Taraflar sınır koordinasyonu üzerine bir **memorandum** imzaladı."},
+  {en:"Diplomatic incident",tr:"Diplomatik hadise",cat:"Diplomasi",difficulty:"intermediate",tags:["incident","crisis"],example:"A minor **diplomatic incident** spiraled due to media coverage.",example_tr:"Küçük bir **diplomatik hadise** medya nedeniyle büyüdü."},
+  {en:"Consular crisis",tr:"Konsolosluk krizi",cat:"Diplomasi",difficulty:"intermediate",tags:["consular","crisis"],example:"Detentions triggered a **consular crisis** between the states.",example_tr:"Gözaltılar devletler arasında **konsolosluk krizini** tetikledi."},
+  {en:"Hostage diplomacy",tr:"Rehine diplomasisi",cat:"Diplomasi",difficulty:"advanced",tags:["hostage diplomacy","detention"],example:"**Hostage diplomacy** undermines trust and complicates negotiations.",example_tr:"**Rehine diplomasisi** güveni zedeler ve müzakereleri zorlaştırır."},
+  {en:"Consular access",tr:"Konsolosluk erişimi",cat:"Diplomasi",difficulty:"intermediate",tags:["consular access","detention"],example:"The treaty guarantees **consular access** to detained nationals.",example_tr:"Antlaşma gözaltındaki vatandaşlara **konsolosluk erişimini** garanti eder."},
+  {en:"Diplomatic assurance",tr:"Diplomatik güvence",cat:"Diplomasi",difficulty:"intermediate",tags:["assurance","guarantee"],example:"They sought **diplomatic assurances** before extradition.",example_tr:"İade öncesi **diplomatik güvenceler** istediler."},
+  {en:"Assurances",tr:"Güvenceler",cat:"Diplomasi",difficulty:"basic",tags:["assurances","confidence"],example:"Written **assurances** reduced uncertainty.",example_tr:"Yazılı **güvenceler** belirsizliği azalttı."},
+  {en:"Guarantee",tr:"Garanti",cat:"Diplomasi",difficulty:"basic",tags:["guarantee","agreement"],example:"Security **guarantees** were central to the settlement.",example_tr:"Güvenlik **garantileri** uzlaşmanın merkezindeydi."},
+  {en:"Security guarantees",tr:"Güvenlik garantileri",cat:"Diplomasi",difficulty:"intermediate",tags:["security guarantees","settlement"],example:"**Security guarantees** helped reassure vulnerable parties.",example_tr:"**Güvenlik garantileri** kırılgan tarafları rahatlatmaya yardımcı oldu."},
+  {en:"Non-aggression pact",tr:"Saldırmazlık paktı",cat:"Diplomasi",difficulty:"intermediate",tags:["non-aggression","pact"],example:"A **non-aggression pact** reduced immediate fears of attack.",example_tr:"Bir **saldırmazlık paktı** kısa vadeli saldırı korkusunu azalttı."},
+  {en:"Diplomatic settlement",tr:"Diplomatik çözüm",cat:"Diplomasi",difficulty:"basic",tags:["settlement","resolution"],example:"They prioritized a **diplomatic settlement** over military options.",example_tr:"Askerî seçenekler yerine **diplomatik çözümü** önceliklendirdiler."},
+  {en:"Settlement terms",tr:"Uzlaşma şartları",cat:"Diplomasi",difficulty:"intermediate",tags:["settlement","terms"],example:"Disputes remained over the **settlement terms**.",example_tr:"**Uzlaşma şartları** üzerinde anlaşmazlıklar sürdü."},
+  {en:"Peace formula",tr:"Barış formülü",cat:"Diplomasi",difficulty:"intermediate",tags:["peace","formula"],example:"A **peace formula** linked withdrawals to verified steps.",example_tr:"Bir **barış formülü** çekilmeleri doğrulanmış adımlara bağladı."},
+  {en:"Contact group",tr:"Temas grubu",cat:"Diplomasi",difficulty:"intermediate",tags:["contact group","mediation"],example:"A **contact group** coordinated positions among external stakeholders.",example_tr:"Bir **temas grubu** dış paydaşlar arasında pozisyonları koordine etti."},
+  {en:"Troika",tr:"Üçlü mekanizma (troika)",cat:"Diplomasi",difficulty:"advanced",tags:["troika","format"],example:"The **troika** format balanced influence among guarantor states.",example_tr:"**Troika** formatı garantörler arasında etkiyi dengeledi."},
+  {en:"Quartet",tr:"Dörtlü (quartet)",cat:"Diplomasi",difficulty:"advanced",tags:["quartet","mediation"],example:"A **quartet** provided a unified mediation platform.",example_tr:"Bir **quartet** birleşik bir arabuluculuk platformu sağladı."},
+  {en:"Peace conference",tr:"Barış konferansı",cat:"Diplomasi",difficulty:"basic",tags:["peace conference","conference"],example:"A **peace conference** convened to negotiate post-war arrangements.",example_tr:"Savaş sonrası düzenlemeleri müzakere etmek için bir **barış konferansı** toplandı."},
+  {en:"Conference diplomacy",tr:"Konferans diplomasisi",cat:"Diplomasi",difficulty:"advanced",tags:["conference diplomacy","multilateral"],example:"**Conference diplomacy** can produce broad legitimacy but slow outcomes.",example_tr:"**Konferans diplomasisi** geniş meşruiyet sağlar ama sonuçları yavaşlatabilir."},
+  {en:"Summit agenda",tr:"Zirve gündemi",cat:"Diplomasi",difficulty:"basic",tags:["summit","agenda"],example:"The **summit agenda** prioritized maritime security and trade.",example_tr:"**Zirve gündemi** deniz güvenliği ve ticareti önceliklendirdi."},
+  {en:"Bilateral agenda",tr:"İkili gündem",cat:"Diplomasi",difficulty:"basic",tags:["bilateral","agenda"],example:"Energy cooperation dominated the **bilateral agenda**.",example_tr:"Enerji iş birliği **ikili gündeme** hâkim oldu."},
+  {en:"Talking points",tr:"Konuşma notları",cat:"Diplomasi",difficulty:"basic",tags:["talking points","briefing"],example:"The minister reviewed **talking points** before the press conference.",example_tr:"Bakan basın toplantısı öncesi **konuşma notlarını** gözden geçirdi."},
+  {en:"Briefing",tr:"Brifing",cat:"Diplomasi",difficulty:"basic",tags:["briefing","talking points"],example:"Officials delivered a **briefing** on the negotiation status.",example_tr:"Yetkililer müzakerelerin durumu hakkında **brifing** verdi."},
+  {en:"Press conference",tr:"Basın toplantısı",cat:"Diplomasi",difficulty:"basic",tags:["press conference","media"],example:"At the **press conference**, both sides emphasized constructive tone.",example_tr:"**Basın toplantısında** iki taraf da yapıcı tonu vurguladı."},
+  {en:"Diplomatic language",tr:"Diplomatik dil",cat:"Diplomasi",difficulty:"basic",tags:["diplomatic language","wording"],example:"Careful **diplomatic language** avoided assigning blame.",example_tr:"Özenli **diplomatik dil** suçlamadan kaçındı."},
+  {en:"Wording",tr:"İfade biçimi",cat:"Diplomasi",difficulty:"basic",tags:["wording","drafting"],example:"Disagreement persisted over the **wording** of the final paragraph.",example_tr:"Son paragrafın **ifade biçimi** üzerinde anlaşmazlık sürdü."},
+  {en:"Clause",tr:"Madde / hüküm",cat:"Diplomasi",difficulty:"basic",tags:["clause","treaty"],example:"A verification **clause** was added to the agreement.",example_tr:"Anlaşmaya bir doğrulama **hükmü** eklendi."},
+  {en:"Annex",tr:"Ek (annex)",cat:"Diplomasi",difficulty:"intermediate",tags:["annex","technical"],example:"The **annex** detailed timelines and reporting duties.",example_tr:"**Ek (annex)** takvimleri ve raporlama yükümlülüklerini ayrıntılandırdı."},
+  {en:"Annexation (diplomatic dispute)",tr:"İlhak (diplomatik ihtilaf)",cat:"Diplomasi",difficulty:"intermediate",tags:["annexation","recognition","non-recognition"],example:"The **annexation** triggered widespread diplomatic condemnation.",example_tr:"**İlhak** yaygın diplomatik kınamayı tetikledi."},
+  {en:"Condemnation",tr:"Kınama",cat:"Diplomasi",difficulty:"basic",tags:["condemnation","statement"],example:"The ministry issued a strong **condemnation** of the attack.",example_tr:"Bakanlık saldırıyı güçlü biçimde **kınadı**."},
+  {en:"Call for restraint",tr:"İtidal çağrısı",cat:"Diplomasi",difficulty:"basic",tags:["restraint","de-escalation"],example:"Leaders issued a **call for restraint** to prevent escalation.",example_tr:"Liderler tırmanmayı önlemek için **itidal çağrısı** yaptı."},
+  {en:"Diplomatic outreach",tr:"Diplomatik temas/erişim",cat:"Diplomasi",difficulty:"intermediate",tags:["outreach","engagement"],example:"**Diplomatic outreach** targeted undecided states before the vote.",example_tr:"**Diplomatik temas** oylama öncesi kararsız devletleri hedefledi."},
+  {en:"Lobbying",tr:"Lobi faaliyeti",cat:"Diplomasi",difficulty:"intermediate",tags:["lobbying","vote"],example:"Intensive **lobbying** shaped the outcome at the assembly.",example_tr:"Yoğun **lobi faaliyeti** meclisteki sonucu etkiledi."},
+  {en:"Coalition",tr:"Koalisyon",cat:"Diplomasi",difficulty:"basic",tags:["coalition","multilateral"],example:"A broad **coalition** supported the draft resolution.",example_tr:"Geniş bir **koalisyon** taslak kararı destekledi."},
+  {en:"Alliance management",tr:"İttifak yönetimi",cat:"Diplomasi",difficulty:"advanced",tags:["alliance","management"],example:"**Alliance management** required balancing burden-sharing debates.",example_tr:"**İttifak yönetimi** yük paylaşımı tartışmalarını dengelemeyi gerektirdi."},
+  {en:"Burden-sharing",tr:"Yük paylaşımı",cat:"Diplomasi",difficulty:"intermediate",tags:["burden-sharing","alliance"],example:"Disputes over **burden-sharing** strained the partnership.",example_tr:"**Yük paylaşımı** anlaşmazlıkları ortaklığı gerdi."},
+  {en:"Diplomatic leverage through aid",tr:"Yardım üzerinden diplomatik etki",cat:"Diplomasi",difficulty:"advanced",tags:["aid","leverage","conditionality"],example:"Aid packages created **diplomatic leverage** but also dependency concerns.",example_tr:"Yardım paketleri **diplomatik etki** yarattı ancak bağımlılık kaygılarını artırdı."},
+  {en:"Quiet diplomacy",tr:"Sessiz diplomasi",cat:"Diplomasi",difficulty:"intermediate",tags:["quiet diplomacy","backchannel"],example:"**Quiet diplomacy** avoided public escalation during sensitive talks.",example_tr:"**Sessiz diplomasi** hassas görüşmelerde kamuya açık tırmanmayı önledi."},
+  {en:"Public confrontation",tr:"Kamuya açık restleşme",cat:"Diplomasi",difficulty:"intermediate",tags:["public","confrontation"],example:"**Public confrontation** reduced room for compromise.",example_tr:"**Kamuya açık restleşme** uzlaşma alanını daralttı."},
+  {en:"Diplomatic isolation",tr:"Diplomatik izolasyon",cat:"Diplomasi",difficulty:"intermediate",tags:["isolation","boycott"],example:"Sustained sanctions created **diplomatic isolation** for the regime.",example_tr:"Süregelen yaptırımlar rejim için **diplomatik izolasyon** yarattı."},
+  {en:"Re-engagement",tr:"Yeniden angajman",cat:"Diplomasi",difficulty:"advanced",tags:["re-engagement","normalization"],example:"**Re-engagement** began with technical talks on humanitarian access.",example_tr:"**Yeniden angajman** insani erişime dair teknik görüşmelerle başladı."},
+  {en:"Confidence-building dialogue",tr:"Güven artırıcı diyalog",cat:"Diplomasi",difficulty:"advanced",tags:["cbms","dialogue"],example:"A **confidence-building dialogue** preceded formal negotiations.",example_tr:"Resmî müzakerelerden önce **güven artırıcı diyalog** yürütüldü."},
+  {en:"Third-party guarantor",tr:"Üçüncü taraf garantör",cat:"Diplomasi",difficulty:"advanced",tags:["guarantor","third party"],example:"A **third-party guarantor** increased confidence in the settlement.",example_tr:"Bir **üçüncü taraf garantör** uzlaşmaya güveni artırdı."},
+  {en:"Guaranteeing power",tr:"Garantör güç",cat:"Diplomasi",difficulty:"advanced",tags:["guarantor","power"],example:"The **guaranteeing power** monitored compliance and provided assurances.",example_tr:"**Garantör güç** uyumu izledi ve güvenceler sağladı."},
+  {en:"Accreditation",tr:"Akreditasyon",cat:"Diplomasi",difficulty:"intermediate",tags:["accreditation","diplomat"],example:"**Accreditation** formalized the envoy’s status in the host state.",example_tr:"**Akreditasyon** elçinin ev sahibi devletteki statüsünü resmileştirdi."},
+  {en:"Agrément",tr:"Agrément (büyükelçi onayı)",cat:"Diplomasi",difficulty:"advanced",tags:["agrement","credentials","ambassador"],example:"The host state granted **agrément** for the new ambassador.",example_tr:"Ev sahibi devlet yeni büyükelçi için **agrément** verdi."},
+  {en:"Chargé d'affaires",tr:"Maslahatgüzar (chargé d'affaires)",cat:"Diplomasi",difficulty:"advanced",tags:["charge d'affaires","mission"],example:"A **chargé d'affaires** led the mission during the transition.",example_tr:"Geçiş sürecinde misyona bir **maslahatgüzar** başkanlık etti."},
+  {en:"Envoy",tr:"Elçi / temsilci",cat:"Diplomasi",difficulty:"basic",tags:["envoy","special envoy"],example:"A special **envoy** was appointed to manage the dialogue channel.",example_tr:"Diyalog kanalını yönetmek için özel bir **elçi** atandı."},
+  {en:"Special envoy",tr:"Özel temsilci",cat:"Diplomasi",difficulty:"basic",tags:["special envoy","mediation"],example:"The **special envoy** proposed a sequencing plan for withdrawals.",example_tr:"**Özel temsilci** çekilmeler için bir sıralama planı önerdi."},
+  {en:"Permanent mission",tr:"Daimi temsilcilik",cat:"Diplomasi",difficulty:"intermediate",tags:["permanent mission","un","multilateral"],example:"The **permanent mission** coordinated votes in the committee.",example_tr:"**Daimi temsilcilik** komitedeki oyları koordine etti."},
+  {en:"Diplomatic corps",tr:"Diplomatik kor",cat:"Diplomasi",difficulty:"intermediate",tags:["diplomatic corps","protocol"],example:"The host state briefed the **diplomatic corps** on the new policy.",example_tr:"Ev sahibi devlet yeni politika hakkında **diplomatik koru** bilgilendirdi."},
+  {en:"Dean of the diplomatic corps",tr:"Diplomatik kor duayeni",cat:"Diplomasi",difficulty:"advanced",tags:["dean","protocol"],example:"The **dean of the diplomatic corps** spoke at the ceremony.",example_tr:"Törende **diplomatik kor duayeni** konuştu."},
+  {en:"Diplomatic pouch",tr:"Diplomatik çanta",cat:"Diplomasi",difficulty:"intermediate",tags:["diplomatic pouch","immunity"],example:"Documents were sent through the **diplomatic pouch**.",example_tr:"Belgeler **diplomatik çanta** ile gönderildi."},
+  {en:"Consular notification",tr:"Konsolosluk bildirimi",cat:"Diplomasi",difficulty:"intermediate",tags:["consular","notification"],example:"The arrest triggered **consular notification** obligations.",example_tr:"Tutuklama **konsolosluk bildirimi** yükümlülüklerini doğurdu."},
+  {en:"Extradition request",tr:"İade talebi",cat:"Diplomasi",difficulty:"intermediate",tags:["extradition","legal cooperation"],example:"An **extradition request** was filed with supporting evidence.",example_tr:"Delillerle birlikte bir **iade talebi** sunuldu."},
+  {en:"Mutual legal assistance",tr:"Karşılıklı adli yardımlaşma",cat:"Diplomasi",difficulty:"advanced",tags:["mutual legal assistance","mlat"],example:"**Mutual legal assistance** enabled cross-border evidence sharing.",example_tr:"**Karşılıklı adli yardımlaşma** sınır ötesi delil paylaşımını sağladı."},
+  {en:"Provisional measures",tr:"Geçici tedbirler",cat:"Diplomasi",difficulty:"advanced",tags:["provisional measures","court"],example:"The court ordered **provisional measures** pending the final decision.",example_tr:"Mahkeme nihai karar beklenirken **geçici tedbirler** emretti."},
+  {en:"Demilitarized zone (DMZ)",tr:"Askerden arındırılmış bölge (DMZ)",cat:"Diplomasi",difficulty:"intermediate",tags:["dmz","ceasefire","buffer zone"],example:"A **demilitarized zone** served as a buffer between forces.",example_tr:"Bir **askerden arındırılmış bölge (DMZ)** güçler arasında tampon görevi gördü."},
+  {en:"Buffer zone",tr:"Tampon bölge",cat:"Diplomasi",difficulty:"intermediate",tags:["buffer zone","de-escalation"],example:"A monitored **buffer zone** reduced the frequency of incidents.",example_tr:"İzlenen bir **tampon bölge** olay sıklığını azalttı."},
+  {en:"Line of contact",tr:"Temas hattı",cat:"Diplomasi",difficulty:"intermediate",tags:["line of contact","ceasefire"],example:"Violations along the **line of contact** undermined the truce.",example_tr:"**Temas hattı** üzerindeki ihlaller mütarekeyi zayıflattı."},
+  {en:"Rules of engagement (ROE)",tr:"Angajman kuralları (ROE)",cat:"Diplomasi",difficulty:"advanced",tags:["roe","military","incident"],example:"Clear **rules of engagement** reduced misunderstandings at sea.",example_tr:"Net **angajman kuralları (ROE)** denizdeki yanlış anlamaları azalttı."},
+  {en:"Incident prevention mechanism",tr:"Olay önleme mekanizması",cat:"Diplomasi",difficulty:"advanced",tags:["incident prevention","mechanism","hotline"],example:"An **incident prevention mechanism** institutionalized rapid communication.",example_tr:"Bir **olay önleme mekanizması** hızlı iletişimi kurumsallaştırdı."},
+  {en:"Strategic dialogue",tr:"Stratejik diyalog",cat:"Diplomasi",difficulty:"intermediate",tags:["strategic dialogue","bilateral"],example:"A **strategic dialogue** addressed long-term security concerns.",example_tr:"Bir **stratejik diyalog** uzun vadeli güvenlik kaygılarını ele aldı."},
+  {en:"Policy coordination",tr:"Politika koordinasyonu",cat:"Diplomasi",difficulty:"intermediate",tags:["coordination","allies"],example:"**Policy coordination** prevented contradictory public messages.",example_tr:"**Politika koordinasyonu** çelişkili kamu mesajlarını önledi."},
+  {en:"Interoperability (diplomatic context)",tr:"Uyumluluk (interoperability)",cat:"Diplomasi",difficulty:"advanced",tags:["interoperability","alliance"],example:"Greater **interoperability** improved joint crisis responses.",example_tr:"Daha yüksek **uyumluluk (interoperability)** ortak kriz tepkilerini iyileştirdi."},
+  {en:"Summit deliverables",tr:"Zirve çıktıları",cat:"Diplomasi",difficulty:"intermediate",tags:["summit","deliverables"],example:"The team prepared **summit deliverables** to show tangible progress.",example_tr:"Ekip somut ilerleme göstermek için **zirve çıktılarını** hazırladı."},
+  {en:"Talking shop",tr:"Sonuçsuz toplantı (talking shop)",cat:"Diplomasi",difficulty:"advanced",tags:["talking shop","critique"],example:"Critics dismissed the forum as a **talking shop**.",example_tr:"Eleştirmenler forumu **sonuçsuz toplantı (talking shop)** diye küçümsedi."},
+  {en:"Deliverable",tr:"Çıktı / teslim edilebilir sonuç",cat:"Diplomasi",difficulty:"basic",tags:["deliverable","outcome"],example:"A signed roadmap became the key **deliverable** of the meeting.",example_tr:"İmzalı yol haritası toplantının temel **çıktısı** oldu."},
+  {en:"Joint communiqué",tr:"Ortak tebliğ/bildiri",cat:"Diplomasi",difficulty:"basic",tags:["communique","joint"],example:"A **joint communiqué** highlighted shared principles.",example_tr:"Bir **ortak bildiri** ortak ilkeleri vurguladı."},
+  {en:"Statement of principles",tr:"İlkeler bildirgesi",cat:"Diplomasi",difficulty:"intermediate",tags:["principles","framework"],example:"A **statement of principles** preceded the detailed annexes.",example_tr:"Ayrıntılı eklerden önce bir **ilkeler bildirgesi** yayımlandı."},
+  {en:"Non-paper",tr:"Resmî olmayan metin (non-paper)",cat:"Diplomasi",difficulty:"advanced",tags:["non-paper","proposal"],example:"A **non-paper** circulated to test reactions without commitment.",example_tr:"Bağlayıcılık yaratmadan tepkileri ölçmek için bir **non-paper** dolaştırıldı."},
+  {en:"Draft resolution",tr:"Taslak karar",cat:"Diplomasi",difficulty:"basic",tags:["draft resolution","un"],example:"A **draft resolution** was negotiated line by line.",example_tr:"Bir **taslak karar** satır satır müzakere edildi."},
+  {en:"Operative paragraph",tr:"İcra paragrafı (operative paragraph)",cat:"Diplomasi",difficulty:"advanced",tags:["operative paragraph","resolution"],example:"The **operative paragraph** specified monitoring requirements.",example_tr:"**İcra paragrafı** izleme gerekliliklerini belirtti."},
+  {en:"Preambular paragraph",tr:"Giriş paragrafı (preambular)",cat:"Diplomasi",difficulty:"advanced",tags:["preambular","resolution"],example:"The **preambular paragraph** recalled earlier commitments.",example_tr:"**Giriş paragrafı** önceki taahhütleri hatırlattı."},
+  {en:"Chair's summary",tr:"Başkan özeti",cat:"Diplomasi",difficulty:"intermediate",tags:["chair's summary","conference"],example:"A **chair's summary** captured areas of convergence.",example_tr:"Bir **başkan özeti** yakınlaşma alanlarını kayda geçirdi."},
+  {en:"Silence procedure",tr:"Sessizlik usulü",cat:"Diplomasi",difficulty:"advanced",tags:["silence procedure","un"],example:"Under **silence procedure**, the text was adopted unless objections arose.",example_tr:"**Sessizlik usulünde**, itiraz gelmezse metin kabul edilmiş sayıldı."},
+  {en:"Break the silence",tr:"Sessizliği bozmak (itiraz etmek)",cat:"Diplomasi",difficulty:"advanced",tags:["break the silence","silence procedure"],example:"One delegation **broke the silence**, reopening negotiations.",example_tr:"Bir heyet **sessizliği bozdu** ve müzakereleri yeniden açtı."},
+  {en:"Consensus-building",tr:"Oydaşma inşası",cat:"Diplomasi",difficulty:"intermediate",tags:["consensus-building","multilateral"],example:"Skilled **consensus-building** prevented a divisive vote.",example_tr:"Usta **oydaşma inşası** bölücü bir oylamayı engelledi."},
+  {en:"Bridge-building",tr:"Köprü kurma",cat:"Diplomasi",difficulty:"intermediate",tags:["bridge-building","mediation"],example:"**Bridge-building** language narrowed gaps between positions.",example_tr:"**Köprü kurma** dili pozisyonlar arasındaki farkı daralttı."},
+  {en:"Issue linkage",tr:"Konu bağlantılandırma",cat:"Diplomasi",difficulty:"advanced",tags:["issue linkage","package deal"],example:"**Issue linkage** expanded the bargaining space.",example_tr:"**Konu bağlantılandırma** pazarlık alanını genişletti."},
+  {en:"Cross-issue bargaining",tr:"Konular arası pazarlık",cat:"Diplomasi",difficulty:"advanced",tags:["cross-issue bargaining","trade-off"],example:"**Cross-issue bargaining** traded tariffs for security guarantees.",example_tr:"**Konular arası pazarlık** gümrükleri güvenlik garantileriyle takas etti."},
+  {en:"Side payment",tr:"Yan ödeme / telafi",cat:"Diplomasi",difficulty:"advanced",tags:["side payment","bargaining"],example:"A **side payment** helped secure support for the deal.",example_tr:"Bir **yan ödeme** anlaşma için destek sağlamaya yardımcı oldu."},
+  {en:"Issue area",tr:"Konu alanı",cat:"Diplomasi",difficulty:"basic",tags:["issue area","policy"],example:"Energy became the central **issue area** of the dialogue.",example_tr:"Enerji diyaloğun merkezi **konu alanı** oldu."},
+  {en:"Mandate",tr:"Yetki / görev tanımı",cat:"Diplomasi",difficulty:"basic",tags:["mandate","mission"],example:"The mediator’s **mandate** limited what could be proposed.",example_tr:"Arabulucunun **yetkisi** ne önerilebileceğini sınırladı."},
+  {en:"Terms of reference (ToR)",tr:"Görev tanımı (ToR)",cat:"Diplomasi",difficulty:"advanced",tags:["tor","terms of reference"],example:"The **terms of reference** clarified scope and deliverables.",example_tr:"**Görev tanımı (ToR)** kapsamı ve çıktıları netleştirdi."},
+  {en:"Facilitator",tr:"Kolaylaştırıcı",cat:"Diplomasi",difficulty:"basic",tags:["facilitator","mediation"],example:"A neutral **facilitator** managed the agenda and time slots.",example_tr:"Tarafsız bir **kolaylaştırıcı** gündemi ve süreleri yönetti."},
+  {en:"Convenor",tr:"Toplayıcı/davet eden aktör",cat:"Diplomasi",difficulty:"advanced",tags:["convenor","conference"],example:"The **convenor** set procedural rules for the conference.",example_tr:"**Convenor** konferansın usul kurallarını belirledi."},
+  {en:"Host country",tr:"Ev sahibi ülke",cat:"Diplomasi",difficulty:"basic",tags:["host country","conference"],example:"The **host country** provided security and protocol support.",example_tr:"**Ev sahibi ülke** güvenlik ve protokol desteği sağladı."},
+  {en:"Venue diplomacy",tr:"Mekân diplomasisi",cat:"Diplomasi",difficulty:"advanced",tags:["venue diplomacy","location"],example:"**Venue diplomacy** influenced which actors felt comfortable participating.",example_tr:"**Mekân diplomasisi** hangi aktörlerin rahat katılacağını etkiledi."},
+  {en:"Summit format",tr:"Zirve formatı",cat:"Diplomasi",difficulty:"basic",tags:["summit","format"],example:"The **summit format** shifted from plenary to small-group sessions.",example_tr:"**Zirve formatı** genel oturumdan küçük grup oturumlarına kaydı."},
+  {en:"Minilateralism",tr:"Az sayıda aktörle diplomasi (minilateralism)",cat:"Diplomasi",difficulty:"advanced",tags:["minilateralism","small group"],example:"**Minilateralism** aimed for faster decisions among key stakeholders.",example_tr:"**Minilateralism** kilit paydaşlar arasında daha hızlı karar hedefledi."},
+  {en:"Ad hoc coalition",tr:"Geçici koalisyon",cat:"Diplomasi",difficulty:"intermediate",tags:["ad hoc","coalition"],example:"An **ad hoc coalition** formed to respond to the humanitarian crisis.",example_tr:"İnsani krize yanıt için bir **geçici koalisyon** kuruldu."},
+  {en:"Like-minded group",tr:"Benzer görüşlü grup",cat:"Diplomasi",difficulty:"intermediate",tags:["like-minded","group"],example:"A **like-minded group** coordinated messaging before the vote.",example_tr:"Oylama öncesi bir **benzer görüşlü grup** mesajları koordine etti."},
+  {en:"Penholder (UN)",tr:"Kalem sahibi (BM metin yazarı)",cat:"Diplomasi",difficulty:"advanced",tags:["penholder","un","resolution"],example:"The **penholder** drafted the initial text of the resolution.",example_tr:"**Kalem sahibi (penholder)** kararın ilk taslağını yazdı."},
+  {en:"Co-sponsor",tr:"Eş sponsor",cat:"Diplomasi",difficulty:"basic",tags:["co-sponsor","resolution"],example:"Several states joined as **co-sponsors** of the draft.",example_tr:"Birçok devlet taslağa **eş sponsor** olarak katıldı."},
+  {en:"Sponsor",tr:"Sponsor",cat:"Diplomasi",difficulty:"basic",tags:["sponsor","resolution"],example:"The **sponsor** negotiated revisions to secure wider support.",example_tr:"**Sponsor** daha geniş destek için revizyonları müzakere etti."},
+  {en:"Abstention",tr:"Çekimser oy",cat:"Diplomasi",difficulty:"basic",tags:["abstention","vote"],example:"Widespread **abstention** indicated discomfort with the wording.",example_tr:"Yaygın **çekimser oy** ifadeden rahatsızlığı gösterdi."},
+  {en:"Vote of no confidence (diplomatic context)",tr:"Güvensizlik oyu (bağlam)",cat:"Diplomasi",difficulty:"advanced",tags:["no confidence","politics"],example:"A **vote of no confidence** weakened the government’s negotiating position.",example_tr:"Bir **güvensizlik oyu** hükümetin müzakere pozisyonunu zayıflattı."},
+  {en:"Goodwill",tr:"İyi niyet",cat:"Diplomasi",difficulty:"basic",tags:["goodwill","trust"],example:"Small gestures of **goodwill** rebuilt confidence.",example_tr:"Küçük **iyi niyet** jestleri güveni yeniden kurdu."},
+  {en:"Gesture",tr:"Jest",cat:"Diplomasi",difficulty:"basic",tags:["gesture","confidence"],example:"A symbolic **gesture** reduced tensions before the summit.",example_tr:"Sembolik bir **jest** zirve öncesi tansiyonu düşürdü."},
+  {en:"Reciprocity",tr:"Mütekabiliyet (karşılıklılık)",cat:"Diplomasi",difficulty:"intermediate",tags:["reciprocity","concession"],example:"**Reciprocity** encouraged both sides to match concessions.",example_tr:"**Mütekabiliyet** tarafların tavizleri eşleştirmesini teşvik etti."},
+  {en:"Retaliation",tr:"Misilleme",cat:"Diplomasi",difficulty:"basic",tags:["retaliation","response"],example:"The sanction was framed as **retaliation** for the violation.",example_tr:"Yaptırım ihlale **misilleme** olarak çerçevelendi."},
+  {en:"Countermeasure",tr:"Karşı önlem",cat:"Diplomasi",difficulty:"advanced",tags:["countermeasure","response"],example:"The state adopted a lawful **countermeasure** under international rules.",example_tr:"Devlet uluslararası kurallara göre meşru bir **karşı önlem** aldı."},
+  {en:"Diplomatic retaliation",tr:"Diplomatik misilleme",cat:"Diplomasi",difficulty:"intermediate",tags:["retaliation","diplomatic"],example:"**Diplomatic retaliation** included travel restrictions on officials.",example_tr:"**Diplomatik misilleme** yetkililere seyahat kısıtlarını içerdi."},
+  {en:"Escalatory spiral",tr:"Tırmanma sarmalı",cat:"Diplomasi",difficulty:"advanced",tags:["escalation","spiral"],example:"Poor communication created an **escalatory spiral**.",example_tr:"Zayıf iletişim bir **tırmanma sarmalı** yarattı."},
+  {en:"Miscalculation",tr:"Yanlış hesap",cat:"Diplomasi",difficulty:"intermediate",tags:["miscalculation","crisis"],example:"Crisis hotlines aim to prevent **miscalculation**.",example_tr:"Kriz hatları **yanlış hesabı** önlemeyi amaçlar."},
+  {en:"Attribution",tr:"Failin/nispetin belirlenmesi (attribution)",cat:"Diplomasi",difficulty:"advanced",tags:["attribution","cyber","incident"],example:"Rapid **attribution** shaped diplomatic responses to the attack.",example_tr:"Hızlı **attribution** saldırıya diplomatik tepkileri şekillendirdi."},
+  {en:"Plausible deniability",tr:"İnkâr edilebilirlik",cat:"Diplomasi",difficulty:"advanced",tags:["plausible deniability","covert"],example:"**Plausible deniability** complicated attribution and retaliation.",example_tr:"**İnkâr edilebilirlik** failin belirlenmesini ve misillemeyi zorlaştırdı."},
+  {en:"Non-interference",tr:"İçişlerine karışmama",cat:"Diplomasi",difficulty:"intermediate",tags:["non-interference","sovereignty"],example:"The communiqué reaffirmed **non-interference** in domestic affairs.",example_tr:"Bildiri içişlerine **karışmama** ilkesini teyit etti."},
+  {en:"Non-intervention",tr:"Müdahale etmeme",cat:"Diplomasi",difficulty:"intermediate",tags:["non-intervention","sovereignty"],example:"They invoked **non-intervention** to criticize external pressure.",example_tr:"Dış baskıyı eleştirmek için **müdahale etmeme** ilkesine atıf yaptılar."},
+  {en:"Sovereign equality",tr:"Egemen eşitlik",cat:"Diplomasi",difficulty:"intermediate",tags:["sovereign equality","un charter"],example:"**Sovereign equality** underpins voting rules in many fora.",example_tr:"**Egemen eşitlik** birçok platformda oylama kurallarının temelidir."},
+  {en:"Principle of consent",tr:"Rıza ilkesi",cat:"Diplomasi",difficulty:"advanced",tags:["consent","peace operations"],example:"The **principle of consent** shaped the mandate of the mission.",example_tr:"**Rıza ilkesi** misyonun yetkisini şekillendirdi."},
+  {en:"Mandate renewal",tr:"Yetki yenileme",cat:"Diplomasi",difficulty:"advanced",tags:["mandate","renewal"],example:"**Mandate renewal** required political compromise among sponsors.",example_tr:"**Yetki yenileme** sponsorlar arasında siyasi uzlaşma gerektirdi."},
+  {en:"Mandate implementation",tr:"Yetkinin uygulanması",cat:"Diplomasi",difficulty:"advanced",tags:["mandate","implementation"],example:"Clear guidance improved **mandate implementation** on the ground.",example_tr:"Net rehberlik sahada **yetkinin uygulanmasını** iyileştirdi."},
+  {en:"Mandating authority",tr:"Yetkilendiren merci",cat:"Diplomasi",difficulty:"advanced",tags:["mandate","authority"],example:"The **mandating authority** specified reporting requirements.",example_tr:"**Yetkilendiren merci** raporlama gerekliliklerini belirledi."},
+  {en:"Security Council dynamics",tr:"Güvenlik Konseyi dinamikleri",cat:"Diplomasi",difficulty:"advanced",tags:["security council","dynamics","un"],example:"**Security Council dynamics** shaped the language of the resolution.",example_tr:"**Güvenlik Konseyi dinamikleri** kararın dilini şekillendirdi."},
+  {en:"Council unity",tr:"Konsey birliği",cat:"Diplomasi",difficulty:"advanced",tags:["council unity","un"],example:"Maintaining **Council unity** was crucial for credible signaling.",example_tr:"İnandırıcı sinyal için **Konsey birliğini** korumak kritikti."},
+  {en:"Drafting group",tr:"Metin yazım grubu",cat:"Diplomasi",difficulty:"intermediate",tags:["drafting","group"],example:"A **drafting group** harmonized competing proposals.",example_tr:"Bir **metin yazım grubu** rakip önerileri uyumlaştırdı."},
+  {en:"Informal informals",tr:"Gayriresmî gayriresmî toplantılar",cat:"Diplomasi",difficulty:"advanced",tags:["informal informals","un"],example:"Key compromises emerged in **informal informals**.",example_tr:"Kilit uzlaşılar **gayriresmî gayriresmî toplantılarda** ortaya çıktı."},
+  {en:"Closed consultations",tr:"Kapalı istişareler",cat:"Diplomasi",difficulty:"advanced",tags:["closed consultations","un"],example:"The Council held **closed consultations** to avoid public pressure.",example_tr:"Konsey kamu baskısından kaçınmak için **kapalı istişareler** yaptı."},
+  {en:"Arria-formula meeting",tr:"Arria-formülü toplantısı",cat:"Diplomasi",difficulty:"advanced",tags:["arria formula","security council"],example:"An **Arria-formula meeting** brought civil society voices to members.",example_tr:"Bir **Arria-formülü toplantısı** sivil toplum seslerini üyelere taşıdı."},
+  {en:"Presidential statement (PRST)",tr:"Başkanlık açıklaması (PRST)",cat:"Diplomasi",difficulty:"advanced",tags:["prst","security council"],example:"A **presidential statement** signaled concern without a binding resolution.",example_tr:"Bir **başkanlık açıklaması** bağlayıcı karar olmadan endişe sinyali verdi."},
+  {en:"Chairing (a meeting)",tr:"Toplantıya başkanlık etmek",cat:"Diplomasi",difficulty:"basic",tags:["chair","meeting"],example:"The host minister **chaired the meeting** with strict time limits.",example_tr:"Ev sahibi bakan sıkı sürelerle **toplantıya başkanlık etti**."},
+  {en:"Facilitation",tr:"Kolaylaştırma",cat:"Diplomasi",difficulty:"basic",tags:["facilitation","mediation"],example:"Procedural **facilitation** kept talks focused on outcomes.",example_tr:"Usulî **kolaylaştırma** görüşmeleri çıktılara odaklı tuttu."},
+  {en:"Mediation mandate",tr:"Arabuluculuk yetkisi",cat:"Diplomasi",difficulty:"advanced",tags:["mediation","mandate"],example:"A clear **mediation mandate** prevented forum shopping by parties.",example_tr:"Net bir **arabuluculuk yetkisi** tarafların forum arayışını engelledi."},
+  {en:"Forum shopping",tr:"Forum seçmeciliği (forum shopping)",cat:"Diplomasi",difficulty:"advanced",tags:["forum shopping","mediation"],example:"**Forum shopping** undermined coherence across negotiation tracks.",example_tr:"**Forum shopping** müzakere kanalları arasındaki uyumu zayıflattı."},
+  {en:"Parallel track",tr:"Paralel kanal",cat:"Diplomasi",difficulty:"intermediate",tags:["parallel track","negotiation"],example:"A **parallel track** addressed technical issues while leaders negotiated.",example_tr:"Liderler müzakere ederken teknik konular için bir **paralel kanal** çalıştı."},
+  {en:"Negotiating position",tr:"Müzakere pozisyonu",cat:"Diplomasi",difficulty:"basic",tags:["position","negotiation"],example:"Domestic constraints narrowed the **negotiating position**.",example_tr:"İç kısıtlar **müzakere pozisyonunu** daralttı."},
+  {en:"Negotiation brief",tr:"Müzakere dosyası/brief",cat:"Diplomasi",difficulty:"intermediate",tags:["brief","negotiation"],example:"The team prepared a **negotiation brief** with red lines and options.",example_tr:"Ekip kırmızı çizgiler ve seçeneklerle bir **müzakere dosyası** hazırladı."},
+  {en:"Red lines and flexibilities",tr:"Kırmızı çizgiler ve esneklikler",cat:"Diplomasi",difficulty:"advanced",tags:["red line","flexibility","negotiation"],example:"The memo clarified **red lines and flexibilities** for the delegation.",example_tr:"Not, heyet için **kırmızı çizgiler ve esneklikleri** netleştirdi."},
+  {en:"Room for maneuver",tr:"Hareket alanı",cat:"Diplomasi",difficulty:"intermediate",tags:["maneuver","negotiation"],example:"Parliamentary scrutiny reduced the government’s **room for maneuver**.",example_tr:"Parlamento denetimi hükümetin **hareket alanını** azalttı."},
+  {en:"Domestic ratification politics",tr:"İç onay siyaseti",cat:"Diplomasi",difficulty:"advanced",tags:["ratification","domestic politics"],example:"**Domestic ratification politics** shaped what could be promised abroad.",example_tr:"**İç onay siyaseti** dışarıda ne vaat edilebileceğini şekillendirdi."},
+  {en:"Two-level game",tr:"İki düzeyli oyun",cat:"Diplomasi",difficulty:"advanced",tags:["two-level game","putnam","negotiation"],example:"In a **two-level game**, leaders bargain internationally and domestically.",example_tr:"**İki düzeyli oyunda** liderler hem uluslararası hem iç pazarlık yapar."},
+  {en:"Win-set",tr:"Kabul edilebilir aralık (win-set)",cat:"Diplomasi",difficulty:"advanced",tags:["win-set","two-level game"],example:"A narrow **win-set** made agreement difficult.",example_tr:"Dar bir **win-set** anlaşmayı zorlaştırdı."},
+  {en:"Linkage politics",tr:"Bağlantılama siyaseti",cat:"Diplomasi",difficulty:"advanced",tags:["linkage","issue linkage"],example:"**Linkage politics** tied security commitments to economic concessions.",example_tr:"**Bağlantılama siyaseti** güvenlik taahhütlerini ekonomik tavizlere bağladı."},
+  {en:"Summit statement",tr:"Zirve açıklaması",cat:"Diplomasi",difficulty:"basic",tags:["summit","statement"],example:"A carefully drafted **summit statement** avoided naming any party.",example_tr:"Özenle yazılmış bir **zirve açıklaması** hiçbir tarafı isimlendirmedi."},
+  {en:"Readout",tr:"Görüşme özeti (readout)",cat:"Diplomasi",difficulty:"intermediate",tags:["readout","statement"],example:"The press **readout** emphasized constructive engagement.",example_tr:"Basın **readout**u yapıcı angajmanı vurguladı."},
+  {en:"Press line",tr:"Basın çizgisi (resmî söylem)",cat:"Diplomasi",difficulty:"advanced",tags:["press line","messaging"],example:"Officials repeated the agreed **press line** after the meeting.",example_tr:"Yetkililer toplantı sonrası üzerinde anlaşılan **basın çizgisini** tekrarladı."},
+  {en:"Talking points memo",tr:"Konuşma notu memorandumu",cat:"Diplomasi",difficulty:"advanced",tags:["talking points","memo"],example:"A **talking points memo** aligned messages across agencies.",example_tr:"Bir **konuşma notu memorandumu** kurumlar arası mesajları hizaladı."},
+  {en:"Strategic patience",tr:"Stratejik sabır",cat:"Diplomasi",difficulty:"advanced",tags:["strategic patience","strategy"],example:"**Strategic patience** avoided premature concessions.",example_tr:"**Stratejik sabır** erken tavizleri önledi."},
+  {en:"Calibrated response",tr:"Kalibre edilmiş tepki",cat:"Diplomasi",difficulty:"advanced",tags:["calibrated response","retaliation"],example:"A **calibrated response** signaled resolve without escalation.",example_tr:"**Kalibre edilmiş tepki** tırmanmadan kararlılık sinyali verdi."},
+  {en:"Proportionality",tr:"Orantılılık",cat:"Diplomasi",difficulty:"intermediate",tags:["proportionality","response"],example:"Officials stressed **proportionality** in their response measures.",example_tr:"Yetkililer tedbirlerde **orantılılık** vurgusu yaptı."},
+  {en:"Diplomatic cost",tr:"Diplomatik maliyet",cat:"Diplomasi",difficulty:"intermediate",tags:["cost","diplomacy"],example:"The move carried a high **diplomatic cost** among partners.",example_tr:"Hamle ortaklar arasında yüksek **diplomatik maliyet** taşıdı."},
+  {en:"Reputational cost",tr:"İtibar maliyeti",cat:"Diplomasi",difficulty:"advanced",tags:["reputation","cost"],example:"Norm violations impose **reputational costs** over time.",example_tr:"Norm ihlalleri zamanla **itibar maliyetleri** doğurur."},
+  {en:"Norm entrepreneurship",tr:"Norm girişimciliği",cat:"Diplomasi",difficulty:"advanced",tags:["norms","entrepreneurship"],example:"Small states used **norm entrepreneurship** to shape the agenda.",example_tr:"Küçük devletler gündemi şekillendirmek için **norm girişimciliği** yaptı."},
+  {en:"Norm diffusion",tr:"Norm yayılımı",cat:"Diplomasi",difficulty:"advanced",tags:["norm diffusion","norms"],example:"Regional organizations accelerated **norm diffusion**.",example_tr:"Bölgesel örgütler **norm yayılımını** hızlandırdı."},
+  {en:"Policy harmonization",tr:"Politika uyumlaştırma",cat:"Diplomasi",difficulty:"advanced",tags:["harmonization","policy"],example:"**Policy harmonization** reduced frictions in cross-border regulation.",example_tr:"**Politika uyumlaştırma** sınır ötesi düzenlemelerde sürtüşmeyi azalttı."},
+  {en:"Mutual recognition (arrangements)",tr:"Karşılıklı tanıma (düzenlemeler)",cat:"Diplomasi",difficulty:"advanced",tags:["mutual recognition","arrangements"],example:"**Mutual recognition** arrangements eased mobility for professionals.",example_tr:"**Karşılıklı tanıma** düzenlemeleri uzmanların hareketliliğini kolaylaştırdı."},
+  {en:"Diplomatic accreditation",tr:"Diplomatik akreditasyon",cat:"Diplomasi",difficulty:"intermediate",tags:["accreditation","diplomatic"],example:"Delays in **diplomatic accreditation** slowed the mission’s work.",example_tr:"**Diplomatik akreditasyon** gecikmeleri misyonun işini yavaşlattı."},
+  {en:"Protocol breach",tr:"Protokol ihlali",cat:"Diplomasi",difficulty:"intermediate",tags:["protocol","breach"],example:"A minor **protocol breach** caused disproportionate outrage.",example_tr:"Küçük bir **protokol ihlali** orantısız tepkiye yol açtı."},
+  {en:"Protocol dispute",tr:"Protokol ihtilafı",cat:"Diplomasi",difficulty:"advanced",tags:["protocol","dispute"],example:"A **protocol dispute** masked deeper political tensions.",example_tr:"Bir **protokol ihtilafı** daha derin siyasi gerilimleri maskeledi."},
+  {en:"Diplomatic etiquette",tr:"Diplomatik görgü",cat:"Diplomasi",difficulty:"intermediate",tags:["etiquette","protocol"],example:"**Diplomatic etiquette** reduces avoidable misunderstandings.",example_tr:"**Diplomatik görgü** kaçınılabilir yanlış anlamaları azaltır."},
+  {en:"Seating arrangement",tr:"Oturma düzeni",cat:"Diplomasi",difficulty:"basic",tags:["seating","protocol"],example:"The **seating arrangement** signaled status and recognition.",example_tr:"**Oturma düzeni** statü ve tanımayı işaret etti."},
+  {en:"Order of precedence",tr:"Protokol sırası",cat:"Diplomasi",difficulty:"advanced",tags:["precedence","protocol"],example:"The **order of precedence** determined who spoke first.",example_tr:"**Protokol sırası** kimin önce konuşacağını belirledi."},
+  {en:"Flag protocol",tr:"Bayrak protokolü",cat:"Diplomasi",difficulty:"intermediate",tags:["flag","protocol"],example:"A dispute erupted over **flag protocol** at the venue.",example_tr:"Mekânda **bayrak protokolü** nedeniyle tartışma çıktı."},
+  {en:"Interpretation (simultaneous)",tr:"Simultane çeviri",cat:"Diplomasi",difficulty:"intermediate",tags:["interpretation","simultaneous"],example:"Accurate **simultaneous interpretation** prevented confusion in talks.",example_tr:"Doğru **simultane çeviri** görüşmelerde karışıklığı önledi."},
+  {en:"Language regime",tr:"Dil rejimi (resmî diller)",cat:"Diplomasi",difficulty:"advanced",tags:["language regime","multilateral"],example:"The conference’s **language regime** affected participation costs.",example_tr:"Konferansın **dil rejimi** katılım maliyetlerini etkiledi."},
+  {en:"Translation discrepancy",tr:"Çeviri uyuşmazlığı",cat:"Diplomasi",difficulty:"advanced",tags:["translation","discrepancy"],example:"A **translation discrepancy** created ambiguity between versions.",example_tr:"Bir **çeviri uyuşmazlığı** sürümler arasında muğlaklık yarattı."},
+  {en:"Authentic text",tr:"Asıl metin (authentic text)",cat:"Diplomasi",difficulty:"advanced",tags:["authentic text","treaty"],example:"The treaty specified which language was the **authentic text**.",example_tr:"Antlaşma hangi dilin **asıl metin** olduğunu belirtti."},
+  {en:"Depositary",tr:"Tevdi makamı (depository)",cat:"Diplomasi",difficulty:"advanced",tags:["depositary","treaty"],example:"The UN acts as **depositary** for many multilateral treaties.",example_tr:"BM birçok çok taraflı antlaşma için **tevdi makamı**dır."},
+  {en:"Instrument of ratification",tr:"Onay belgesi",cat:"Diplomasi",difficulty:"advanced",tags:["instrument of ratification","treaty"],example:"The state deposited the **instrument of ratification** with the depositary.",example_tr:"Devlet **onay belgesini** tevdi makamına sundu."},
+  {en:"Instrument of accession",tr:"Katılım belgesi",cat:"Diplomasi",difficulty:"advanced",tags:["accession","instrument"],example:"Late joiners filed an **instrument of accession**.",example_tr:"Geç katılanlar bir **katılım belgesi** sundu."},
+  {en:"Accession",tr:"Katılım (antlaşmaya)",cat:"Diplomasi",difficulty:"intermediate",tags:["accession","treaty"],example:"The country pursued **accession** to the convention.",example_tr:"Ülke sözleşmeye **katılımı** hedefledi."},
+  {en:"Denunciation (treaty)",tr:"Fesih bildirimi (denunciation)",cat:"Diplomasi",difficulty:"advanced",tags:["denunciation","withdrawal","treaty"],example:"The state issued a **denunciation** under the treaty’s exit clause.",example_tr:"Devlet antlaşmanın çıkış hükmüne göre **fesih bildirimi** yaptı."},
+  {en:"Withdrawal clause",tr:"Çekilme hükmü",cat:"Diplomasi",difficulty:"advanced",tags:["withdrawal","clause"],example:"A **withdrawal clause** set timelines and notification rules.",example_tr:"Bir **çekilme hükmü** süreleri ve bildirim kurallarını belirledi."},
+  {en:"Sunset clause",tr:"Sona erme hükmü (sunset clause)",cat:"Diplomasi",difficulty:"advanced",tags:["sunset clause","agreement"],example:"A **sunset clause** required renewal after five years.",example_tr:"Bir **sunset clause** beş yıl sonra yenileme gerektirdi."},
+  {en:"Review mechanism",tr:"Gözden geçirme mekanizması",cat:"Diplomasi",difficulty:"advanced",tags:["review","mechanism"],example:"A periodic **review mechanism** evaluated compliance.",example_tr:"Dönemsel bir **gözden geçirme mekanizması** uyumu değerlendirdi."},
+  {en:"Dispute settlement clause",tr:"Uyuşmazlık çözüm hükmü",cat:"Diplomasi",difficulty:"advanced",tags:["dispute settlement","clause"],example:"A **dispute settlement clause** reduced uncertainty about enforcement.",example_tr:"Bir **uyuşmazlık çözüm hükmü** yaptırıma dair belirsizliği azalttı."},
+  {en:"Arbitration",tr:"Tahkim",cat:"Diplomasi",difficulty:"intermediate",tags:["arbitration","dispute settlement"],example:"They agreed to **arbitration** to avoid politicized litigation.",example_tr:"Siyasallaşmış davadan kaçınmak için **tahkime** anlaştılar."},
+  {en:"Conciliation",tr:"Uzlaştırma (conciliation)",cat:"Diplomasi",difficulty:"advanced",tags:["conciliation","dispute settlement"],example:"**Conciliation** offered non-binding recommendations.",example_tr:"**Uzlaştırma (conciliation)** bağlayıcı olmayan öneriler sundu."},
+  {en:"Good faith",tr:"İyi niyet",cat:"Diplomasi",difficulty:"intermediate",tags:["good faith","treaty"],example:"Negotiations proceeded in **good faith** under the framework.",example_tr:"Müzakereler çerçeve altında **iyi niyetle** yürüdü."},
+  {en:"Bad faith",tr:"Kötü niyet",cat:"Diplomasi",difficulty:"intermediate",tags:["bad faith","negotiation"],example:"Accusations of **bad faith** poisoned the talks.",example_tr:"**Kötü niyet** suçlamaları görüşmeleri zehirledi."},
+  {en:"Confidence trick",tr:"Güven oyunu (aldatma)",cat:"Diplomasi",difficulty:"advanced",tags:["deception","confidence"],example:"A staged concession was exposed as a **confidence trick**.",example_tr:"Sahte bir taviz bir **güven oyunu** olarak ortaya çıktı."},
+  {en:"Strategic deception",tr:"Stratejik aldatma",cat:"Diplomasi",difficulty:"advanced",tags:["deception","strategy"],example:"**Strategic deception** complicated verification and trust.",example_tr:"**Stratejik aldatma** doğrulamayı ve güveni zorlaştırdı."},
+  {en:"Diplomatic cover",tr:"Diplomatik örtü",cat:"Diplomasi",difficulty:"advanced",tags:["cover","covert"],example:"Humanitarian talks provided **diplomatic cover** for parallel contacts.",example_tr:"İnsani görüşmeler paralel temaslara **diplomatik örtü** sağladı."},
+  {en:"Quiet contacts",tr:"Sessiz temaslar",cat:"Diplomasi",difficulty:"intermediate",tags:["quiet contacts","backchannel"],example:"**Quiet contacts** prepared the ground for formal negotiations.",example_tr:"**Sessiz temaslar** resmî müzakereler için zemin hazırladı."},
+  {en:"Exploratory talks",tr:"Keşif görüşmeleri",cat:"Diplomasi",difficulty:"intermediate",tags:["exploratory talks","negotiation"],example:"**Exploratory talks** mapped areas of overlap and disagreement.",example_tr:"**Keşif görüşmeleri** örtüşme ve ayrışma alanlarını haritaladı."},
+  {en:"Pre-negotiation",tr:"Ön müzakere",cat:"Diplomasi",difficulty:"advanced",tags:["pre-negotiation","process"],example:"**Pre-negotiation** set the agenda and procedural rules.",example_tr:"**Ön müzakere** gündemi ve usul kurallarını belirledi."},
+  {en:"Procedural dispute",tr:"Usul ihtilafı",cat:"Diplomasi",difficulty:"advanced",tags:["procedure","dispute"],example:"A **procedural dispute** delayed adoption of the agenda.",example_tr:"Bir **usul ihtilafı** gündemin kabulünü geciktirdi."},
+  {en:"Agenda adoption",tr:"Gündemin kabulü",cat:"Diplomasi",difficulty:"intermediate",tags:["agenda","procedure"],example:"**Agenda adoption** became the first test of goodwill.",example_tr:"**Gündemin kabulü** ilk iyi niyet testi oldu."},
+  {en:"Rules of procedure",tr:"İç tüzük / usul kuralları",cat:"Diplomasi",difficulty:"advanced",tags:["rules of procedure","conference"],example:"The **rules of procedure** defined speaking time and motions.",example_tr:"**Usul kuralları** konuşma sürelerini ve önergeleri tanımladı."},
+  {en:"Point of order",tr:"Usul itirazı",cat:"Diplomasi",difficulty:"advanced",tags:["point of order","procedure"],example:"A delegate raised a **point of order** to challenge the chair.",example_tr:"Bir delege başkanı sorgulamak için **usul itirazı** yaptı."},
+  {en:"Motion",tr:"Önerge",cat:"Diplomasi",difficulty:"intermediate",tags:["motion","procedure"],example:"A **motion** was introduced to postpone the vote.",example_tr:"Oylamayı ertelemek için bir **önerge** verildi."},
+  {en:"Adjournment",tr:"Oturumu kapatma/ertelemek",cat:"Diplomasi",difficulty:"intermediate",tags:["adjournment","procedure"],example:"The chair proposed **adjournment** after lengthy interventions.",example_tr:"Başkan uzun konuşmaların ardından **oturumu ertelemeyi** önerdi."},
+  {en:"Quorum",tr:"Toplantı yeter sayısı",cat:"Diplomasi",difficulty:"intermediate",tags:["quorum","procedure"],example:"Without a **quorum**, the committee could not vote.",example_tr:"**Yeter sayı** olmadan komite oylama yapamadı."},
+  {en:"Roll-call vote",tr:"İsim okunarak oylama",cat:"Diplomasi",difficulty:"advanced",tags:["roll-call","vote"],example:"A **roll-call vote** recorded each state’s position.",example_tr:"**İsim okunarak oylama** her devletin tutumunu kayda geçirdi."},
+  {en:"Consensus rule",tr:"Oydaşma kuralı",cat:"Diplomasi",difficulty:"intermediate",tags:["consensus","rule"],example:"The **consensus rule** empowered small delegations.",example_tr:"**Oydaşma kuralı** küçük heyetleri güçlendirdi."},
+  {en:"Objection",tr:"İtiraz",cat:"Diplomasi",difficulty:"basic",tags:["objection","procedure"],example:"A single **objection** blocked adoption under consensus.",example_tr:"Oydaşmada tek bir **itiraz** kabulü engelledi."},
+  {en:"Reservation of position",tr:"Tutum saklı tutma",cat:"Diplomasi",difficulty:"advanced",tags:["reservation","position"],example:"The delegation entered a **reservation of position** on the paragraph.",example_tr:"Heyet paragraf hakkında **tutumunu saklı tuttu**."},
+  {en:"Interpretation statement",tr:"Açıklama beyanı (interpretation)",cat:"Diplomasi",difficulty:"advanced",tags:["interpretation","statement"],example:"An **interpretation statement** clarified how the vote should be read.",example_tr:"Bir **yorum beyanı** oyun nasıl okunacağını açıkladı."},
+  {en:"Explanations of vote (EOV)",tr:"Oy açıklaması (EOV)",cat:"Diplomasi",difficulty:"advanced",tags:["eov","vote"],example:"States delivered **explanations of vote** after the adoption.",example_tr:"Devletler kabul sonrası **oy açıklaması** yaptı."},
+  {en:"Reservation of rights",tr:"Hak saklı tutma",cat:"Diplomasi",difficulty:"advanced",tags:["reservation of rights","legal"],example:"The note included a **reservation of rights** for future proceedings.",example_tr:"Not, gelecekteki süreçler için **hak saklı tutma** içerdi."},
+  {en:"Diplomatic protest",tr:"Diplomatik protesto",cat:"Diplomasi",difficulty:"basic",tags:["protest","demarche"],example:"A formal **diplomatic protest** was submitted to the host government.",example_tr:"Ev sahibi hükümete resmî bir **diplomatik protesto** sunuldu."},
+  {en:"Démarche of concern",tr:"Endişe demarşı",cat:"Diplomasi",difficulty:"advanced",tags:["demarche","concern"],example:"A **démarche of concern** urged restraint and clarification.",example_tr:"Bir **endişe demarşı** itidal ve açıklama talep etti."},
+  {en:"Summons and demarches",tr:"Çağırmalar ve demarşlar",cat:"Diplomasi",difficulty:"advanced",tags:["summon","demarche"],example:"**Summons and demarches** intensified as the crisis worsened.",example_tr:"Kriz kötüleştikçe **çağırmalar ve demarşlar** arttı."},
+  {en:"Diplomatic démarche",tr:"Diplomatik demarş",cat:"Diplomasi",difficulty:"intermediate",tags:["demarche","diplomatic"],example:"A **diplomatic démarche** requested immediate policy reversal.",example_tr:"Bir **diplomatik demarş** politikanın derhal geri alınmasını istedi."},
+  {en:"Bilateral channel",tr:"İkili kanal",cat:"Diplomasi",difficulty:"basic",tags:["bilateral","channel"],example:"They used a **bilateral channel** to clarify intentions quickly.",example_tr:"Niyetleri hızlıca netleştirmek için **ikili kanal** kullandılar."},
+  {en:"Multilateral channel",tr:"Çok taraflı kanal",cat:"Diplomasi",difficulty:"basic",tags:["multilateral","channel"],example:"A **multilateral channel** broadened legitimacy for the initiative.",example_tr:"Bir **çok taraflı kanal** girişime meşruiyet kazandırdı."},
+  {en:"Diplomatic freeze",tr:"Diplomatik donma",cat:"Diplomasi",difficulty:"intermediate",tags:["freeze","relations"],example:"A **diplomatic freeze** halted high-level visits and talks.",example_tr:"Bir **diplomatik donma** üst düzey ziyaretleri ve görüşmeleri durdurdu."},
+  {en:"Restore diplomatic ties",tr:"Diplomatik ilişkileri yeniden tesis etmek",cat:"Diplomasi",difficulty:"basic",tags:["restore","ties"],example:"They agreed to **restore diplomatic ties** through phased steps.",example_tr:"Aşamalı adımlarla **diplomatik ilişkileri yeniden tesis etmeyi** kabul ettiler."},
+  {en:"Reopen an embassy",tr:"Büyükelçiliği yeniden açmak",cat:"Diplomasi",difficulty:"basic",tags:["embassy","reopen"],example:"Both states decided to **reopen the embassy** after years.",example_tr:"İki devlet yıllar sonra **büyükelçiliği yeniden açmaya** karar verdi."},
+  {en:"Interests section",tr:"Çıkarlar bölümü (interests section)",cat:"Diplomasi",difficulty:"advanced",tags:["interests section","diplomatic"],example:"An **interests section** provided minimal consular services.",example_tr:"Bir **interests section** asgari konsolosluk hizmeti sağladı."},
+  {en:"Protecting power",tr:"Hamilik yapan devlet (protecting power)",cat:"Diplomasi",difficulty:"advanced",tags:["protecting power","interests"],example:"A **protecting power** represented interests after ties were cut.",example_tr:"İlişkiler kesilince bir **protecting power** çıkarları temsil etti."},
+  {en:"Diplomatic representation",tr:"Diplomatik temsil",cat:"Diplomasi",difficulty:"intermediate",tags:["representation","mission"],example:"Limited **diplomatic representation** slowed coordination.",example_tr:"Sınırlı **diplomatik temsil** koordinasyonu yavaşlattı."},
+  {en:"Representation office",tr:"Temsilcilik ofisi",cat:"Diplomasi",difficulty:"intermediate",tags:["representation","office"],example:"A **representation office** opened to manage trade and visas.",example_tr:"Ticaret ve vizeleri yönetmek için bir **temsilcilik ofisi** açıldı."},
+  {en:"Office of liaison",tr:"İrtibat ofisi",cat:"Diplomasi",difficulty:"intermediate",tags:["liaison","office"],example:"An **office of liaison** maintained communication during the freeze.",example_tr:"Donma sırasında iletişimi sürdürmek için bir **irtibat ofisi** kuruldu."},
+  {en:"Liaison officer",tr:"İrtibat görevlisi",cat:"Diplomasi",difficulty:"intermediate",tags:["liaison","officer"],example:"A **liaison officer** coordinated technical teams on the ground.",example_tr:"Bir **irtibat görevlisi** sahadaki teknik ekipleri koordine etti."},
+  {en:"Diplomatic liaison",tr:"Diplomatik irtibat",cat:"Diplomasi",difficulty:"intermediate",tags:["liaison","diplomatic"],example:"**Diplomatic liaison** ensured messages reached the right desks.",example_tr:"**Diplomatik irtibat** mesajların doğru masalara ulaşmasını sağladı."},
+  {en:"Quiet demarche",tr:"Sessiz demarş",cat:"Diplomasi",difficulty:"advanced",tags:["quiet demarche","demarche"],example:"A **quiet demarche** conveyed discontent without publicity.",example_tr:"Bir **sessiz demarş** kamuya taşımadan rahatsızlığı iletti."},
+  {en:"Diplomatic démarche campaign",tr:"Demarş kampanyası",cat:"Diplomasi",difficulty:"advanced",tags:["demarche","campaign"],example:"A coordinated **démarche campaign** sought to shift votes.",example_tr:"Koordineli bir **demarş kampanyası** oyları etkilemeyi hedefledi."},
+  {en:"Coalition outreach",tr:"Koalisyon temasları",cat:"Diplomasi",difficulty:"intermediate",tags:["coalition","outreach"],example:"**Coalition outreach** focused on swing states.",example_tr:"**Koalisyon temasları** kararsız devletlere odaklandı."},
+  {en:"Vote-whipping",tr:"Oy toplama (vote-whipping)",cat:"Diplomasi",difficulty:"advanced",tags:["vote-whipping","lobbying"],example:"Intense **vote-whipping** secured passage of the resolution.",example_tr:"Yoğun **vote-whipping** kararın geçmesini sağladı."},
+  {en:"Swing state",tr:"Kararsız/dengeleyici devlet",cat:"Diplomasi",difficulty:"intermediate",tags:["swing state","vote"],example:"The delegation targeted **swing states** with tailored incentives.",example_tr:"Heyet hedefli teşviklerle **kararsız devletleri** hedefledi."},
+  {en:"Diplomatic alignment",tr:"Diplomatik hizalanma",cat:"Diplomasi",difficulty:"intermediate",tags:["alignment","coalition"],example:"The crisis reshaped **diplomatic alignment** in the region.",example_tr:"Kriz bölgede **diplomatik hizalanmayı** yeniden şekillendirdi."},
+  {en:"Non-alignment",tr:"Bağlantısızlık",cat:"Diplomasi",difficulty:"intermediate",tags:["non-alignment","alignment"],example:"Some states preferred **non-alignment** to preserve autonomy.",example_tr:"Bazı devletler özerkliği korumak için **bağlantısızlığı** tercih etti."},
+  {en:"Strategic alignment",tr:"Stratejik hizalanma",cat:"Diplomasi",difficulty:"advanced",tags:["strategic alignment","alignment"],example:"**Strategic alignment** increased access to intelligence and support.",example_tr:"**Stratejik hizalanma** istihbarat ve desteğe erişimi artırdı."},
+  {en:"Diplomatic posture",tr:"Diplomatik duruş",cat:"Diplomasi",difficulty:"intermediate",tags:["posture","stance"],example:"The minister adopted a firm **diplomatic posture** in public.",example_tr:"Bakan kamuya açıkta sert bir **diplomatik duruş** benimsedi."},
+  {en:"Public stance",tr:"Kamu tutumu",cat:"Diplomasi",difficulty:"basic",tags:["public","stance"],example:"Their **public stance** differed from private assurances.",example_tr:"**Kamu tutumu** özel güvencelerden farklıydı."},
+  {en:"Private assurances",tr:"Özel güvenceler",cat:"Diplomasi",difficulty:"intermediate",tags:["private assurances","assurances"],example:"**Private assurances** enabled compromises without domestic backlash.",example_tr:"**Özel güvenceler** iç tepki olmadan uzlaşmaları mümkün kıldı."},
+  {en:"Domestic backlash",tr:"İç tepki",cat:"Diplomasi",difficulty:"intermediate",tags:["domestic backlash","politics"],example:"Fear of **domestic backlash** limited concessions.",example_tr:"**İç tepki** korkusu tavizleri sınırladı."},
+  {en:"Elite pacting",tr:"Elitler arası uzlaşma",cat:"Diplomasi",difficulty:"advanced",tags:["elite pacting","agreement"],example:"**Elite pacting** supported transition negotiations.",example_tr:"**Elitler arası uzlaşma** geçiş müzakerelerini destekledi."},
+  {en:"Power-sharing agreement",tr:"Güç paylaşımı anlaşması",cat:"Diplomasi",difficulty:"advanced",tags:["power-sharing","agreement"],example:"A **power-sharing agreement** reduced incentives for violence.",example_tr:"Bir **güç paylaşımı anlaşması** şiddet teşviklerini azalttı."},
+  {en:"Transitional arrangement",tr:"Geçiş düzenlemesi",cat:"Diplomasi",difficulty:"advanced",tags:["transitional","arrangement"],example:"A **transitional arrangement** set timelines for elections.",example_tr:"Bir **geçiş düzenlemesi** seçim takvimini belirledi."},
+  {en:"National dialogue",tr:"Ulusal diyalog",cat:"Diplomasi",difficulty:"intermediate",tags:["national dialogue","process"],example:"A **national dialogue** complemented external mediation.",example_tr:"Bir **ulusal diyalog** dış arabuluculuğu tamamladı."},
+  {en:"Inclusive dialogue",tr:"Kapsayıcı diyalog",cat:"Diplomasi",difficulty:"intermediate",tags:["inclusive","dialogue"],example:"**Inclusive dialogue** reduced spoiler incentives.",example_tr:"**Kapsayıcı diyalog** sabotaj teşviklerini azalttı."},
+  {en:"Stakeholder mapping",tr:"Paydaş haritalama",cat:"Diplomasi",difficulty:"advanced",tags:["stakeholder mapping","process"],example:"**Stakeholder mapping** identified key veto players.",example_tr:"**Paydaş haritalama** kilit veto oyuncularını belirledi."},
+  {en:"Veto player",tr:"Veto oyuncusu",cat:"Diplomasi",difficulty:"advanced",tags:["veto player","politics"],example:"A key **veto player** could block implementation.",example_tr:"Kilit bir **veto oyuncusu** uygulamayı engelleyebilirdi."},
+  {en:"Guarantee mechanism",tr:"Garanti mekanizması",cat:"Diplomasi",difficulty:"advanced",tags:["guarantee","mechanism"],example:"A **guarantee mechanism** linked aid to verified milestones.",example_tr:"Bir **garanti mekanizması** yardımı doğrulanmış aşamalara bağladı."},
+  {en:"Implementation milestones",tr:"Uygulama kilometre taşları",cat:"Diplomasi",difficulty:"advanced",tags:["milestones","implementation"],example:"The roadmap listed **implementation milestones** and deadlines.",example_tr:"Yol haritası **uygulama kilometre taşlarını** ve son tarihleri listeledi."},
+  {en:"Benchmarks",tr:"Kıstaslar (benchmarks)",cat:"Diplomasi",difficulty:"advanced",tags:["benchmarks","conditionality"],example:"Donors set **benchmarks** for continued support.",example_tr:"Bağışçılar desteğin sürmesi için **kıstaslar** koydu."},
+  {en:"Verification protocol",tr:"Doğrulama protokolü",cat:"Diplomasi",difficulty:"advanced",tags:["verification","protocol"],example:"A detailed **verification protocol** reduced disputes over compliance.",example_tr:"Ayrıntılı bir **doğrulama protokolü** uyuma dair ihtilafları azalttı."},
+  {en:"Inspection regime",tr:"Denetim rejimi",cat:"Diplomasi",difficulty:"advanced",tags:["inspection","regime"],example:"An **inspection regime** provided credible monitoring.",example_tr:"Bir **denetim rejimi** inandırıcı izleme sağladı."},
+  {en:"On-site inspection",tr:"Yerinde denetim",cat:"Diplomasi",difficulty:"advanced",tags:["on-site inspection","verification"],example:"**On-site inspection** increased transparency.",example_tr:"**Yerinde denetim** şeffaflığı artırdı."},
+  {en:"Remote monitoring",tr:"Uzaktan izleme",cat:"Diplomasi",difficulty:"advanced",tags:["remote monitoring","verification"],example:"**Remote monitoring** complemented on-site visits.",example_tr:"**Uzaktan izleme** yerinde ziyaretleri tamamladı."},
+  {en:"Confidence in compliance",tr:"Uyuma güven",cat:"Diplomasi",difficulty:"advanced",tags:["compliance","confidence"],example:"Transparency measures increased **confidence in compliance**.",example_tr:"Şeffaflık önlemleri **uyuma güveni** artırdı."},
+  {en:"Snapback sanctions",tr:"Geri dönen yaptırımlar (snapback)",cat:"Diplomasi",difficulty:"advanced",tags:["snapback","sanctions"],example:"The deal included **snapback sanctions** for serious violations.",example_tr:"Anlaşma ciddi ihlaller için **snapback yaptırımları** içerdi."},
+  {en:"Sunrise provision",tr:"Aşamalı yürürlük (sunrise)",cat:"Diplomasi",difficulty:"advanced",tags:["sunrise","provision"],example:"A **sunrise provision** phased in obligations gradually.",example_tr:"Bir **sunrise hükmü** yükümlülükleri kademeli başlattı."},
+  {en:"Phased approach",tr:"Aşamalı yaklaşım",cat:"Diplomasi",difficulty:"intermediate",tags:["phased","approach"],example:"A **phased approach** balanced urgency with feasibility.",example_tr:"Bir **aşamalı yaklaşım** aciliyet ile uygulanabilirliği dengeledi."},
+  {en:"Reciprocal steps",tr:"Karşılıklı adımlar",cat:"Diplomasi",difficulty:"intermediate",tags:["reciprocal","steps"],example:"The roadmap required **reciprocal steps** verified by observers.",example_tr:"Yol haritası gözlemcilerce doğrulanan **karşılıklı adımlar** gerektirdi."},
+  {en:"Simultaneous steps",tr:"Eşzamanlı adımlar",cat:"Diplomasi",difficulty:"advanced",tags:["simultaneous","steps"],example:"They agreed on **simultaneous steps** to avoid sequencing disputes.",example_tr:"Sıralama ihtilafını önlemek için **eşzamanlı adımlarda** anlaştılar."},
+  {en:"Reciprocal restraint",tr:"Karşılıklı itidal",cat:"Diplomasi",difficulty:"advanced",tags:["restraint","reciprocity"],example:"**Reciprocal restraint** reduced the tempo of hostile actions.",example_tr:"**Karşılıklı itidal** düşmanca eylemlerin temposunu azalttı."},
+  {en:"Confidence-building package",tr:"Güven artırıcı paket",cat:"Diplomasi",difficulty:"advanced",tags:["cbms","package"],example:"A **confidence-building package** combined hotlines and troop pullbacks.",example_tr:"Bir **güven artırıcı paket** hotline ve birlik çekilmelerini birleştirdi."},
+  {en:"Deconfliction channel",tr:"Çatışmasızlaştırma kanalı",cat:"Diplomasi",difficulty:"advanced",tags:["deconfliction","channel"],example:"A **deconfliction channel** prevented accidental clashes.",example_tr:"Bir **çatışmasızlaştırma kanalı** kazara çatışmaları önledi."},
+  {en:"Deconfliction hotline",tr:"Çatışmasızlaştırma hattı",cat:"Diplomasi",difficulty:"advanced",tags:["deconfliction","hotline"],example:"The **deconfliction hotline** reduced risks during operations.",example_tr:"**Çatışmasızlaştırma hattı** operasyonlarda riskleri azalttı."},
+  {en:"Rules-based order (diplomatic usage)",tr:"Kurallara dayalı düzen",cat:"Diplomasi",difficulty:"intermediate",tags:["rules-based order","norms"],example:"Leaders invoked the **rules-based order** to criticize aggression.",example_tr:"Liderler saldırganlığı eleştirmek için **kurallara dayalı düzene** atıf yaptı."},
+  {en:"Principled pragmatism",tr:"İlkesel pragmatizm",cat:"Diplomasi",difficulty:"advanced",tags:["pragmatism","principles"],example:"**Principled pragmatism** balanced values with strategic needs.",example_tr:"**İlkesel pragmatizm** değerlerle stratejik ihtiyaçları dengeledi."},
+  {en:"Diplomatic hedging",tr:"Diplomatik dengeleme/hedging",cat:"Diplomasi",difficulty:"advanced",tags:["hedging","alignment"],example:"**Diplomatic hedging** kept options open amid uncertainty.",example_tr:"**Diplomatik hedging** belirsizlikte seçenekleri açık tuttu."},
+  {en:"Strategic hedging",tr:"Stratejik hedging",cat:"Diplomasi",difficulty:"advanced",tags:["hedging","strategy"],example:"**Strategic hedging** diversified partnerships to reduce dependence.",example_tr:"**Stratejik hedging** bağımlılığı azaltmak için ortaklıkları çeşitlendirdi."},
+  {en:"Dual-track strategy",tr:"Çift hatlı strateji",cat:"Diplomasi",difficulty:"advanced",tags:["dual-track","strategy"],example:"A **dual-track strategy** combined pressure with dialogue.",example_tr:"Bir **çift hatlı strateji** baskıyı diyalogla birleştirdi."},
+  {en:"Engagement strategy",tr:"Angajman stratejisi",cat:"Diplomasi",difficulty:"intermediate",tags:["engagement","strategy"],example:"An **engagement strategy** prioritized technical cooperation first.",example_tr:"Bir **angajman stratejisi** önce teknik iş birliğini önceliklendirdi."},
+  {en:"Diplomatic off-ramps",tr:"Diplomatik çıkış yolları",cat:"Diplomasi",difficulty:"advanced",tags:["off-ramp","de-escalation"],example:"The proposal offered **diplomatic off-ramps** for both leaderships.",example_tr:"Öneri her iki liderlik için **diplomatik çıkış yolları** sundu."},
+  {en:"Confidence-building hotline",tr:"Güven artırıcı hat",cat:"Diplomasi",difficulty:"advanced",tags:["cbms","hotline"],example:"A **confidence-building hotline** reduced rumors and panic.",example_tr:"Bir **güven artırıcı hat** söylentileri ve paniği azalttı."},
+  {en:"Early warning",tr:"Erken uyarı",cat:"Diplomasi",difficulty:"intermediate",tags:["early warning","crisis"],example:"Shared **early warning** indicators improved crisis response.",example_tr:"Paylaşılan **erken uyarı** göstergeleri kriz tepkisini iyileştirdi."},
+  {en:"Preventive diplomacy",tr:"Önleyici diplomasi",cat:"Diplomasi",difficulty:"advanced",tags:["preventive diplomacy","conflict prevention"],example:"**Preventive diplomacy** focused on early engagement before violence.",example_tr:"**Önleyici diplomasi** şiddet öncesi erken angajmana odaklandı."},
+  {en:"Conflict prevention",tr:"Çatışma önleme",cat:"Diplomasi",difficulty:"intermediate",tags:["conflict prevention","prevention"],example:"**Conflict prevention** relied on credible mediation and incentives.",example_tr:"**Çatışma önleme** inandırıcı arabuluculuk ve teşviklere dayandı."},
+  {en:"Preventive deployment",tr:"Önleyici konuşlanma",cat:"Diplomasi",difficulty:"advanced",tags:["preventive deployment","mission"],example:"**Preventive deployment** aimed to deter escalation near the border.",example_tr:"**Önleyici konuşlanma** sınır yakınında tırmanmayı caydırmayı hedefledi."},
+  {en:"Fact-finding mission",tr:"Gerçekleri araştırma misyonu",cat:"Diplomasi",difficulty:"intermediate",tags:["fact-finding","mission"],example:"A **fact-finding mission** collected evidence on the incident.",example_tr:"Bir **gerçekleri araştırma misyonu** olay hakkında delil topladı."},
+  {en:"Goodwill mission",tr:"İyi niyet misyonu",cat:"Diplomasi",difficulty:"intermediate",tags:["goodwill","mission"],example:"A **goodwill mission** signaled readiness to listen and engage.",example_tr:"Bir **iyi niyet misyonu** dinleme ve angajmana hazır olunduğunu gösterdi."},
+  {en:"Interstate relations",tr:"Devletler arası ilişkiler",cat:"Diplomasi",difficulty:"basic",tags:["interstate relations","bilateral","relations"],example:"Stable **interstate relations** depend on credible commitments and communication.",example_tr:"İstikrarlı **devletler arası ilişkiler** inandırıcı taahhüt ve iletişime dayanır."},
+  {en:"Bilateralism",tr:"İkili ilişki yaklaşımı (bilateralizm)",cat:"Diplomasi",difficulty:"basic",tags:["bilateralism","bilateral"],example:"**Bilateralism** can deliver faster bargains than large multilateral fora.",example_tr:"**Bilateralizm** büyük çok taraflı platformlara göre daha hızlı pazarlık sağlayabilir."},
+  {en:"Multilateralism",tr:"Çok taraflılık",cat:"Diplomasi",difficulty:"basic",tags:["multilateralism","multilateral"],example:"**Multilateralism** increases legitimacy but often slows decision-making.",example_tr:"**Çok taraflılık** meşruiyeti artırır ama karar almayı çoğu zaman yavaşlatır."},
+  {en:"Minilateral cooperation",tr:"Az sayıda aktörle iş birliği",cat:"Diplomasi",difficulty:"advanced",tags:["minilateral","cooperation"],example:"**Minilateral cooperation** targeted specific problems with a small coalition.",example_tr:"**Az sayıda aktörle iş birliği** küçük bir koalisyonla belirli sorunları hedefledi."},
+  {en:"Bilateral treaty",tr:"İkili antlaşma",cat:"Diplomasi",difficulty:"basic",tags:["bilateral treaty","treaty"],example:"A **bilateral treaty** clarified obligations on extradition and assistance.",example_tr:"Bir **ikili antlaşma** iade ve yardımlaşma yükümlülüklerini netleştirdi."},
+  {en:"Strategic agreement",tr:"Stratejik anlaşma",cat:"Diplomasi",difficulty:"intermediate",tags:["strategic","agreement"],example:"A **strategic agreement** aligned defense cooperation with economic ties.",example_tr:"Bir **stratejik anlaşma** savunma iş birliğini ekonomik bağlarla hizaladı."},
+  {en:"Bilateral consultation",tr:"İkili istişare",cat:"Diplomasi",difficulty:"basic",tags:["bilateral","consultation"],example:"Regular **bilateral consultations** reduced surprises in policy shifts.",example_tr:"Düzenli **ikili istişareler** politika değişimlerinde sürprizleri azalttı."},
+  {en:"Strategic consultation",tr:"Stratejik istişare",cat:"Diplomasi",difficulty:"intermediate",tags:["strategic","consultation"],example:"**Strategic consultations** reviewed red lines and escalation risks.",example_tr:"**Stratejik istişareler** kırmızı çizgileri ve tırmanma risklerini gözden geçirdi."},
+  {en:"Bilateral dispute",tr:"İkili ihtilaf",cat:"Diplomasi",difficulty:"basic",tags:["bilateral dispute","dispute"],example:"A maritime **bilateral dispute** escalated due to ambiguous boundaries.",example_tr:"Deniz yetki alanlarına dair **ikili ihtilaf** muğlak sınırlar nedeniyle tırmandı."},
+  {en:"Territorial dispute",tr:"Toprak ihtilafı",cat:"Diplomasi",difficulty:"intermediate",tags:["territorial dispute","border"],example:"A long-running **territorial dispute** constrained normalization efforts.",example_tr:"Uzun süren bir **toprak ihtilafı** normalleşme çabalarını sınırladı."},
+  {en:"Border demarcation",tr:"Sınır tahdidi (demarcation)",cat:"Diplomasi",difficulty:"advanced",tags:["border","demarcation"],example:"**Border demarcation** reduced incidents by clarifying the line.",example_tr:"**Sınır tahdidi** hattı netleştirerek olayları azalttı."},
+  {en:"Border delimitation",tr:"Sınır belirleme (delimitation)",cat:"Diplomasi",difficulty:"advanced",tags:["border","delimitation"],example:"**Border delimitation** negotiations focused on maps and legal principles.",example_tr:"**Sınır belirleme** müzakereleri haritalar ve hukuki ilkeler üzerinde yoğunlaştı."},
+  {en:"Maritime boundary",tr:"Deniz sınırı",cat:"Diplomasi",difficulty:"intermediate",tags:["maritime boundary","sea"],example:"A contested **maritime boundary** complicated energy exploration.",example_tr:"Tartışmalı bir **deniz sınırı** enerji aramalarını zorlaştırdı."},
+  {en:"Exclusive Economic Zone (EEZ)",tr:"Münhasır Ekonomik Bölge (MEB)",cat:"Diplomasi",difficulty:"intermediate",tags:["eez","maritime","law of the sea"],example:"Disputes over the **EEZ** triggered naval signaling.",example_tr:"**MEB** üzerindeki anlaşmazlıklar deniz kuvvetleriyle sinyal vermeyi tetikledi."},
+  {en:"Freedom of navigation",tr:"Seyrüsefer serbestisi",cat:"Diplomasi",difficulty:"intermediate",tags:["freedom of navigation","maritime"],example:"States invoked **freedom of navigation** to contest excessive claims.",example_tr:"Devletler aşırı iddialara itiraz için **seyrüsefer serbestisine** atıf yaptı."},
+  {en:"Airspace violation",tr:"Hava sahası ihlali",cat:"Diplomasi",difficulty:"basic",tags:["airspace","violation","incident"],example:"An **airspace violation** prompted an urgent diplomatic démarche.",example_tr:"Bir **hava sahası ihlali** acil bir diplomatik demarşı tetikledi."},
+  {en:"Rules-based diplomacy",tr:"Kurallı diplomasi (normlara dayalı)",cat:"Diplomasi",difficulty:"advanced",tags:["rules-based","norms","diplomacy"],example:"**Rules-based diplomacy** emphasized legal commitments over power politics.",example_tr:"**Kurallı diplomasi** güç siyasetinden ziyade hukuki taahhütleri vurguladı."},
+  {en:"Alliance politics",tr:"İttifak siyaseti",cat:"Diplomasi",difficulty:"advanced",tags:["alliance politics","alliances"],example:"**Alliance politics** shaped bargaining positions in crisis negotiations.",example_tr:"**İttifak siyaseti** kriz müzakerelerinde pazarlık pozisyonlarını şekillendirdi."},
+  {en:"Alliance cohesion",tr:"İttifak bütünlüğü",cat:"Diplomasi",difficulty:"advanced",tags:["alliance","cohesion"],example:"Maintaining **alliance cohesion** required careful burden-sharing deals.",example_tr:"**İttifak bütünlüğünü** korumak dikkatli yük paylaşımı anlaşmaları gerektirdi."},
+  {en:"Alliance credibility",tr:"İttifak inandırıcılığı",cat:"Diplomasi",difficulty:"advanced",tags:["alliance credibility","credibility"],example:"**Alliance credibility** depends on consistent commitments over time.",example_tr:"**İttifak inandırıcılığı** zaman içinde tutarlı taahhütlere bağlıdır."},
+  {en:"Extended deterrence (diplomatic angle)",tr:"Genişletilmiş caydırıcılık",cat:"Diplomasi",difficulty:"advanced",tags:["extended deterrence","alliance"],example:"**Extended deterrence** reassures allies and deters adversaries.",example_tr:"**Genişletilmiş caydırıcılık** müttefikleri rahatlatır ve rakipleri caydırır."},
+  {en:"Security reassurance",tr:"Güvenlik teminatı (reassurance)",cat:"Diplomasi",difficulty:"advanced",tags:["reassurance","security guarantees"],example:"Regular visits served as **security reassurance** to exposed partners.",example_tr:"Düzenli ziyaretler kırılgan ortaklara **güvenlik teminatı** işlevi gördü."},
+  {en:"Alignment",tr:"Hizalanma",cat:"Diplomasi",difficulty:"intermediate",tags:["alignment","coalition"],example:"Crisis pressures accelerated **alignment** with major powers.",example_tr:"Kriz baskıları büyük güçlerle **hizalanmayı** hızlandırdı."},
+  {en:"Strategic autonomy",tr:"Stratejik özerklik",cat:"Diplomasi",difficulty:"advanced",tags:["strategic autonomy","alignment"],example:"**Strategic autonomy** sought flexibility between competing blocs.",example_tr:"**Stratejik özerklik** rekabet eden bloklar arasında esneklik hedefledi."},
+  {en:"Balancing act",tr:"Denge oyunu",cat:"Diplomasi",difficulty:"intermediate",tags:["balancing","hedging"],example:"The government performed a **balancing act** between rival partners.",example_tr:"Hükümet rakip ortaklar arasında bir **denge oyunu** yürüttü."},
+  {en:"Bandwagoning (diplomatic context)",tr:"Güçlüye yanaşma",cat:"Diplomasi",difficulty:"advanced",tags:["bandwagoning","alignment"],example:"Some states chose **bandwagoning** to avoid isolation.",example_tr:"Bazı devletler izolasyondan kaçınmak için **güçlüye yanaşmayı** seçti."},
+  {en:"Strategic rivalry",tr:"Stratejik rekabet",cat:"Diplomasi",difficulty:"intermediate",tags:["strategic rivalry","rivalry"],example:"**Strategic rivalry** narrowed the space for compromise.",example_tr:"**Stratejik rekabet** uzlaşma alanını daralttı."},
+  {en:"Great power competition",tr:"Büyük güç rekabeti",cat:"Diplomasi",difficulty:"intermediate",tags:["great power competition","rivalry"],example:"**Great power competition** reshaped regional diplomacy.",example_tr:"**Büyük güç rekabeti** bölgesel diplomasiyi yeniden şekillendirdi."},
+  {en:"Spheres of influence",tr:"Nüfuz alanları",cat:"Diplomasi",difficulty:"intermediate",tags:["sphere of influence","influence"],example:"Debates over **spheres of influence** complicated security dialogues.",example_tr:"**Nüfuz alanları** tartışmaları güvenlik diyaloglarını zorlaştırdı."},
+  {en:"Influence operations (diplomatic)",tr:"Nüfuz operasyonları",cat:"Diplomasi",difficulty:"advanced",tags:["influence operations","information"],example:"**Influence operations** targeted public opinion to shape policy choices.",example_tr:"**Nüfuz operasyonları** politika tercihlerini şekillendirmek için kamuoyunu hedefledi."},
+  {en:"Diplomatic leverage",tr:"Diplomatik koz",cat:"Diplomasi",difficulty:"intermediate",tags:["diplomatic leverage","leverage"],example:"Energy transit routes provided **diplomatic leverage**.",example_tr:"Enerji transit güzergâhları **diplomatik koz** sağladı."},
+  {en:"Reciprocal sanctions",tr:"Karşılıklı yaptırımlar",cat:"Diplomasi",difficulty:"intermediate",tags:["reciprocal","sanctions"],example:"**Reciprocal sanctions** hardened positions and reduced dialogue.",example_tr:"**Karşılıklı yaptırımlar** pozisyonları sertleştirdi ve diyaloğu azalttı."},
+  {en:"Diplomatic escalation",tr:"Diplomatik tırmanma",cat:"Diplomasi",difficulty:"intermediate",tags:["diplomatic escalation","escalation"],example:"**Diplomatic escalation** preceded military mobilization.",example_tr:"**Diplomatik tırmanma** askerî seferberliğin öncesinde yaşandı."},
+  {en:"Diplomatic de-escalation",tr:"Diplomatik yatıştırma",cat:"Diplomasi",difficulty:"intermediate",tags:["diplomatic de-escalation","de-escalation"],example:"A hotline supported **diplomatic de-escalation** after the incident.",example_tr:"Bir hotline olay sonrası **diplomatik yatıştırmayı** destekledi."},
+  {en:"Normalization talks",tr:"Normalleşme görüşmeleri",cat:"Diplomasi",difficulty:"basic",tags:["normalization","talks"],example:"**Normalization talks** focused on reopening embassies and trade links.",example_tr:"**Normalleşme görüşmeleri** büyükelçiliklerin açılması ve ticaret bağlarına odaklandı."},
+  {en:"Confidence in intentions",tr:"Niyetlere güven",cat:"Diplomasi",difficulty:"advanced",tags:["intentions","confidence"],example:"Transparency increased **confidence in intentions**.",example_tr:"Şeffaflık **niyetlere güveni** artırdı."},
+  {en:"Hostile rhetoric",tr:"Düşmanca söylem",cat:"Diplomasi",difficulty:"basic",tags:["hostile rhetoric","rhetoric"],example:"**Hostile rhetoric** limited room for diplomatic compromise.",example_tr:"**Düşmanca söylem** diplomatik uzlaşma alanını daralttı."},
+  {en:"Diplomatic thaw",tr:"Diplomatik yumuşama",cat:"Diplomasi",difficulty:"intermediate",tags:["thaw","detente"],example:"A **diplomatic thaw** began with technical cooperation.",example_tr:"Bir **diplomatik yumuşama** teknik iş birliğiyle başladı."},
+  {en:"Resumption of ties",tr:"İlişkilerin yeniden başlaması",cat:"Diplomasi",difficulty:"intermediate",tags:["resumption","ties"],example:"The **resumption of ties** was announced after months of talks.",example_tr:"Aylar süren görüşmelerin ardından **ilişkilerin yeniden başlaması** ilan edildi."},
+  {en:"Diplomatic dispute settlement",tr:"Diplomatik uyuşmazlık çözümü",cat:"Diplomasi",difficulty:"advanced",tags:["dispute settlement","diplomacy"],example:"**Diplomatic dispute settlement** combined legal arguments with incentives.",example_tr:"**Diplomatik uyuşmazlık çözümü** hukuki argümanları teşviklerle birleştirdi."},
+  {en:"Arms control dialogue",tr:"Silah kontrol diyaloğu",cat:"Diplomasi",difficulty:"advanced",tags:["arms control","dialogue"],example:"An **arms control dialogue** reduced worst-case assumptions.",example_tr:"Bir **silah kontrol diyaloğu** en kötü senaryo varsayımlarını azalttı."},
+  {en:"Risk reduction measures",tr:"Risk azaltma önlemleri",cat:"Diplomasi",difficulty:"advanced",tags:["risk reduction","cbms"],example:"**Risk reduction measures** lowered the chance of accidental conflict.",example_tr:"**Risk azaltma önlemleri** kazara çatışma ihtimalini düşürdü."},
+  {en:"Diplomatic reassurance",tr:"Diplomatik yatıştırma/teminat",cat:"Diplomasi",difficulty:"intermediate",tags:["reassurance","diplomatic"],example:"**Diplomatic reassurance** calmed allies after the policy shift.",example_tr:"Politika değişimi sonrası **diplomatik teminat** müttefikleri rahatlattı."},
+  {en:"Alliance reassurance",tr:"İttifak teminatı",cat:"Diplomasi",difficulty:"advanced",tags:["alliance","reassurance"],example:"Joint exercises served as **alliance reassurance**.",example_tr:"Ortak tatbikatlar **ittifak teminatı** işlevi gördü."},
+  {en:"Security dilemma (diplomatic framing)",tr:"Güvenlik ikilemi",cat:"Diplomasi",difficulty:"advanced",tags:["security dilemma","diplomacy"],example:"Diplomats referenced the **security dilemma** to justify restraint.",example_tr:"Diplomatlar itidali gerekçelendirmek için **güvenlik ikilemine** atıf yaptı."},
+  {en:"Escalation dominance",tr:"Tırmanma üstünlüğü",cat:"Diplomasi",difficulty:"advanced",tags:["escalation dominance","deterrence"],example:"Perceptions of **escalation dominance** shaped bargaining behavior.",example_tr:"**Tırmanma üstünlüğü** algısı pazarlık davranışını şekillendirdi."},
+  {en:"Strategic signaling",tr:"Stratejik sinyal verme",cat:"Diplomasi",difficulty:"intermediate",tags:["strategic signaling","signaling"],example:"A port visit acted as **strategic signaling**.",example_tr:"Liman ziyareti **stratejik sinyal verme** işlevi gördü."},
+  {en:"Military-to-military talks",tr:"Askerî kanallar arası görüşmeler",cat:"Diplomasi",difficulty:"advanced",tags:["military-to-military","deconfliction"],example:"**Military-to-military talks** supported deconfliction during operations.",example_tr:"**Askerî kanallar arası görüşmeler** operasyonlarda çatışmasızlaştırmayı destekledi."},
+  {en:"Strategic stability dialogue",tr:"Stratejik istikrar diyaloğu",cat:"Diplomasi",difficulty:"advanced",tags:["strategic stability","dialogue"],example:"A **strategic stability dialogue** addressed escalation ladders and transparency.",example_tr:"Bir **stratejik istikrar diyaloğu** tırmanma basamakları ve şeffaflığı ele aldı."},
+  {en:"Deterrence messaging",tr:"Caydırıcılık mesajlaması",cat:"Diplomasi",difficulty:"advanced",tags:["deterrence","messaging"],example:"Clear **deterrence messaging** reduced misinterpretation risks.",example_tr:"Net **caydırıcılık mesajlaması** yanlış yorum riskini azalttı."},
+  {en:"Crisis communication",tr:"Kriz iletişimi",cat:"Diplomasi",difficulty:"intermediate",tags:["crisis communication","hotline"],example:"**Crisis communication** prevents rumors from driving escalation.",example_tr:"**Kriz iletişimi** söylentilerin tırmanmayı sürüklemesini önler."},
+  {en:"Bilateral crisis hotline",tr:"İkili kriz hattı",cat:"Diplomasi",difficulty:"intermediate",tags:["bilateral","hotline","crisis"],example:"A **bilateral crisis hotline** enabled rapid clarification.",example_tr:"Bir **ikili kriz hattı** hızlı netleştirmeyi sağladı."},
+  {en:"Diplomatic off-site meeting",tr:"Gizli/kapalı mekân dışı görüşme",cat:"Diplomasi",difficulty:"advanced",tags:["off-site meeting","backchannel"],example:"An **off-site meeting** allowed frank exchanges away from media.",example_tr:"Bir **off-site görüşme** medyadan uzakta açık konuşmayı sağladı."},
+  {en:"Reciprocal recognition",tr:"Karşılıklı tanıma",cat:"Diplomasi",difficulty:"intermediate",tags:["reciprocal recognition","recognition"],example:"**Reciprocal recognition** was tied to border guarantees.",example_tr:"**Karşılıklı tanıma** sınır garantilerine bağlandı."},
+  {en:"Non-recognition policy",tr:"Tanımama politikası",cat:"Diplomasi",difficulty:"intermediate",tags:["non-recognition","policy"],example:"A firm **non-recognition policy** constrained diplomatic engagement.",example_tr:"Sert bir **tanımama politikası** diplomatik angajmanı sınırladı."},
+  {en:"Diplomatic isolation strategy",tr:"Diplomatik izolasyon stratejisi",cat:"Diplomasi",difficulty:"advanced",tags:["isolation","strategy"],example:"A **diplomatic isolation strategy** aimed to raise the regime’s costs.",example_tr:"Bir **diplomatik izolasyon stratejisi** rejimin maliyetini artırmayı hedefledi."},
+  {en:"Re-engagement policy",tr:"Yeniden angajman politikası",cat:"Diplomasi",difficulty:"advanced",tags:["re-engagement","policy"],example:"A **re-engagement policy** reopened channels without endorsing policies.",example_tr:"Bir **yeniden angajman politikası** politikaları onaylamadan kanalları açtı."},
+  {en:"Diplomatic outreach campaign",tr:"Diplomatik temas kampanyası",cat:"Diplomasi",difficulty:"advanced",tags:["outreach","campaign"],example:"A **diplomatic outreach campaign** targeted undecided partners.",example_tr:"Bir **diplomatik temas kampanyası** kararsız ortakları hedefledi."},
+  {en:"Bilateral confidence-building",tr:"İkili güven artırma",cat:"Diplomasi",difficulty:"advanced",tags:["bilateral","cbms"],example:"**Bilateral confidence-building** began with transparency on exercises.",example_tr:"**İkili güven artırma** tatbikatlarda şeffaflıkla başladı."},
+  {en:"Non-escalation understanding",tr:"Tırmandırmama mutabakatı",cat:"Diplomasi",difficulty:"advanced",tags:["non-escalation","understanding"],example:"A **non-escalation understanding** limited provocative deployments.",example_tr:"Bir **tırmandırmama mutabakatı** provokatif konuşlanmaları sınırladı."},
+  {en:"Diplomatic settlement framework",tr:"Diplomatik çözüm çerçevesi",cat:"Diplomasi",difficulty:"advanced",tags:["settlement","framework"],example:"A **settlement framework** defined principles and sequencing.",example_tr:"Bir **çözüm çerçevesi** ilkeleri ve sıralamayı tanımladı."},
+  {en:"Bilateral normalization package",tr:"İkili normalleşme paketi",cat:"Diplomasi",difficulty:"advanced",tags:["normalization","package"],example:"A **bilateral normalization package** combined visas, trade, and security steps.",example_tr:"Bir **ikili normalleşme paketi** vize, ticaret ve güvenlik adımlarını birleştirdi."},
+  {en:"Historical grievance",tr:"Tarihsel kırgınlık/şikâyet",cat:"Diplomasi",difficulty:"intermediate",tags:["historical grievance","history","memory"],example:"Unresolved **historical grievances** constrained diplomatic compromise.",example_tr:"Çözümsüz **tarihsel kırgınlıklar** diplomatik uzlaşmayı sınırladı."},
+  {en:"Historical legacy",tr:"Tarihsel miras",cat:"Diplomasi",difficulty:"intermediate",tags:["historical legacy","legacy","history"],example:"Colonial **historical legacies** shaped borders and institutions.",example_tr:"Sömürge **tarihsel mirası** sınırları ve kurumları şekillendirdi."},
+  {en:"Colonial legacy",tr:"Sömürge mirası",cat:"Diplomasi",difficulty:"intermediate",tags:["colonial legacy","postcolonial"],example:"A **colonial legacy** influenced language policy and diplomatic alignments.",example_tr:"**Sömürge mirası** dil politikasını ve diplomatik hizalanmaları etkiledi."},
+  {en:"Postcolonial statecraft",tr:"Sömürge-sonrası devlet aklı",cat:"Diplomasi",difficulty:"advanced",tags:["postcolonial","statecraft"],example:"**Postcolonial statecraft** balanced sovereignty claims with dependency risks.",example_tr:"**Sömürge-sonrası devlet aklı** egemenlik iddialarını bağımlılık riskleriyle dengeledi."},
+  {en:"Path dependence",tr:"Yol bağımlılığı",cat:"Diplomasi",difficulty:"advanced",tags:["path dependence","institutions","history"],example:"Institutional choices showed **path dependence** rooted in earlier settlements.",example_tr:"Kurumsal tercihler önceki uzlaşılarla bağlantılı **yol bağımlılığı** gösterdi."},
+  {en:"Historical narrative",tr:"Tarihsel anlatı",cat:"Diplomasi",difficulty:"intermediate",tags:["historical narrative","narrative","memory"],example:"Competing **historical narratives** hardened public attitudes.",example_tr:"Rekabet eden **tarihsel anlatılar** kamu tutumlarını sertleştirdi."},
+  {en:"Politics of memory",tr:"Hafıza siyaseti",cat:"Diplomasi",difficulty:"advanced",tags:["memory politics","history","identity"],example:"**Politics of memory** shaped foreign policy rhetoric.",example_tr:"**Hafıza siyaseti** dış politika söylemini şekillendirdi."},
+  {en:"Memory law",tr:"Hafıza yasası",cat:"Diplomasi",difficulty:"advanced",tags:["memory law","history","legislation"],example:"A **memory law** triggered diplomatic protests abroad.",example_tr:"Bir **hafıza yasası** dışarıda diplomatik protestoları tetikledi."},
+  {en:"Symbolic politics",tr:"Sembolik siyaset",cat:"Diplomasi",difficulty:"intermediate",tags:["symbolic politics","identity"],example:"**Symbolic politics** turned monuments into diplomatic flashpoints.",example_tr:"**Sembolik siyaset** anıtları diplomatik gerilim noktalarına dönüştürdü."},
+  {en:"Commemoration",tr:"Anma",cat:"Diplomasi",difficulty:"basic",tags:["commemoration","memory"],example:"A joint **commemoration** reduced tensions over the past.",example_tr:"Ortak bir **anma** geçmişe dair gerilimleri azalttı."},
+  {en:"Apology diplomacy",tr:"Özür diplomasisi",cat:"Diplomasi",difficulty:"advanced",tags:["apology diplomacy","reconciliation","history"],example:"**Apology diplomacy** sought to repair relations after historic abuses.",example_tr:"**Özür diplomasisi** tarihsel ihlaller sonrası ilişkileri onarmayı hedefledi."},
+  {en:"Official apology",tr:"Resmî özür",cat:"Diplomasi",difficulty:"intermediate",tags:["official apology","reconciliation"],example:"An **official apology** was paired with reparations talks.",example_tr:"Bir **resmî özür** tazminat görüşmeleriyle eşleştirildi."},
+  {en:"Reparations",tr:"Tazminatlar",cat:"Diplomasi",difficulty:"intermediate",tags:["reparations","justice","history"],example:"Debates over **reparations** resurfaced during treaty negotiations.",example_tr:"**Tazminatlar** tartışması antlaşma müzakerelerinde yeniden gündeme geldi."},
+  {en:"Restitution",tr:"İade (mülk/varlık)",cat:"Diplomasi",difficulty:"advanced",tags:["restitution","property","history"],example:"**Restitution** claims targeted artworks taken during the war.",example_tr:"**İade** talepleri savaşta alınan sanat eserlerini hedefledi."},
+  {en:"Transitional justice",tr:"Geçiş dönemi adaleti",cat:"Diplomasi",difficulty:"advanced",tags:["transitional justice","reconciliation"],example:"**Transitional justice** complemented diplomatic normalization.",example_tr:"**Geçiş dönemi adaleti** diplomatik normalleşmeyi tamamladı."},
+  {en:"Truth commission",tr:"Hakikat komisyonu",cat:"Diplomasi",difficulty:"advanced",tags:["truth commission","reconciliation"],example:"A **truth commission** documented abuses to support reconciliation.",example_tr:"Bir **hakikat komisyonu** uzlaşmayı desteklemek için ihlalleri belgeledi."},
+  {en:"Lustration",tr:"Arındırma (lustration)",cat:"Diplomasi",difficulty:"advanced",tags:["lustration","transitional"],example:"**Lustration** policies became contentious in post-conflict governance.",example_tr:"**Arındırma (lustration)** politikaları çatışma sonrası yönetişimde tartışmalı oldu."},
+  {en:"Historical treaty",tr:"Tarihsel antlaşma",cat:"Diplomasi",difficulty:"intermediate",tags:["historical treaty","treaty","legacy"],example:"A **historical treaty** continued to influence border claims.",example_tr:"Bir **tarihsel antlaşma** sınır iddialarını etkilemeye devam etti."},
+  {en:"Treaty legacy",tr:"Antlaşma mirası",cat:"Diplomasi",difficulty:"advanced",tags:["treaty legacy","legacy"],example:"The **treaty legacy** constrained what could be renegotiated.",example_tr:"**Antlaşma mirası** neyin yeniden müzakere edilebileceğini sınırladı."},
+  {en:"Revisionism",tr:"Revizyonizm",cat:"Diplomasi",difficulty:"intermediate",tags:["revisionism","status quo"],example:"Accusations of **revisionism** escalated diplomatic rhetoric.",example_tr:"**Revizyonizm** suçlamaları diplomatik söylemi tırmandırdı."},
+  {en:"Status quo power",tr:"Statükocu güç",cat:"Diplomasi",difficulty:"advanced",tags:["status quo","power"],example:"A **status quo power** opposed territorial changes.",example_tr:"Bir **statükocu güç** toprak değişikliklerine karşı çıktı."},
+  {en:"Revisionist power",tr:"Revizyonist güç",cat:"Diplomasi",difficulty:"advanced",tags:["revisionist","power"],example:"A **revisionist power** challenged postwar arrangements.",example_tr:"Bir **revizyonist güç** savaş sonrası düzenlemeleri sorguladı."},
+  {en:"Irredentism",tr:"İrredentizm",cat:"Diplomasi",difficulty:"advanced",tags:["irredentism","territory","identity"],example:"**Irredentism** fueled cross-border claims and distrust.",example_tr:"**İrredentizm** sınır ötesi iddiaları ve güvensizliği körükledi."},
+  {en:"Revanchism",tr:"İntikamcı revizyonizm (revanchism)",cat:"Diplomasi",difficulty:"advanced",tags:["revanchism","revisionism"],example:"**Revanchism** framed diplomacy as reversing historic humiliation.",example_tr:"**Revanchism** diplomasiyi tarihsel aşağılanmayı tersine çevirme olarak çerçeveledi."},
+  {en:"Border revision",tr:"Sınır revizyonu",cat:"Diplomasi",difficulty:"advanced",tags:["border revision","territory"],example:"Calls for **border revision** triggered international alarm.",example_tr:"**Sınır revizyonu** çağrıları uluslararası endişeyi tetikledi."},
+  {en:"Historical revisionism (memory)",tr:"Tarihsel revizyonizm (hafıza)",cat:"Diplomasi",difficulty:"advanced",tags:["historical revisionism","memory"],example:"Alleged **historical revisionism** became a bilateral dispute.",example_tr:"İddia edilen **tarihsel revizyonizm** ikili bir ihtilafa dönüştü."},
+  {en:"Denialism",tr:"İnkârcılık",cat:"Diplomasi",difficulty:"advanced",tags:["denialism","memory"],example:"**Denialism** intensified diplomatic tensions around commemorations.",example_tr:"**İnkârcılık** anmalar etrafındaki diplomatik gerilimi artırdı."},
+  {en:"Recognition dispute",tr:"Tanıma ihtilafı",cat:"Diplomasi",difficulty:"intermediate",tags:["recognition dispute","recognition"],example:"A **recognition dispute** limited participation in multilateral meetings.",example_tr:"Bir **tanıma ihtilafı** çok taraflı toplantılara katılımı sınırladı."},
+  {en:"Historical responsibility",tr:"Tarihsel sorumluluk",cat:"Diplomasi",difficulty:"advanced",tags:["historical responsibility","apology"],example:"Debates over **historical responsibility** shaped reparations proposals.",example_tr:"**Tarihsel sorumluluk** tartışmaları tazminat önerilerini şekillendirdi."},
+  {en:"War guilt",tr:"Savaş suçu/sorumluluğu (war guilt)",cat:"Diplomasi",difficulty:"advanced",tags:["war guilt","history"],example:"Arguments over **war guilt** resurfaced in parliamentary debates.",example_tr:"**War guilt** tartışmaları parlamento görüşmelerinde yeniden gündeme geldi."},
+  {en:"War crimes",tr:"Savaş suçları",cat:"Diplomasi",difficulty:"intermediate",tags:["war crimes","justice"],example:"Allegations of **war crimes** complicated peace negotiations.",example_tr:"**Savaş suçları** iddiaları barış müzakerelerini zorlaştırdı."},
+  {en:"Crimes against humanity",tr:"İnsanlığa karşı suçlar",cat:"Diplomasi",difficulty:"advanced",tags:["crimes against humanity","justice"],example:"Investigations into **crimes against humanity** affected diplomatic engagement.",example_tr:"**İnsanlığa karşı suçlar** soruşturmaları diplomatik angajmanı etkiledi."},
+  {en:"Accountability",tr:"Hesap verebilirlik",cat:"Diplomasi",difficulty:"intermediate",tags:["accountability","justice"],example:"**Accountability** measures were integrated into the settlement framework.",example_tr:"**Hesap verebilirlik** önlemleri çözüm çerçevesine entegre edildi."},
+  {en:"Impunity",tr:"Cezasızlık",cat:"Diplomasi",difficulty:"advanced",tags:["impunity","justice"],example:"Ending **impunity** became a condition for international support.",example_tr:"**Cezasızlığın** sona erdirilmesi uluslararası destek için koşul oldu."},
+  {en:"War memory",tr:"Savaş hafızası",cat:"Diplomasi",difficulty:"intermediate",tags:["war memory","memory"],example:"**War memory** shaped public tolerance for concessions.",example_tr:"**Savaş hafızası** tavizlere kamu toleransını şekillendirdi."},
+  {en:"Historical trauma",tr:"Tarihsel travma",cat:"Diplomasi",difficulty:"advanced",tags:["historical trauma","identity"],example:"**Historical trauma** influenced threat perceptions in diplomacy.",example_tr:"**Tarihsel travma** diplomaside tehdit algılarını etkiledi."},
+  {en:"Legacy dispute",tr:"Miras ihtilafı",cat:"Diplomasi",difficulty:"advanced",tags:["legacy dispute","history"],example:"A **legacy dispute** over archives stalled the dialogue.",example_tr:"Arşivler üzerindeki bir **miras ihtilafı** diyaloğu tıkadı."},
+  {en:"Archive diplomacy",tr:"Arşiv diplomasisi",cat:"Diplomasi",difficulty:"advanced",tags:["archives","history","diplomacy"],example:"**Archive diplomacy** sought access to documents to settle historical claims.",example_tr:"**Arşiv diplomasisi** tarihsel iddiaları çözmek için belgelere erişim aradı."},
+  {en:"Historical commission",tr:"Tarih komisyonu",cat:"Diplomasi",difficulty:"advanced",tags:["historical commission","archives"],example:"A joint **historical commission** reviewed disputed events.",example_tr:"Ortak bir **tarih komisyonu** tartışmalı olayları inceledi."},
+  {en:"Joint history textbook",tr:"Ortak tarih ders kitabı",cat:"Diplomasi",difficulty:"advanced",tags:["textbook","memory"],example:"A **joint history textbook** reduced contradictory narratives in schools.",example_tr:"Bir **ortak tarih ders kitabı** okullardaki çelişkili anlatıları azalttı."},
+  {en:"Reconciliation commission",tr:"Uzlaşma komisyonu",cat:"Diplomasi",difficulty:"advanced",tags:["reconciliation","commission"],example:"A **reconciliation commission** proposed confidence-building steps.",example_tr:"Bir **uzlaşma komisyonu** güven artırıcı adımlar önerdi."},
+  {en:"Historical reconciliation",tr:"Tarihsel uzlaşma",cat:"Diplomasi",difficulty:"advanced",tags:["historical reconciliation","reconciliation"],example:"**Historical reconciliation** required sustained political leadership.",example_tr:"**Tarihsel uzlaşma** sürdürülebilir siyasi liderlik gerektirdi."},
+  {en:"Normalization with the past",tr:"Geçmişle normalleşme",cat:"Diplomasi",difficulty:"advanced",tags:["past","normalization"],example:"**Normalization with the past** enabled pragmatic cooperation.",example_tr:"**Geçmişle normalleşme** pragmatik iş birliğini mümkün kıldı."},
+  {en:"Legacy of partition",tr:"Bölünmenin mirası",cat:"Diplomasi",difficulty:"advanced",tags:["partition","legacy"],example:"The **legacy of partition** shaped citizenship and border policies.",example_tr:"**Bölünmenin mirası** vatandaşlık ve sınır politikalarını şekillendirdi."},
+  {en:"Postwar settlement",tr:"Savaş sonrası uzlaşma/düzen",cat:"Diplomasi",difficulty:"advanced",tags:["postwar settlement","settlement"],example:"The **postwar settlement** created institutions that still structure diplomacy.",example_tr:"**Savaş sonrası düzen** diplomasiyi hâlâ yapılandıran kurumlar yarattı."},
+  {en:"Yalta order (historical)",tr:"Yalta düzeni (tarihsel)",cat:"Diplomasi",difficulty:"advanced",tags:["yalta","cold war","order"],example:"Debates about the **Yalta order** influenced security narratives.",example_tr:"**Yalta düzeni** tartışmaları güvenlik anlatılarını etkiledi."},
+  {en:"Cold War legacy",tr:"Soğuk Savaş mirası",cat:"Diplomasi",difficulty:"intermediate",tags:["cold war legacy","history"],example:"The **Cold War legacy** shaped alliance habits and mistrust.",example_tr:"**Soğuk Savaş mirası** ittifak alışkanlıklarını ve güvensizliği şekillendirdi."},
+  {en:"Former adversary",tr:"Eski hasım",cat:"Diplomasi",difficulty:"basic",tags:["former adversary","reconciliation"],example:"Engagement with a **former adversary** required domestic persuasion.",example_tr:"Bir **eski hasımla** angajman iç kamuoyunu ikna etmeyi gerektirdi."},
+  {en:"Legacy issues",tr:"Geçmişten kalan meseleler",cat:"Diplomasi",difficulty:"basic",tags:["legacy issues","history"],example:"**Legacy issues** resurfaced during normalization talks.",example_tr:"**Geçmişten kalan meseleler** normalleşme görüşmelerinde yeniden ortaya çıktı."},
+  {en:"Unresolved past",tr:"Çözülmemiş geçmiş",cat:"Diplomasi",difficulty:"intermediate",tags:["unresolved past","history"],example:"The **unresolved past** complicated trust-building measures.",example_tr:"**Çözülmemiş geçmiş** güven inşa etmeyi zorlaştırdı."},
+  {en:"Backlash over history",tr:"Tarih üzerinden tepki dalgası",cat:"Diplomasi",difficulty:"advanced",tags:["backlash","history"],example:"A memorial decision triggered **backlash over history**.",example_tr:"Bir anma kararı **tarih üzerinden tepki dalgasını** tetikledi."},
+  {en:"Historical symbolism",tr:"Tarihsel sembolizm",cat:"Diplomasi",difficulty:"advanced",tags:["symbolism","history"],example:"**Historical symbolism** shaped the choice of venue for the summit.",example_tr:"**Tarihsel sembolizm** zirve mekânı seçimini şekillendirdi."},
+];
+
+// ─── STORAGE ─────────────────────────────────────────────────────────────────
+const STORAGE_KEY = 'ir_lexicon_v1';
+
+function loadData() {
+  try {
+    const s = localStorage.getItem(STORAGE_KEY);
+    if (s) {
+      const parsed = JSON.parse(s);
+      // Güvenlik: geçerli bir dizi mi kontrol et
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        words = parsed;
+      } else {
+        words = DEFAULT.map(w=>({...w,mastery:0,attempts:0,correct:0}));
+        saveData();
+      }
+    } else {
+      // İlk kez açılıyor — eski key'den migrate et
+      const legacy = localStorage.getItem('ir_words_v3');
+      if (legacy) {
+        try {
+          const old = JSON.parse(legacy);
+          if (Array.isArray(old) && old.length > 0) {
+            words = old;
+            saveData(); // Yeni key'e kaydet
+            notify('Kelimeleriniz yeni sisteme aktarıldı ✓','success');
+          } else {
+            words = DEFAULT.map(w=>({...w,mastery:0,attempts:0,correct:0}));
+            saveData();
+          }
+        } catch {
+          words = DEFAULT.map(w=>({...w,mastery:0,attempts:0,correct:0}));
+          saveData();
+        }
+      } else {
+        words = DEFAULT.map(w=>({...w,mastery:0,attempts:0,correct:0}));
+        saveData();
+      }
+    }
+  } catch {
+    words = DEFAULT.map(w=>({...w,mastery:0,attempts:0,correct:0}));
+  }
+  updateStats();
+  startQuiz();
+  renderList();
+}
+
+function saveData() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(words));
+  } catch(e) {
+    console.warn('Kayıt hatası:', e);
+  }
+}
+
+
+
+// ─── TABS ─────────────────────────────────────────────────────────────────────
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i)=>{
+    t.classList.toggle('active',['quiz','list','add','ai'][i]===name);
+  });
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if(name==='list') renderList();
+}
+
+// ─── QUIZ ─────────────────────────────────────────────────────────────────────
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function setMode(m) {
+  quizMode = m;
+  ['en-tr','tr-en','random'].forEach(id=>{
+    const el = document.getElementById('mode-'+id);
+    el.className = 'btn '+(m===id?'btn-primary':'btn-secondary');
+  });
+  startQuiz();
+}
+
+function startQuiz() {
+  if(!words.length) return;
+  quizQueue = shuffle(words);
+  quizIdx = 0; quizCorrect = 0; quizWrong = 0;
+  document.getElementById('quizArea').style.display='block';
+  document.getElementById('resultsArea').style.display='none';
+  loadWord();
+}
+
+function loadWord() {
+  if(quizIdx >= quizQueue.length){ showResults(); return; }
+  answerShown = false;
+  wordMode = quizMode==='random'?(Math.random()>.5?'en-tr':'tr-en'):quizMode;
+  const w = quizQueue[quizIdx];
+  document.getElementById('qWord').textContent = wordMode==='en-tr'?w.en:w.tr;
+  document.getElementById('qHint').textContent = wordMode==='en-tr'?'Türkçe karşılığını yazın':'İngilizce karşılığını yazın';
+  document.getElementById('qProgress').textContent = `${quizIdx+1} / ${quizQueue.length}`;
+  const inp = document.getElementById('qInput');
+  inp.value=''; inp.className='quiz-input'; inp.removeAttribute('disabled');
+  document.getElementById('qFeedback').textContent=''; document.getElementById('qFeedback').className='quiz-feedback';
+  document.getElementById('qReveal').className='answer-reveal';
+  document.getElementById('checkBtn').textContent='Kontrol Et';
+  document.getElementById('revealBtn').style.display='';
+  document.getElementById('streakBadge').textContent = streak>1?`🔥 ${streak} seri doğru!`:'';
+  setTimeout(()=>inp.focus(),80);
+}
+
+function lev(a,b){const m=a.length,n=b.length,dp=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>j===0?i:(i===0?j:0)));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);return dp[m][n];}
+function norm(s){return s.toLowerCase().replace(/[^a-zA-ZığüşöçĞÜŞÖÇİ0-9\s]/g,'').replace(/\s+/g,' ').trim();}
+
+function checkAnswer() {
+  if(answerShown){ nextWord(); return; }
+  const inp = document.getElementById('qInput');
+  const user = norm(inp.value); if(!user) return;
+  const w = quizQueue[quizIdx];
+  const correct = wordMode==='en-tr'?w.tr:w.en;
+  const parts = correct.split('/').map(p=>norm(p.trim()));
+  const ok = parts.some(p=>user===p||(p.includes(user)&&user.length>3)||(user.includes(p)&&p.length>3)||lev(user,p)<=2);
+  const fb = document.getElementById('qFeedback');
+  if(ok){
+    inp.classList.add('correct'); fb.textContent='✓ Doğru!'; fb.className='quiz-feedback correct';
+    quizCorrect++; streak++;
+    updateMastery(w.en, true);
+    setTimeout(nextWord, 700);
+  } else {
+    inp.classList.add('wrong'); fb.textContent='✗ Yanlış'; fb.className='quiz-feedback wrong';
+    quizWrong++; streak=0;
+    updateMastery(w.en, false);
+    answerShown=true;
+    document.getElementById('qReveal').textContent='Cevap: '+correct;
+    document.getElementById('qReveal').className='answer-reveal show';
+    document.getElementById('checkBtn').textContent='İleri →';
+    document.getElementById('revealBtn').style.display='none';
+    inp.setAttribute('disabled','');
+  }
+  document.getElementById('streakBadge').textContent=streak>1?`🔥 ${streak} seri doğru!`:'';
+  updateStats();
+}
+
+function revealAnswer() {
+  const w=quizQueue[quizIdx];
+  const correct=wordMode==='en-tr'?w.tr:w.en;
+  document.getElementById('qReveal').textContent='Cevap: '+correct;
+  document.getElementById('qReveal').className='answer-reveal show';
+  answerShown=true;
+  document.getElementById('checkBtn').textContent='İleri →';
+  document.getElementById('revealBtn').style.display='none';
+}
+
+function skipWord(){ quizWrong++; streak=0; updateStats(); nextWord(); }
+function nextWord(){ quizIdx++; loadWord(); }
+
+function showResults() {
+  document.getElementById('quizArea').style.display='none';
+  document.getElementById('resultsArea').style.display='block';
+  const total=quizCorrect+quizWrong;
+  document.getElementById('rScore').textContent=(total?Math.round(quizCorrect/total*100):0)+'%';
+  document.getElementById('rCorrect').textContent=quizCorrect;
+  document.getElementById('rWrong').textContent=quizWrong;
+}
+
+function updateMastery(en, ok) {
+  words=words.map(w=>{
+    if(w.en!==en)return w;
+    const c=(w.correct||0)+(ok?1:0);
+    let m=w.mastery||0;
+    if(ok){if(c>=3)m=3;else if(c>=2)m=2;else m=Math.max(m,1);}
+    else m=Math.max(0,m-1);
+    return{...w,correct:c,attempts:(w.attempts||0)+1,mastery:m};
+  });
+  saveData();
+}
+
+// ─── GENERATE EXAMPLE ────────────────────────────────────────────────────────
+async function generateExample(en, tr) {
+  // Find the word item — prefix is 'wi_'
+  const itemId = 'wi_' + en.replace(/[^a-zA-Z0-9]/g,'_');
+  const item = document.getElementById(itemId);
+
+  // Show loading spinner inside the item if found
+  if(item) {
+    const btn = item.querySelector('.ex-generate-btn');
+    if(btn) btn.outerHTML = '<div class="ex-loading"><div class="spinner" style="width:14px;height:14px;border-width:1.5px"></div> Üretiliyor...</div>';
+  }
+
+  try {
+    // API'siz mod: örnek cümleler havuzdan/manuel eklenir.
+    // Kullanıcı kelimeyi havuza eklerken example alanlarını da doldurabilir.
+    throw new Error('Ücretsiz modda otomatik örnek cümle üretimi kapalı. (API yok)');
+  } catch(e) {
+    notify('Hata: ' + e.message, 'error');
+    // Re-render so button reappears
+    renderList();
+  }
+}
+
+// ─── LIST ─────────────────────────────────────────────────────────────────────
+let selectMode = false;
+let selectedWords = new Set();
+function renderList() {
+  const s=(document.getElementById('searchInput').value||'').toLowerCase();
+  const cat=document.getElementById('catFilter').value;
+  const filtered=words.filter(w=>(!s||w.en.toLowerCase().includes(s)||w.tr.toLowerCase().includes(s))&&(!cat||w.cat===cat));
+  const ul=document.getElementById('wordList');
+  if(!filtered.length){ul.innerHTML='<div class="empty">Kelime bulunamadı</div>';return;}
+  const mc=['m0','m1','m2','m3'];
+  ul.innerHTML=filtered.map(w=>{
+    const isSel=selectedWords.has(w.en);
+    const wid='wi_'+w.en.replace(/[^a-zA-Z0-9]/g,'_');
+    return `<div class="word-item${isSel?' selected-word':''}" data-en="${w.en.replace(/"/g,'&quot;')}" id="${wid}">
+      ${selectMode?`<div class="word-checkbox${isSel?' checked':''}">${isSel?'✓':''}</div>`:''}
+      <div class="mastery-dot ${mc[w.mastery||0]}" title="Ustalık: ${w.mastery||0}/3"></div>
+      <div class="word-main">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <div class="word-en">${w.en}</div>
+          <div class="word-tr">${w.tr}</div>
+          <div class="word-cat">${w.cat}</div>
+        </div>
+        ${w.example ? renderExample(w,'word-example') : ''}
+      </div>
+      ${selectMode?'':'<button class="word-del" data-del="1">✕</button>'}
+    </div>`;
+  }).join('');
+
+  // Attach events after render
+  ul.querySelectorAll('.word-item').forEach(item=>{
+    const en=item.dataset.en;
+    const word=words.find(w=>w.en===en);
+    if(selectMode){
+      item.style.cursor='pointer';
+      item.addEventListener('click',()=>toggleWordSelect(en));
+    } else {
+      const delBtn=item.querySelector('[data-del]');
+      if(delBtn) delBtn.addEventListener('click',e=>{e.stopPropagation();deleteWord(en);});
+    }
+  });
+  updateSelectedCount();
+}
+
+function deleteWord(en) {
+  if(!confirm(`"${en}" silinsin mi?`))return;
+  words=words.filter(w=>w.en!==en);
+  saveData(); updateStats(); renderList();
+  notify('Kelime silindi','info');
+}
+
+function toggleSelectMode() {
+  selectMode = !selectMode;
+  selectedWords.clear();
+  const btn = document.getElementById('selectModeBtn');
+  const bar = document.getElementById('bulkBar');
+  btn.textContent = selectMode ? '✕ Seçim Modu' : '☑ Seç';
+  btn.className = selectMode ? 'btn btn-primary' : 'btn btn-secondary';
+  bar.classList.toggle('show', selectMode);
+  renderList();
+}
+
+function toggleWordSelect(en) {
+  if(selectedWords.has(en)) selectedWords.delete(en);
+  else selectedWords.add(en);
+  renderList();
+}
+
+function selectAllVisible() {
+  const s=(document.getElementById('searchInput').value||'').toLowerCase();
+  const cat=document.getElementById('catFilter').value;
+  words.filter(w=>(!s||w.en.toLowerCase().includes(s)||w.tr.toLowerCase().includes(s))&&(!cat||w.cat===cat))
+    .forEach(w=>selectedWords.add(w.en));
+  renderList();
+}
+
+function clearSelection() {
+  selectedWords.clear();
+  renderList();
+}
+
+function updateSelectedCount() {
+  const el = document.getElementById('selectedCount');
+  if(el) el.textContent = selectedWords.size + ' seçili';
+}
+
+function deleteSelected() {
+  if(!selectedWords.size){notify('Kelime seçin!','error');return;}
+  if(!confirm(`${selectedWords.size} kelime silinsin mi?`))return;
+  words = words.filter(w=>!selectedWords.has(w.en));
+  selectedWords.clear();
+  saveData(); updateStats();
+  toggleSelectMode();
+  notify(`Kelimeler silindi`,'info');
+}
+
+// ─── ADD ──────────────────────────────────────────────────────────────────────
+function addWord() {
+  const en=document.getElementById('addEn').value.trim();
+  const tr=document.getElementById('addTr').value.trim();
+  const cat=document.getElementById('addCat').value;
+  if(!en||!tr){notify('İngilizce ve Türkçe alanları doldurun!','error');return;}
+  if(words.some(w=>w.en.toLowerCase()===en.toLowerCase())){notify('Bu kelime zaten var!','error');return;}
+  words.push({en,tr,cat,mastery:0,attempts:0,correct:0});
+  saveData(); updateStats();
+  document.getElementById('addEn').value='';
+  document.getElementById('addTr').value='';
+  notify(`"${en}" eklendi!`,'success');
+}
+
+// ─── AI ───────────────────────────────────────────────────────────────────────
+let currentTopic = "";
+let aiOffset = 0;
+
+function tokenizeTopic(topic){
+  return (topic||'')
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s-]/gu,' ')
+    .replace(/\s+/g,' ')
+    .trim()
+    .split(' ')
+    .filter(Boolean);
+}
+
+function scorePoolItem(item, tokens){
+  if(!tokens.length) return 0;
+  const en=(item.en||'').toLowerCase();
+  const tr=(item.tr||'').toLowerCase();
+  const tags=(item.tags||[]).map(t=>String(t).toLowerCase());
+  let score=0;
+  for(const tok of tokens){
+    if(!tok || tok.length<2) continue;
+    if(tags.some(t=>t.includes(tok) || tok.includes(t))) score+=6;
+    if(en.includes(tok)) score+=3;
+    if(tr.includes(tok)) score+=2;
+  }
+  // küçük bonuslar
+  if(tokens.length>=2 && tags.join(' ').includes(tokens.join(' '))) score+=4;
+  if(item.difficulty==='advanced') score+=1;
+  return score;
+}
+
+async function fetchAI(override) {
+  const inputTopic = document.getElementById('aiTopic').value.trim();
+  const topic = override || inputTopic;
+  if(!topic){notify('Bir konu girin!','error');return;}
+  currentTopic = topic;
+  // Offset davranışı:
+  // - Kullanıcı manual "Araştır" yapınca her zaman sıfırdan başla
+  // - Hızlı butonlar (override) farklı konu veriyorsa sıfırla
+  // - "Farklı Kelimeler" (override == inputTopic veya override == currentTopic) sıfırlamasın
+  if(!override) {
+    aiOffset = 0;
+  } else if(override && override !== inputTopic) {
+    aiOffset = 0;
+  }
+
+  const box=document.getElementById('aiBox');
+  const loading=document.getElementById('aiLoading');
+  const errDiv=document.getElementById('aiError');
+  const list=document.getElementById('aiList');
+  const footer=document.getElementById('aiFooter');
+
+  box.classList.add('show');
+  loading.classList.add('show');
+  errDiv.classList.remove('show');
+  list.innerHTML='';
+  footer.style.display='none';
+  aiWords=[]; selectedAI=new Set();
+
+  try {
+    const tokens = tokenizeTopic(topic);
+    const ex = new Set(words.map(w=>w.en.toLowerCase()));
+    const scored = DIPLOMACY_POOL
+      .map(w=>({w, score: scorePoolItem(w, tokens)}))
+      .filter(x=>x.score>0)
+      .sort((a,b)=>b.score-a.score || a.w.en.localeCompare(b.w.en));
+
+    // Eğer eşleşme yoksa daha geniş yaklaş: token yok say, tüm havuzdan rastgele 25
+    let candidates = scored.map(x=>x.w);
+    if(!candidates.length){
+      candidates = [...DIPLOMACY_POOL].sort(()=>Math.random()-0.5);
+    }
+
+    // Kullanıcının listesinde olanları en sona at (görünsün ama seçilemesin)
+    const unique = candidates.reduce((acc, it)=>{
+      if(!acc.some(x=>x.en.toLowerCase()===it.en.toLowerCase())) acc.push(it);
+      return acc;
+    }, []);
+
+    // "Farklı kelimeler" için offsetli sayfalama
+    const pageSize = 25;
+    const start = (aiOffset % Math.max(unique.length, 1));
+    const rotated = unique.slice(start).concat(unique.slice(0,start));
+    const page = rotated.slice(0, pageSize);
+
+    // Ekranda listede olanların seçimi kapalı (renderAI bunu yapıyor)
+    aiWords = page.map(w=>({
+      en: w.en,
+      tr: w.tr,
+      cat: w.cat || "Diplomasi",
+      example: w.example || "",
+      example_tr: w.example_tr || "",
+      tags: w.tags || [],
+      difficulty: w.difficulty || "intermediate",
+    }));
+
+    loading.classList.remove('show');
+    renderAI();
+  } catch(e) {
+    loading.classList.remove('show');
+    errDiv.textContent='Hata: '+e.message;
+    errDiv.classList.add('show');
+  }
+}
+
+function renderExample(w, cls) {
+  if(!w.example) return '';
+  const enHtml = w.example.replace(/\*\*(.*?)\*\*/g, '<span class="hl">$1</span>');
+  const trHtml = (w.example_tr||'').replace(/\*\*(.*?)\*\*/g, '<span class="hl">$1</span>');
+  return `<div class="${cls}"><div class="ex-en">${enHtml}</div>${trHtml?`<div class="ex-tr">${trHtml}</div>`:''}</div>`;
+}
+
+function renderAI() {
+  const ex=new Set(words.map(w=>w.en.toLowerCase()));
+  const footer=document.getElementById('aiFooter');
+  document.getElementById('aiList').innerHTML=aiWords.map((w,i)=>{
+    const exists=ex.has(w.en.toLowerCase());
+    const sel=selectedAI.has(i);
+    return`<div class="ai-item${sel?' selected':''}${exists?' exists':''}" onclick="toggleAI(${i})">
+      <div class="ai-check">${sel?'✓':''}</div>
+      <div class="ai-item-inner">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <div class="ai-en">${w.en}${exists?' <span style="font-size:9px;color:#6b7a96">(var)</span>':''}</div>
+          <div class="ai-tr">${w.tr}</div>
+          <div class="word-cat">${w.cat}</div>
+        </div>
+        ${renderExample(w, "ai-example")}
+      </div>
+    </div>`;
+  }).join('');
+  const exCount = aiWords.filter(w=>words.some(x=>x.en.toLowerCase()===w.en.toLowerCase())).length;
+  document.getElementById('aiCount').textContent=aiWords.length+' kelime bulundu'+(exCount?' ('+exCount+' zaten var)':'');
+  footer.style.display='flex';
+  updateSelBtn();
+}
+
+function toggleAI(i){if(selectedAI.has(i))selectedAI.delete(i);else selectedAI.add(i);renderAI();}
+
+function selectAllAI(){
+  const ex=new Set(words.map(w=>w.en.toLowerCase()));
+  aiWords.forEach((_,i)=>{if(!ex.has(aiWords[i].en.toLowerCase()))selectedAI.add(i);});
+  renderAI();
+}
+
+function updateSelBtn(){document.getElementById('addSelBtn').textContent=`Seçilileri Ekle (${selectedAI.size})`;}
+
+function addSelected(){
+  if(!selectedAI.size){notify('Kelime seçin!','error');return;}
+  const ex=new Set(words.map(w=>w.en.toLowerCase()));
+  let added=0;
+  selectedAI.forEach(i=>{
+    const w=aiWords[i];
+    if(!ex.has(w.en.toLowerCase())){words.push({...w,mastery:0,attempts:0,correct:0});added++;}
+  });
+  saveData(); updateStats(); selectedAI=new Set(); renderAI();
+  notify(`${added} kelime eklendi!`,'success');
+}
+
+// ─── STATS & NOTIFY ──────────────────────────────────────────────────────────
+function updateStats(){
+  const m=words.filter(w=>(w.mastery||0)>=3).length;
+  document.getElementById('statTotal').textContent=words.length;
+  document.getElementById('statMastered').textContent=m;
+  document.getElementById('statPct').textContent=Math.round(m/Math.max(words.length,1)*100)+'%';
+}
+
+let notifTimer;
+function notify(msg,type='info'){
+  let el=document.getElementById('notifEl');
+  if(!el){el=document.createElement('div');el.id='notifEl';document.body.appendChild(el);}
+  el.textContent=msg; el.className='notif '+type;
+  clearTimeout(notifTimer);
+  notifTimer=setTimeout(()=>el.remove(),2800);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+loadData();
+</script>
+</body>
+</html>
