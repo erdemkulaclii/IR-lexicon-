@@ -149,11 +149,75 @@ input::placeholder{color:#6b7a96;}
 /* LEGEND */
 .legend{margin-top:10px;font-family:monospace;font-size:10px;color:#6b7a96;letter-spacing:1px;}
 
+.globe-layout{
+  display:grid;
+  grid-template-columns:1fr 360px;
+  gap:14px;
+  align-items:start;
+}
+.globe-main{
+  padding:0;
+}
+#globeCanvas{
+  width:100%;
+  height:560px;
+  display:block;
+}
+.globe-side{
+  padding:14px 14px 16px;
+}
+.globe-side h3{
+  font-size:13px;
+  letter-spacing:1px;
+  font-family:monospace;
+  color:#6b7a96;
+  text-transform:uppercase;
+  margin-bottom:10px;
+}
+.globe-row{
+  display:flex;
+  gap:10px;
+  margin-bottom:10px;
+  flex-wrap:wrap;
+}
+.pill{
+  border:1px solid #1e2d47;
+  background:rgba(74,158,255,.08);
+  color:#b7d8ff;
+  padding:8px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-family:monospace;
+}
+.kv .k{
+  font-size:10px;
+  color:#6b7a96;
+  letter-spacing:1px;
+  font-family:monospace;
+  text-transform:uppercase;
+  margin-bottom:6px;
+}
+.kv .v{
+  font-size:13px;
+  line-height:1.5;
+  color:#e8e4d9;
+  word-break:break-word;
+}
+.globe-note{
+  display:none;
+  margin-top:12px;
+  color:#6b7a96;
+  font-size:12px;
+  line-height:1.6;
+}
+
 @media(max-width:600px){
   .quiz-word{font-size:26px;}
   .mode-row{flex-direction:column;}
   .ai-en{flex:0 0 140px;}
   header{flex-direction:column;text-align:center;}
+  .globe-layout{grid-template-columns:1fr;}
+  #globeCanvas{height:520px;}
 }
 </style>
 </head>
@@ -176,6 +240,7 @@ input::placeholder{color:#6b7a96;}
     <button class="tab" onclick="showTab('list')">📚 Kelimeler</button>
     <button class="tab" onclick="showTab('add')">✏️ Ekle</button>
     <button class="tab" onclick="showTab('ai')">🤖 AI Araştır</button>
+    <button class="tab" onclick="showTab('globe')">🗺️ Dünya Küresi</button>
   </div>
 
   <!-- QUIZ -->
@@ -297,6 +362,39 @@ input::placeholder{color:#6b7a96;}
           <button class="btn btn-secondary" onclick="selectAllAI()">Tümünü Seç</button>
           <button class="btn btn-blue" onclick="aiOffset+=25; fetchAI(currentTopic)">🔄 Farklı Kelimeler</button>
           <span style="color:#6b7a96;font-size:11px;font-family:monospace" id="aiCount"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GLOBE -->
+  <div class="panel" id="tab-globe">
+    <div class="globe-layout">
+      <div class="card globe-main">
+        <canvas id="globeCanvas"></canvas>
+      </div>
+
+      <div class="card globe-side">
+        <h3>Konum + Tarih</h3>
+        <div class="globe-row">
+          <span class="pill" id="globeRegionPill">Bölge: —</span>
+          <span class="pill" id="globeCoordsPill">Koordinat: —</span>
+        </div>
+
+        <div class="kv">
+          <div class="k">Koordinat (lat, lon)</div>
+          <div class="v" id="globeCoordsText">Küreye tıklayın.</div>
+        </div>
+
+        <div class="hr"></div>
+
+        <label for="globeDate">Tarih</label>
+        <input id="globeDate" type="date" />
+        <button class="btn btn-primary" id="globeEventsBtn" disabled>Olayları Getir (TODO)</button>
+        <div class="globe-note" id="globeEventsNote"></div>
+
+        <div class="hint" style="margin-top:12px">
+          Bu adımda sadece “Ortadoğu” seçimini görüyoruz. Bir sonraki adımda seçilen konum + tarih için olay çekme ve kelime eşleştirme gelecek.
         </div>
       </div>
     </div>
@@ -894,6 +992,52 @@ const DIPLOMACY_POOL = [
   {en:"Unresolved past",tr:"Çözülmemiş geçmiş",cat:"Diplomasi",difficulty:"intermediate",tags:["unresolved past","history"],example:"The **unresolved past** complicated trust-building measures.",example_tr:"**Çözülmemiş geçmiş** güven inşa etmeyi zorlaştırdı."},
   {en:"Backlash over history",tr:"Tarih üzerinden tepki dalgası",cat:"Diplomasi",difficulty:"advanced",tags:["backlash","history"],example:"A memorial decision triggered **backlash over history**.",example_tr:"Bir anma kararı **tarih üzerinden tepki dalgasını** tetikledi."},
   {en:"Historical symbolism",tr:"Tarihsel sembolizm",cat:"Diplomasi",difficulty:"advanced",tags:["symbolism","history"],example:"**Historical symbolism** shaped the choice of venue for the summit.",example_tr:"**Tarihsel sembolizm** zirve mekânı seçimini şekillendirdi."},
+  {en:"Historical reconciliation deal",tr:"Tarihsel uzlaşma anlaşması",cat:"Diplomasi",difficulty:"advanced",tags:["historical reconciliation","deal","reconciliation"],example:"A comprehensive **historical reconciliation deal** linked memory reforms to normalization steps.",example_tr:"Kapsamlı bir **tarihsel uzlaşma anlaşması**, hafıza reformlarını normalleşme adımlarıyla bağladı."},
+  {en:"Truth and reconciliation",tr:"Hakikat ve uzlaşma",cat:"Diplomasi",difficulty:"advanced",tags:["truth and reconciliation","reconciliation","truth"],example:"**Truth and reconciliation** combined documentation with restorative procedures.",example_tr:"**Hakikat ve uzlaşma**, dokümantasyonu onarıcı prosedürlerle birleştirdi."},
+  {en:"Truth-telling process",tr:"Hakikati anlatma süreci",cat:"Diplomasi",difficulty:"advanced",tags:["truth-telling","process","truth"],example:"A **truth-telling process** enabled testimony to become an official record.",example_tr:"Bir **hakikati anlatma süreci**, tanıklığın resmî kayda dönüşmesini sağladı."},
+  {en:"Victim-centered reparation",tr:"Mağdur-merkezli tazmin",cat:"Diplomasi",difficulty:"advanced",tags:["victim-centered","reparation","reparations","justice"],example:"**Victim-centered reparation** prioritized needs identified by survivors.",example_tr:"**Mağdur-merkezli tazmin**, hayatta kalanların belirlediği ihtiyaçları önceliklendirdi."},
+  {en:"Survivor testimony",tr:"Hayatta kalanların tanıklığı",cat:"Diplomasi",difficulty:"advanced",tags:["survivor testimony","testimony","truth"],example:"**Survivor testimony** informed the design of reparation schemes.",example_tr:"**Hayatta kalanların tanıklığı**, tazminat şemalarının tasarımına yön verdi."},
+  {en:"Public hearings",tr:"Halk açık oturumlar",cat:"Diplomasi",difficulty:"advanced",tags:["public hearings","hearings","truth"],example:"**Public hearings** increased transparency and legitimacy for the process.",example_tr:"**Halk açık oturumlar**, süreç için şeffaflık ve meşruiyet artırdı."},
+  {en:"Private testimony",tr:"Kapalı tanıklık",cat:"Diplomasi",difficulty:"intermediate",tags:["private testimony","testimony"],example:"**Private testimony** protected witnesses while still producing evidence.",example_tr:"**Kapalı tanıklık**, tanıkları korurken yine de delil üretti."},
+  {en:"Restorative justice",tr:"Onarıcı adalet",cat:"Diplomasi",difficulty:"advanced",tags:["restorative justice","justice","reconciliation"],example:"**Restorative justice** focused on repair, acknowledgment, and reintegration.",example_tr:"**Onarıcı adalet**, onarım, kabul ve topluma yeniden katılımı hedefledi."},
+  {en:"Reparative justice",tr:"Onarıcı/iyileştirici adalet",cat:"Diplomasi",difficulty:"advanced",tags:["reparative justice","reparation","justice"],example:"**Reparative justice** addressed structural harms and long-term harms.",example_tr:"**Onarıcı/iyileştirici adalet**, yapısal ve uzun vadeli zararları ele aldı."},
+  {en:"Apology diplomacy",tr:"Özür diplomasisi",cat:"Diplomasi",difficulty:"advanced",tags:["apology diplomacy","apology","reconciliation","memory"],example:"**Apology diplomacy** can soften positions when paired with material commitments.",example_tr:"**Özür diplomasisi**, maddi taahhütlerle eşleştirilince pozisyonları yumuşatabilir."},
+  {en:"Formal apology",tr:"Resmî özür",cat:"Diplomasi",difficulty:"intermediate",tags:["formal apology","apology"],example:"A **formal apology** signaled acknowledgment of responsibility.",example_tr:"Bir **resmî özür**, sorumluluğun kabul edildiğini gösterdi."},
+  {en:"Acknowledgment of wrongdoing",tr:"Yanlışın kabulü",cat:"Diplomasi",difficulty:"advanced",tags:["acknowledgment","wrongdoing","apology"],example:"**Acknowledgment of wrongdoing** reduced incentives for denial.",example_tr:"**Yanlışın kabulü**, inkâr teşviklerini azalttı."},
+  {en:"Admission of responsibility",tr:"Sorumluluğun kabulü",cat:"Diplomasi",difficulty:"advanced",tags:["admission","responsibility","apology"],example:"An **admission of responsibility** helped transform the negotiation climate.",example_tr:"**Sorumluluğun kabulü**, müzakere iklimini dönüştürdü."},
+  {en:"Confession and reconciliation",tr:"İtiraf ve uzlaşma",cat:"Diplomasi",difficulty:"advanced",tags:["confession","reconciliation"],example:"**Confession and reconciliation** combined moral repair with procedural reforms.",example_tr:"**İtiraf ve uzlaşma**, ahlaki onarım ile usule dönük reformları birleştirdi."},
+  {en:"Transitional amnesty",tr:"Geçiş afı",cat:"Diplomasi",difficulty:"advanced",tags:["transitional amnesty","amnesty","justice"],example:"A **transitional amnesty** traded prosecutions for peace incentives.",example_tr:"**Geçiş afı**, kovuşturmaları barış teşvikleri karşılığında değiştirdi."},
+  {en:"Conditional amnesty",tr:"Koşullu af",cat:"Diplomasi",difficulty:"advanced",tags:["conditional amnesty","amnesty","truth"],example:"**Conditional amnesty** required cooperation with truth-seeking bodies.",example_tr:"**Koşullu af**, hakikat arama kurumlarıyla iş birliğini şart koştu."},
+  {en:"Statute of limitations (historical justice)",tr:"Zamanaşımı (tarihsel adalet)",cat:"Diplomasi",difficulty:"advanced",tags:["statute of limitations","limitations","justice"],example:"Debates over the **statute of limitations** shaped accountability strategies.",example_tr:"**Zamanaşımı** tartışmaları hesap verebilirlik stratejilerini şekillendirdi."},
+  {en:"Immunity for officials",tr:"Yetkililere dokunulmazlık",cat:"Diplomasi",difficulty:"advanced",tags:["immunity","officials","justice"],example:"Granting **immunity for officials** was criticized as institutional impunity.",example_tr:"Yetkililere **dokunulmazlık** verilmesi kurumsal cezasızlık olarak eleştirildi."},
+  {en:"Selective prosecution",tr:"Seçici kovuşturma",cat:"Diplomasi",difficulty:"advanced",tags:["selective prosecution","justice"],example:"**Selective prosecution** raised concerns about fairness and politicization.",example_tr:"**Seçici kovuşturma**, adalet ve siyasallaştırma kaygıları doğurdu."},
+  {en:"Historical reparations program",tr:"Tarihsel tazminat programı",cat:"Diplomasi",difficulty:"advanced",tags:["reparations","program","history"],example:"A **historical reparations program** delivered both financial and symbolic support.",example_tr:"Bir **tarihsel tazminat programı**, hem maddi hem sembolik destek sağladı."},
+  {en:"Victim reparations",tr:"Mağdur tazminatı",cat:"Diplomasi",difficulty:"intermediate",tags:["victim reparations","reparation"],example:"**Victim reparations** were designed as an individual entitlement.",example_tr:"**Mağdur tazminatları**, bireysel hak olarak tasarlandı."},
+  {en:"Collective compensation",tr:"Kolektif tazmin",cat:"Diplomasi",difficulty:"intermediate",tags:["collective compensation","reparations"],example:"**Collective compensation** aimed to address harms when individual claims were impossible.",example_tr:"**Kolektif tazmin**, bireysel başvuruların imkânsız olduğu durumlarda zararları ele aldı."},
+  {en:"Pardon and reconciliation",tr:"Bağışlama ve uzlaşma",cat:"Diplomasi",difficulty:"advanced",tags:["pardon","reconciliation"],example:"**Pardon and reconciliation** required trust-building before implementation.",example_tr:"**Bağışlama ve uzlaşma**, uygulamadan önce güven inşası gerektirdi."},
+  {en:"Heritage diplomacy",tr:"Miras diplomasisi",cat:"Diplomasi",difficulty:"intermediate",tags:["heritage diplomacy","heritage","culture"],example:"**Heritage diplomacy** used cultural assets to restore dialogue after conflict.",example_tr:"**Miras diplomasisi**, kültürel varlıkları çatışma sonrası diyaloğu yeniden kurmak için kullandı."},
+  {en:"Cultural restitution",tr:"Kültürel iade",cat:"Diplomasi",difficulty:"advanced",tags:["cultural restitution","restitution","cultural property"],example:"**Cultural restitution** involved returning artifacts and documents tied to historical injustice.",example_tr:"**Kültürel iade**, tarihsel adaletsizlikle bağlantılı eser ve belgelerin geri verilmesini içerdi."},
+  {en:"Museum repatriation",tr:"Müze iadesi (repatriation)",cat:"Diplomasi",difficulty:"advanced",tags:["museum repatriation","repatriation","museums"],example:"**Museum repatriation** was negotiated through intergovernmental cultural commissions.",example_tr:"**Müze iadesi**, hükümetler arası kültür komisyonları üzerinden müzakere edildi."},
+  {en:"Archive access agreement",tr:"Arşiv erişim anlaşması",cat:"Diplomasi",difficulty:"advanced",tags:["archive access","archives","agreement"],example:"An **archive access agreement** enabled verification of contested claims.",example_tr:"Bir **arşiv erişim anlaşması**, tartışmalı iddiaların doğrulanmasını mümkün kıldı."},
+  {en:"Declassification process",tr:"Gizlilikten çıkarma süreci",cat:"Diplomasi",difficulty:"advanced",tags:["declassification","archives","history"],example:"A **declassification process** opened previously restricted files.",example_tr:"**Gizlilikten çıkarma süreci**, daha önce kısıtlı dosyaları açtı."},
+  {en:"Right to know",tr:"Bilgi edinme hakkı",cat:"Diplomasi",difficulty:"advanced",tags:["right to know","transparency","truth"],example:"A **right to know** framework strengthened legitimacy for investigations.",example_tr:"**Bilgi edinme hakkı** çerçevesi, soruşturmalar için meşruiyeti güçlendirdi."},
+  {en:"Memory governance",tr:"Hafıza yönetişimi",cat:"Diplomasi",difficulty:"advanced",tags:["memory governance","governance","memory"],example:"**Memory governance** coordinated education, monuments, and public commemoration.",example_tr:"**Hafıza yönetişimi**, eğitim, anıtlar ve kamu anmalarını koordine etti."},
+  {en:"Monument controversy",tr:"Anıt tartışması",cat:"Diplomasi",difficulty:"intermediate",tags:["monument controversy","symbol","memory"],example:"A **monument controversy** became a proxy battle over historical responsibility.",example_tr:"Bir **anıt tartışması**, tarihsel sorumluluk üzerine vekil bir mücadeleye dönüştü."},
+  {en:"Renaming campaign",tr:"İsim değiştirme kampanyası",cat:"Diplomasi",difficulty:"intermediate",tags:["renaming","campaign","memory"],example:"A **renaming campaign** signaled shifting public consensus.",example_tr:"Bir **isim değiştirme kampanyası**, kamu uzlaşısındaki değişimi işaret etti."},
+  {en:"Commemorative policy",tr:"Anma politikası",cat:"Diplomasi",difficulty:"intermediate",tags:["commemoration","policy"],example:"A **commemorative policy** standardized ceremonies and minimized provocation.",example_tr:"Bir **anma politikası**, törenleri standartlaştırdı ve provokasyonu azalttı."},
+  {en:"Genocide recognition dispute",tr:"Soykırım tanıma ihtilafı",cat:"Diplomasi",difficulty:"advanced",tags:["genocide recognition","recognition dispute","memory"],example:"A **genocide recognition dispute** repeatedly delayed diplomatic normalization.",example_tr:"Bir **soykırım tanıma ihtilafı**, diplomatik normalleşmeyi sık sık erteledi."},
+  {en:"Denial-fueled backlash",tr:"İnkârın tetiklediği tepki",cat:"Diplomasi",difficulty:"advanced",tags:["denialism","backlash","memory"],example:"**Denial-fueled backlash** intensified polarization around commemorations.",example_tr:"**İnkârın tetiklediği tepki**, anmalar etrafındaki kutuplaşmayı artırdı."},
+  {en:"Intergenerational reconciliation",tr:"Nesiller arası uzlaşma",cat:"Diplomasi",difficulty:"advanced",tags:["intergenerational","reconciliation","memory"],example:"**Intergenerational reconciliation** aimed to reshape education and shared narratives.",example_tr:"**Nesiller arası uzlaşma**, eğitim ve ortak anlatıları yeniden şekillendirmeyi hedefledi."},
+  {en:"Narrative contestation",tr:"Anlatı çekişmesi",cat:"Diplomasi",difficulty:"advanced",tags:["narrative contestation","history","memory"],example:"**Narrative contestation** created recurring friction in bilateral talks.",example_tr:"**Anlatı çekişmesi**, ikili görüşmelerde tekrar eden sürtüşmeler yarattı."},
+  {en:"State succession doctrine",tr:"Devlet ardıllığı doktrini (state succession)",cat:"Diplomasi",difficulty:"advanced",tags:["state succession","doctrine","sovereignty"],example:"The **state succession doctrine** shaped claims over treaties and assets.",example_tr:"**Devlet ardıllığı doktrini**, antlaşmalar ve varlıklar üzerindeki iddiaları şekillendirdi."},
+  {en:"Doctrine of continuity",tr:"Süreklilik doktrini",cat:"Diplomasi",difficulty:"advanced",tags:["continuity doctrine","state continuity"],example:"The **doctrine of continuity** supported claims to historical obligations.",example_tr:"**Süreklilik doktrini**, tarihsel yükümlülüklere ilişkin iddiaları destekledi."},
+  {en:"Uti possidetis juris",tr:"Uti possidetis juris",cat:"Diplomasi",difficulty:"advanced",tags:["uti possidetis juris","borders","decolonization"],example:"**Uti possidetis juris** anchored border stability in decolonization legacies.",example_tr:"**Uti possidetis juris**, sömürge-sonrası mirasta sınır istikrarını temel aldı."},
+  {en:"Historical title claim",tr:"Tarihsel hak/başlık iddiası",cat:"Diplomasi",difficulty:"advanced",tags:["historical title","claim","borders"],example:"A **historical title claim** anchored the dispute in past authority.",example_tr:"Bir **tarihsel hak/başlık iddiası**, uyuşmazlığı geçmiş yetkiye dayandırdı."},
+  {en:"Treaty-based border title",tr:"Antlaşmaya dayalı sınır hakkı",cat:"Diplomasi",difficulty:"advanced",tags:["treaty-based title","border title","treaty"],example:"**Treaty-based border title** made renegotiation politically costly.",example_tr:"**Antlaşmaya dayalı sınır hakkı**, yeniden müzakereleri politik olarak maliyetli kıldı."},
+  {en:"Prescription argument",tr:"Zamanaşımı/alışılmış kullanım argümanı (prescription)",cat:"Diplomasi",difficulty:"advanced",tags:["prescription","historical title","law"],example:"The **prescription argument** relied on long-term practice to justify claims.",example_tr:"**Prescription argümanı**, iddiaları meşrulaştırmak için uzun süreli uygulamaya dayandı."},
+  {en:"Historic waters claim",tr:"Tarihsel sular iddiası",cat:"Diplomasi",difficulty:"advanced",tags:["historic waters","claim","maritime"],example:"A **historic waters claim** fueled maritime diplomatic disputes.",example_tr:"**Tarihsel sular iddiası**, denizcilik diplomasisi ihtilaflarını körükledi."},
+  {en:"Archive-based verification",tr:"Arşiv temelli doğrulama",cat:"Diplomasi",difficulty:"advanced",tags:["archive","verification","evidence"],example:"**Archive-based verification** reduced uncertainty in historical allegations.",example_tr:"**Arşiv temelli doğrulama**, tarihsel iddialardaki belirsizliği azalttı."},
+  {en:"Settlement with the past",tr:"Geçmişle uzlaşma",cat:"Diplomasi",difficulty:"advanced",tags:["settlement","past","reconciliation"],example:"A **settlement with the past** required both political will and procedural safeguards.",example_tr:"Bir **geçmişle uzlaşma**, hem siyasi irade hem usuli güvenceler gerektirdi."},
 ];
 
 // ─── STORAGE ─────────────────────────────────────────────────────────────────
@@ -955,11 +1099,12 @@ function saveData() {
 // ─── TABS ─────────────────────────────────────────────────────────────────────
 function showTab(name) {
   document.querySelectorAll('.tab').forEach((t,i)=>{
-    t.classList.toggle('active',['quiz','list','add','ai'][i]===name);
+    t.classList.toggle('active',['quiz','list','add','ai','globe'][i]===name);
   });
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
   if(name==='list') renderList();
+  if(name==='globe' && window.initGlobe) window.initGlobe();
 }
 
 // ─── QUIZ ─────────────────────────────────────────────────────────────────────
@@ -1204,30 +1349,182 @@ let currentTopic = "";
 let aiOffset = 0;
 
 function tokenizeTopic(topic){
-  return (topic||'')
+  const STOP = new Set([
+    'the','a','an','and','or','to','of','for','in','on','at','by','with','without','as','from','into','over','under',
+    'and/or','about','between','within','after','before','beforehand','during','theory','concept','concepts',
+    'process','processes','framework','frameworks','mechanism','mechanisms','strategy','strategies'
+  ]);
+
+  const TURKISH_MAP = {
+    // tarih / geçmiş
+    'tarih':'history',
+    'tarihsel':'historical',
+    'geçmiş':'past',
+    'hafıza':'memory',
+    'hafızası':'memory',
+    'hatıra':'memory',
+    // uzlaşma / barış
+    'uzlaşma':'reconciliation',
+    'barış':'peace',
+    'normalleşme':'normalization',
+    'normalleşmek':'normalization',
+    'normalleşme':'normalization',
+    'normalizasyon':'normalization',
+    // tazminat / iade
+    'tazminat':'reparations',
+    'tazminatlar':'reparations',
+    'iadə':'restitution',
+    'iade':'restitution',
+    'arşiv':'archives',
+    'arsiv':'archives',
+    // tanıma / inkâr
+    'tanıma':'recognition',
+    'tanımak':'recognition',
+    'tanıma':'recognition',
+    'inkâr':'denialism',
+    'inkar':'denialism',
+    'inkârcılık':'denialism',
+    // hukuk/adalet
+    'adalet':'justice',
+    'hesap':'accountability',
+    'hesapverebilirlik':'accountability'
+  };
+
+  // Kullanıcı konu yazınca, benzer kavramları da eşleştirmek için küçük alias haritası.
+  // (Amaç: havuzdaki etiketlerle daha sık aynı kelimeleri vurmak.)
+  const ALIAS_MAP = {
+    // tarih / geçmiş / hafıza
+    'history': ['historical','past'],
+    'historical': ['history','past','historical'],
+    'past': ['history','historical'],
+    'memory': ['memory politics','commemoration','narrative'],
+    // uzlaşma / barış
+    'reconciliation': ['apology diplomacy','truth and reconciliation','restorative justice','transitional justice','truth commission'],
+    'peace': ['reconciliation','normalization'],
+    'truth': ['truth commission','truth-telling','testimony','truth and reconciliation'],
+    // tazminat / iade
+    'reparations': ['reparation','compensation','compensation program'],
+    'reparation': ['reparations','compensation','restitution'],
+    'archive': ['archives','evidence','documentation','archive access'],
+    'archives': ['archive','evidence','documentation'],
+    // tanıma / inkâr
+    'recognition': ['recognition dispute','acknowledgment'],
+    'denialism': ['backlash','commemoration'],
+    'apology': ['apology diplomacy','formal apology','acknowledgment of wrongdoing'],
+    // normalleşme
+    'normalization': ['normalization talks','rapprochement','easing']
+  };
+
+  const raw = (topic||'')
     .toLowerCase()
     .replace(/[^\p{L}\p{N}\s-]/gu,' ')
     .replace(/\s+/g,' ')
-    .trim()
-    .split(' ')
-    .filter(Boolean);
+    .trim();
+
+  if(!raw) return {unigrams:[], bigrams:[], trigrams:[], all:[]};
+
+  const lightStem = (t) => {
+    // Çok basit bir stemming; amaç “yakın eşleşme”
+    if(t.length<=3) return t;
+    if(t.endsWith('ies')) return t.slice(0,-3)+'y';
+    if(t.endsWith('s') && !t.endsWith('ss')) return t.slice(0,-1);
+    return t;
+  };
+
+  const split = raw.split(' ').map(s=>s.trim()).filter(Boolean);
+  const expanded = [];
+
+  for(const tok of split){
+    if(!tok) continue;
+    const mapped = TURKISH_MAP[tok] || tok;
+    if(mapped){
+      // mapped tek token ise; boşluk varsa da split ederiz
+      for(const m of String(mapped).split(' ')){
+        if(!m) continue;
+        expanded.push(lightStem(m));
+      }
+    }
+
+    // Konu içindeki anahtar kavramlar için alias genişletme
+    const base = mapped || tok;
+    const aliases = ALIAS_MAP[base];
+    if(aliases && aliases.length){
+      for(const a of aliases){
+        for(const aa of String(a).split(' ')){
+          if(!aa) continue;
+          expanded.push(lightStem(aa));
+        }
+      }
+    }
+  }
+
+  const filteredSeq = expanded.filter(t=>t && !STOP.has(t) && t.length>1);
+  const unigrams = [...new Set(filteredSeq)];
+
+  const bigrams = [];
+  for(let i=0;i<filteredSeq.length-1;i++){
+    const a=filteredSeq[i], b=filteredSeq[i+1];
+    if(a && b) bigrams.push(a+' '+b);
+  }
+
+  const trigrams = [];
+  for(let i=0;i<filteredSeq.length-2;i++){
+    const a=filteredSeq[i], b=filteredSeq[i+1], c=filteredSeq[i+2];
+    if(a && b && c) trigrams.push(a+' '+b+' '+c);
+  }
+
+  const all = [...new Set([...unigrams, ...bigrams, ...trigrams])];
+  return {unigrams, bigrams:[...new Set(bigrams)], trigrams:[...new Set(trigrams)], all};
 }
 
-function scorePoolItem(item, tokens){
-  if(!tokens.length) return 0;
+function scorePoolItem(item, search){
+  const unigrams = search?.unigrams || [];
+  const bigrams = search?.bigrams || [];
+  const trigrams = search?.trigrams || [];
+  if(!unigrams.length && !bigrams.length && !trigrams.length) return 0;
+
   const en=(item.en||'').toLowerCase();
   const tr=(item.tr||'').toLowerCase();
   const tags=(item.tags||[]).map(t=>String(t).toLowerCase());
+
+  const tagStr = tags.join(' ');
+
   let score=0;
-  for(const tok of tokens){
-    if(!tok || tok.length<2) continue;
-    if(tags.some(t=>t.includes(tok) || tok.includes(t))) score+=6;
-    if(en.includes(tok)) score+=3;
-    if(tr.includes(tok)) score+=2;
+
+  // 1) Phrase/bigram eşleşmesi (en güçlü sinyal)
+  for(const bi of bigrams){
+    if(!bi || bi.length<5) continue;
+    if(tagStr.includes(bi)) score += 18;
+    else if(en.includes(bi)) score += 12;
+    else if(tr.includes(bi)) score += 8;
   }
-  // küçük bonuslar
-  if(tokens.length>=2 && tags.join(' ').includes(tokens.join(' '))) score+=4;
-  if(item.difficulty==='advanced') score+=1;
+
+  // 1.5) Trigram / 3’lü ifadeler (daha spesifik)
+  for(const tri of trigrams){
+    if(!tri || tri.length<7) continue;
+    if(tagStr.includes(tri)) score += 30;
+    else if(en.includes(tri)) score += 20;
+    else if(tr.includes(tri)) score += 14;
+  }
+
+  // 2) Unigram eşleşmesi
+  for(const tok of unigrams){
+    if(!tok || tok.length<2) continue;
+    // etiketlerde kelime geçiyorsa
+    if(tags.some(t=>t.split(' ').includes(tok))) score += 10;
+    else if(tagStr.includes(tok)) score += 7;
+    // terimin içinde geçiyorsa
+    if(en.includes(tok)) score += 3;
+    if(tr.includes(tok)) score += 2;
+  }
+
+  // 3) İyileştirme: konu terimi ile tam eşleşme / yakın eşleşme
+  if(unigrams.length===1 && tags.some(t=>t.includes(unigrams[0]))) score += 6;
+  if(unigrams.length>=2 && tagStr.includes(unigrams.join(' '))) score += 10;
+
+  // Zorluk çok küçük bonus
+  if(item.difficulty==='advanced') score += 1;
+
   return score;
 }
 
@@ -1268,9 +1565,22 @@ async function fetchAI(override) {
       .sort((a,b)=>b.score-a.score || a.w.en.localeCompare(b.w.en));
 
     // Eğer eşleşme yoksa daha geniş yaklaş: token yok say, tüm havuzdan rastgele 25
-    let candidates = scored.map(x=>x.w);
+    let candidates = scored
+      .map(x=>x.w)
+      .filter(w=>!ex.has((w.en||'').toLowerCase()));
+
     if(!candidates.length){
-      candidates = [...DIPLOMACY_POOL].sort(()=>Math.random()-0.5);
+      // Tamamı zaten listede ise görünmesin (boş liste kalabilir)
+      candidates = DIPLOMACY_POOL.filter(w=>!ex.has((w.en||'').toLowerCase()));
+      if(!candidates.length){
+        aiWords = [];
+        loading.classList.remove('show');
+        errDiv.textContent='Bu havuzdaki önerilerin hepsi zaten listenizde görünüyor.';
+        errDiv.classList.add('show');
+        renderAI();
+        return;
+      }
+      candidates = candidates.sort(()=>Math.random()-0.5);
     }
 
     // Kullanıcının listesinde olanları en sona at (görünsün ama seçilemesin)
@@ -1377,6 +1687,212 @@ function notify(msg,type='info'){
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 loadData();
+</script>
+
+<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+<script>
+  (function(){
+    let initialized = false;
+    let state = { selected: null }; // {lat, lon, region}
+
+    const MIDDLE_EAST_BOUNDS = {
+      latMin: 12,
+      latMax: 42,
+      lonMin: -14,
+      lonMax: 52
+    };
+
+    function isInMiddleEast(lat, lon){
+      return lat >= MIDDLE_EAST_BOUNDS.latMin &&
+             lat <= MIDDLE_EAST_BOUNDS.latMax &&
+             lon >= MIDDLE_EAST_BOUNDS.lonMin &&
+             lon <= MIDDLE_EAST_BOUNDS.lonMax;
+    }
+
+    function latLonToVec3(lat, lon, radius){
+      const phi = (90 - lat) * Math.PI / 180;
+      const theta = (lon + 180) * Math.PI / 180;
+      const x = -radius * Math.sin(phi) * Math.cos(theta);
+      const z =  radius * Math.sin(phi) * Math.sin(theta);
+      const y =  radius * Math.cos(phi);
+      return new THREE.Vector3(x, y, z);
+    }
+
+    function vectorToLatLon(v){
+      const r = Math.sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
+      const lat = 90 - Math.acos(v.y / r) * 180 / Math.PI;
+      const lon = Math.atan2(v.z, -v.x) * 180 / Math.PI - 180;
+      return {lat, lon};
+    }
+
+    window.initGlobe = function(){
+      if(initialized) return;
+      initialized = true;
+
+      const canvas = document.getElementById('globeCanvas');
+      const regionPill = document.getElementById('globeRegionPill');
+      const coordsPill = document.getElementById('globeCoordsPill');
+      const coordsText = document.getElementById('globeCoordsText');
+      const dateInput = document.getElementById('globeDate');
+      const eventsBtn = document.getElementById('globeEventsBtn');
+      const eventsNote = document.getElementById('globeEventsNote');
+
+      if(!canvas) return;
+
+      // Scene
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+      const group = new THREE.Group();
+      scene.add(group);
+
+      // Earth
+      const R = 2.6;
+      const earthGeo = new THREE.SphereGeometry(R, 64, 64);
+      const texLoader = new THREE.TextureLoader();
+      const earthTex = texLoader.load('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg');
+      const earthMat = new THREE.MeshPhongMaterial({ map: earthTex, shininess: 5 });
+      const earth = new THREE.Mesh(earthGeo, earthMat);
+      group.add(earth);
+
+      // Lights
+      const light1 = new THREE.DirectionalLight(0xffffff, 1.1);
+      light1.position.set(5, 2, 3);
+      scene.add(light1);
+      const light2 = new THREE.AmbientLight(0x445566, 0.7);
+      scene.add(light2);
+
+      // Middle East highlight (red "area" as dense points for v1)
+      const highlightGeo = new THREE.BufferGeometry();
+      const highlightPoints = [];
+      const step = 1.8; // smaller = denser (more solid-looking)
+
+      for(let lat = MIDDLE_EAST_BOUNDS.latMin; lat <= MIDDLE_EAST_BOUNDS.latMax; lat += step){
+        for(let lon = MIDDLE_EAST_BOUNDS.lonMin; lon <= MIDDLE_EAST_BOUNDS.lonMax; lon += step){
+          const p = latLonToVec3(lat, lon, R + 0.01);
+          highlightPoints.push(p.x, p.y, p.z);
+        }
+      }
+
+      highlightGeo.setAttribute('position', new THREE.Float32BufferAttribute(highlightPoints, 3));
+      const highlightMat = new THREE.PointsMaterial({
+        color: 0xff3b3b,
+        size: 0.08,
+        transparent: true,
+        opacity: 0.25
+      });
+      const highlight = new THREE.Points(highlightGeo, highlightMat);
+      group.add(highlight);
+
+      // Selection marker
+      const marker = new THREE.Mesh(
+        new THREE.SphereGeometry(0.07, 18, 18),
+        new THREE.MeshBasicMaterial({ color: 0xffffff })
+      );
+      marker.visible = false;
+      group.add(marker);
+
+      // Raycasting
+      const raycaster = new THREE.Raycaster();
+      const mouse = new THREE.Vector2();
+
+      function resize(){
+        const w = canvas.clientWidth;
+        const h = canvas.clientHeight;
+        if(w <= 0 || h <= 0) return;
+        renderer.setSize(w, h, false);
+        camera.aspect = w / h;
+        camera.position.set(0, 0, 8.2);
+        camera.lookAt(0, 0, 0);
+        camera.updateProjectionMatrix();
+      }
+
+      resize();
+
+      window.addEventListener('resize', resize);
+
+      // Drag rotate
+      let dragging = false;
+      let lastX = 0, lastY = 0;
+
+      canvas.addEventListener('pointerdown', (e) => {
+        dragging = true;
+        lastX = e.clientX;
+        lastY = e.clientY;
+      });
+      window.addEventListener('pointerup', () => dragging = false);
+      window.addEventListener('pointermove', (e) => {
+        if(!dragging) return;
+        const dx = e.clientX - lastX;
+        const dy = e.clientY - lastY;
+        lastX = e.clientX;
+        lastY = e.clientY;
+        group.rotation.y += dx * 0.005;
+        group.rotation.x += dy * 0.003;
+        group.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, group.rotation.x));
+      });
+
+      function updateEventsBtn(){
+        const ok = state.selected && !!dateInput.value;
+        eventsBtn.disabled = !ok;
+      }
+
+      dateInput.addEventListener('change', updateEventsBtn);
+      updateEventsBtn();
+
+      canvas.addEventListener('click', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width;
+        const y = (e.clientY - rect.top) / rect.height;
+        mouse.x = x * 2 - 1;
+        mouse.y = -(y * 2) + 1;
+        raycaster.setFromCamera(mouse, camera);
+
+        const hits = raycaster.intersectObject(earth, false);
+        if(!hits.length) return;
+
+        const v = hits[0].point.clone().normalize();
+        const {lat, lon} = vectorToLatLon(v);
+        const region = isInMiddleEast(lat, lon) ? 'Ortadoğu' : 'Ortadoğu dışında';
+        state.selected = { lat, lon, region };
+        marker.position.copy(latLonToVec3(lat, lon, R + 0.02));
+        marker.visible = true;
+
+        regionPill.textContent = 'Bölge: ' + (region === 'Ortadoğu' ? 'Ortadoğu' : 'Diğer');
+        coordsPill.textContent = `Koordinat: ${lat.toFixed(2)}, ${lon.toFixed(2)}`;
+        coordsText.textContent = `Seçim: lat=${lat.toFixed(2)}°, lon=${lon.toFixed(2)}°`;
+
+        updateEventsBtn();
+        eventsNote.style.display = 'none';
+      });
+
+      eventsBtn.addEventListener('click', () => {
+        if(!state.selected) return;
+        const date = dateInput.value || '(seçilmedi)';
+        eventsNote.style.display = 'block';
+        eventsNote.textContent =
+          `TODO: ${state.selected.region} için olayları çek + ` +
+          `tarih=${date} + koordinat=${state.selected.lat.toFixed(2)},${state.selected.lon.toFixed(2)} ` +
+          `-> kelime havuzunu eşleştir.`;
+      });
+
+      // Render loop
+      function animate(){
+        requestAnimationFrame(animate);
+        group.rotation.y += 0.0012;
+        renderer.render(scene, camera);
+      }
+      animate();
+    };
+
+    // Eğer kullanıcı doğrudan globe sekmesine geldiyse hazır et
+    document.addEventListener('DOMContentLoaded', () => {
+      const el = document.getElementById('tab-globe');
+      if(el && el.classList.contains('active')) window.initGlobe();
+    });
+  })();
 </script>
 </body>
 </html>
