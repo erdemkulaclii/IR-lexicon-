@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IR Lexicon - 3D Globe (Ortadoğu)</title>
+  <style>
+    :root{
+      --bg:#0a0e1a;
+      --card:#111827;
+      --border:#1e2d47;
+      --text:#e8e4d9;
+      --muted:#6b7a96;
+      --accent:#4a9eff;
+      --accent2:#c8a96e;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      background:var(--bg);
+      color:var(--text);
+      font-family:Segoe UI, system-ui, sans-serif;
+      min-height:100vh;
+    }
+    .wrap{
+      max-width:1100px;
+      margin:0 auto;
+      padding:18px 16px 50px;
+    }
+    .topbar{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+    .brand{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .title{
+      font-family:Georgia,serif;
+      font-size:24px;
+      font-weight:900;
+      color:var(--accent2);
+    }
+    .subtitle{
+      font-size:12px;
+      color:var(--muted);
+      letter-spacing:1px;
+      font-family:monospace;
+      line-height:1.4;
+      max-width:650px;
+    }
+    .layout{
+      display:grid;
+      grid-template-columns: 1fr 340px;
+      gap:14px;
+      align-items:start;
+    }
+    @media (max-width:900px){
+      .layout{grid-template-columns:1fr}
+    }
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:14px;
+      overflow:hidden;
+    }
+    #globe{
+      width:100%;
+      height:560px;
+      display:block;
+    }
+    .side{
+      padding:14px 14px 16px;
+    }
+    .side h3{
+      font-size:13px;
+      letter-spacing:1px;
+      font-family:monospace;
+      color:var(--muted);
+      text-transform:uppercase;
+      margin-bottom:10px;
+    }
+    .row{
+      display:flex;
+      gap:10px;
+      margin-bottom:10px;
+      flex-wrap:wrap;
+    }
+    .pill{
+      border:1px solid var(--border);
+      background:rgba(74,158,255,.08);
+      color:#b7d8ff;
+      padding:8px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-family:monospace;
+    }
+    .kv{
+      border-top:1px solid var(--border);
+      padding-top:12px;
+      margin-top:12px;
+    }
+    .kv .k{
+      font-size:10px;
+      color:var(--muted);
+      letter-spacing:1px;
+      font-family:monospace;
+      text-transform:uppercase;
+      margin-bottom:6px;
+    }
+    .kv .v{
+      font-size:13px;
+      line-height:1.5;
+      color:var(--text);
+      word-break:break-word;
+    }
+    label{
+      display:block;
+      font-size:11px;
+      color:var(--muted);
+      font-family:monospace;
+      letter-spacing:1px;
+      text-transform:uppercase;
+      margin-bottom:6px;
+    }
+    input[type="date"]{
+      width:100%;
+      padding:10px 12px;
+      border-radius:10px;
+      border:1px solid var(--border);
+      background:#0a0e1a;
+      color:var(--text);
+      outline:none;
+    }
+    .btn{
+      width:100%;
+      padding:10px 12px;
+      border-radius:10px;
+      border:none;
+      cursor:pointer;
+      font-family:monospace;
+      font-size:11px;
+      letter-spacing:1px;
+      text-transform:uppercase;
+      color:var(--bg);
+      background:var(--accent2);
+      margin-top:10px;
+    }
+    .btn:disabled{
+      opacity:.45;
+      cursor:not-allowed;
+    }
+    .note{
+      margin-top:10px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.6;
+    }
+    .hr{
+      height:1px;
+      background:var(--border);
+      margin:12px 0;
+    }
+    .hint{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="title">IR Lexicon</div>
+        <div class="subtitle">
+          3D Globe v1: sadece <strong>Ortadoğu</strong> (yaklaşık sınır kutusu) üzerine tıklayın,
+          konumu koordinat olarak göreceksiniz. Tarih ve “o olayları getir” kısmı sonraki adım.
+        </div>
+      </div>
+      <div class="row">
+        <div class="pill">Raycast pick: ON</div>
+        <div class="pill">Middle East: ON</div>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="card">
+        <canvas id="globe"></canvas>
+      </div>
+
+      <div class="card side">
+        <h3>Seçim</h3>
+        <div class="row">
+          <div class="pill" id="regionPill">Bölge: —</div>
+          <div class="pill" id="coordsPill">Koordinat: —</div>
+        </div>
+
+        <div class="kv">
+          <div class="k">Koordinat (lat, lon)</div>
+          <div class="v" id="coordsText">Küreye tıklayın.</div>
+        </div>
+
+        <div class="hr"></div>
+
+        <label for="dateInput">Tarih (sonraki adım)</label>
+        <input id="dateInput" type="date" />
+        <button class="btn" id="eventsBtn" disabled>Olayları Getir (TODO)</button>
+        <div class="note">
+          Placeholder var. Sonraki adımda seçilen <strong>Ortadoğu konumu</strong> + <strong>tarih</strong> ile
+          ücretsiz bir veri kaynağından (ör. Wikidata) “olaylar” çekip senin kelime havuzunla eşleştireceğiz.
+        </div>
+
+        <div class="hr"></div>
+        <div class="hint">
+          Not: Ortadoğu sınırı v1’de <strong>yaklaşık</strong> bir kutu (lat/lon aralığı) olarak çizilmiştir.
+          İleride ülke/region GeoJSON ile daha doğru hale getirilebilir.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Three.js (CDN) -->
+  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+  <script>
+    (() => {
+      const canvas = document.getElementById('globe');
+      const regionPill = document.getElementById('regionPill');
+      const coordsPill = document.getElementById('coordsPill');
+      const coordsText = document.getElementById('coordsText');
+      const dateInput = document.getElementById('dateInput');
+      const eventsBtn = document.getElementById('eventsBtn');
+
+      // Orta Doğu için v1: kabaca lat/lon aralığı.
+      // TODO: Daha sonra GeoJSON ile gerçek sınırlar ekleyelim.
+      const MIDDLE_EAST_BOUNDS = {
+        latMin: 12,
+        latMax: 42,
+        lonMin: -14,
+        lonMax: 52
+      };
+
+      const state = {
+        selected: null // {lat, lon, region}
+      };
+
+      // Scene
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+
+      const group = new THREE.Group();
+      scene.add(group);
+
+      // Earth
+      const R = 2.6;
+      const earthGeo = new THREE.SphereGeometry(R, 64, 64);
+
+      const texLoader = new THREE.TextureLoader();
+      const earthTex = texLoader.load('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg');
+      const earthMat = new THREE.MeshPhongMaterial({
+        map: earthTex,
+        shininess: 5
+      });
+      const earth = new THREE.Mesh(earthGeo, earthMat);
+      group.add(earth);
+
+      const light1 = new THREE.DirectionalLight(0xffffff, 1.1);
+      light1.position.set(5, 2, 3);
+      scene.add(light1);
+      const light2 = new THREE.AmbientLight(0x445566, 0.7);
+      scene.add(light2);
+
+      // Middle East highlight (point cloud inside bounds)
+      const highlightGeo = new THREE.BufferGeometry();
+      const highlightPoints = [];
+
+      const step = 2.5; // daha yoğun yapmak istersen azalt
+      for(let lat = MIDDLE_EAST_BOUNDS.latMin; lat <= MIDDLE_EAST_BOUNDS.latMax; lat += step){
+        for(let lon = MIDDLE_EAST_BOUNDS.lonMin; lon <= MIDDLE_EAST_BOUNDS.lonMax; lon += step){
+          const p = latLonToVec3(lat, lon, R + 0.01);
+          highlightPoints.push(p.x, p.y, p.z);
+        }
+      }
+
+      highlightGeo.setAttribute('position', new THREE.Float32BufferAttribute(highlightPoints, 3));
+      const highlightMat = new THREE.PointsMaterial({
+        color: 0xc8a96e,
+        size: 0.06,
+        transparent: true,
+        opacity: 0.95
+      });
+      const highlight = new THREE.Points(highlightGeo, highlightMat);
+      group.add(highlight);
+
+      // Raycasting
+      const raycaster = new THREE.Raycaster();
+      const mouse = new THREE.Vector2();
+
+      function setCamera(){
+        const w = canvas.clientWidth;
+        const h = canvas.clientHeight;
+        renderer.setSize(w, h, false);
+        camera.aspect = w / h;
+        camera.position.set(0, 0, 8.2);
+        camera.lookAt(0, 0, 0);
+      }
+      setCamera();
+
+      window.addEventListener('resize', setCamera);
+
+      // Simple drag rotate
+      let dragging = false;
+      let lastX = 0, lastY = 0;
+
+      canvas.addEventListener('pointerdown', (e) => {
+        dragging = true;
+        lastX = e.clientX;
+        lastY = e.clientY;
+      });
+      window.addEventListener('pointerup', () => dragging = false);
+      window.addEventListener('pointermove', (e) => {
+        if(!dragging) return;
+        const dx = e.clientX - lastX;
+        const dy = e.clientY - lastY;
+        lastX = e.clientX;
+        lastY = e.clientY;
+
+        group.rotation.y += dx * 0.005;
+        group.rotation.x += dy * 0.003;
+        group.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, group.rotation.x));
+      });
+
+      // Click pick
+      canvas.addEventListener('click', (e) => {
+        // Eğer drag yapıldıysa click tetiklenirse yumuşatmak için basit kontrol:
+        // (Bu v1; gerekirse iyileştiririz.)
+        pickAt(e.clientX, e.clientY);
+      });
+
+      function pickAt(clientX, clientY){
+        const rect = canvas.getBoundingClientRect();
+        const x = (clientX - rect.left) / rect.width;
+        const y = (clientY - rect.top) / rect.height;
+
+        mouse.x = (x * 2 - 1);
+        mouse.y = (-(y * 2) + 1);
+
+        raycaster.setFromCamera(mouse, camera);
+        const hits = raycaster.intersectObject(earth, false);
+        if(!hits.length) return;
+
+        const v = hits[0].point.clone().normalize(); // unit vector
+        const {lat, lon} = vectorToLatLon(v);
+
+        const region = isInMiddleEast(lat, lon) ? 'Ortadoğu' : 'Diğer (v1: şimdilik sadece Ortadoğu)';
+        state.selected = {lat, lon, region};
+
+        regionPill.textContent = 'Bölge: ' + (region.startsWith('Ortadoğu') ? 'Ortadoğu' : 'Diğer');
+        coordsPill.textContent = `Koordinat: ${lat.toFixed(2)}, ${lon.toFixed(2)}`;
+        coordsText.textContent = `Seçim: lat=${lat.toFixed(2)}°, lon=${lon.toFixed(2)}°`;
+
+        // TODO: Sonraki adımda eventsBtn aktif olacak (Ortadoğu bölgesi + tarih ile).
+        if(region === 'Ortadoğu'){
+          eventsBtn.disabled = false;
+        } else {
+          eventsBtn.disabled = true;
+        }
+      }
+
+      function isInMiddleEast(lat, lon){
+        return lat >= MIDDLE_EAST_BOUNDS.latMin &&
+               lat <= MIDDLE_EAST_BOUNDS.latMax &&
+               lon >= MIDDLE_EAST_BOUNDS.lonMin &&
+               lon <= MIDDLE_EAST_BOUNDS.lonMax;
+      }
+
+      function latLonToVec3(lat, lon, radius){
+        // lat: [-90..90], lon: [-180..180]
+        const phi = (90 - lat) * Math.PI / 180;
+        const theta = (lon + 180) * Math.PI / 180;
+
+        const x = -radius * Math.sin(phi) * Math.cos(theta);
+        const z =  radius * Math.sin(phi) * Math.sin(theta);
+        const y =  radius * Math.cos(phi);
+        return new THREE.Vector3(x, y, z);
+      }
+
+      function vectorToLatLon(v){
+        // v: unit vector
+        const r = Math.sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
+        const lat = 90 - Math.acos(v.y / r) * 180 / Math.PI;
+        const lon = Math.atan2(v.z, -v.x) * 180 / Math.PI - 180;
+        return {lat, lon};
+      }
+
+      // Render loop
+      function animate(){
+        requestAnimationFrame(animate);
+        group.rotation.y += 0.0012; // yumuşak otomatik döndürme
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      // Placeholder button
+      eventsBtn.addEventListener('click', () => {
+        if(!state.selected) return;
+        const date = dateInput.value || '(seçilmedi)';
+        alert(
+          'Placeholder: Seçilen tarih ve konuma göre olaylar şimdi çekilmiyor.\\n\\n' +
+          `Bölge: ${state.selected.region}\\n` +
+          `Koordinat: ${state.selected.lat.toFixed(2)}, ${state.selected.lon.toFixed(2)}\\n` +
+          `Tarih: ${date}`
+        );
+      });
+    })();
+  </script>
+</body>
+</html>
+
