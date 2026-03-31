@@ -7,3 +7,7 @@ Desktop.ini
 .vscode/
 *.swp
 *~
+
+# Node
+node_modules/
+.env

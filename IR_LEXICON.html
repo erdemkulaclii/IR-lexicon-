@@ -22,6 +22,40 @@ header{display:flex;align-items:center;justify-content:space-between;padding:24p
 .panel.active{display:block;animation:fadeIn .25s ease;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .card{background:#111827;border:1px solid #1e2d47;border-radius:14px;padding:26px 24px;margin-bottom:18px;}
+.home-map body{}
+/* Globe as fullscreen home */
+body.globe-home{overflow:hidden;}
+body.globe-home .app{max-width:none;margin:0;padding:0;}
+body.globe-home header{position:fixed;left:0;right:0;top:0;z-index:5000;margin:0;padding:14px 16px;background:rgba(10,14,26,0.70);backdrop-filter:blur(6px);border-bottom:1px solid rgba(30,45,71,0.7);}
+body.globe-home .tabs{position:fixed;left:16px;right:16px;top:78px;z-index:5000;margin:0;}
+body.globe-home #tab-globe{
+  display:block !important;
+  position:fixed;
+  inset:0;
+  z-index:1;
+  padding-top:128px; /* header + tabs overlay alanı (JS ile güncellenir) */
+}
+body.globe-home .panel:not(#tab-globe){display:none !important;}
+body.globe-home .globe-layout{height:100%;gap:0;}
+body.globe-home .globe-main.card{border:none;border-radius:0;margin:0;height:100%;padding:0;background:transparent;}
+body.globe-home #globeCanvas,
+body.globe-home #map2dCanvas{height:100%;}
+body.globe-home .globe-main{padding-bottom:280px;} /* bottom sheet için yer */
+body.globe-home .globe-side{
+  position:fixed;
+  left:16px;
+  right:16px;
+  bottom:16px;
+  z-index:6000;
+  max-width:920px;
+  margin:0 auto;
+  background:rgba(17,24,39,0.92);
+  backdrop-filter: blur(6px);
+  border:1px solid rgba(30,45,71,0.9);
+  max-height:260px;
+  overflow:auto;
+}
+
 .card-title{font-family:Georgia,serif;font-size:18px;font-weight:700;color:#c8a96e;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #1e2d47;}
 input,select{background:#0a0e1a;border:1px solid #1e2d47;border-radius:8px;color:#e8e4d9;font-family:inherit;font-size:14px;padding:10px 13px;outline:none;transition:border-color .2s;}
 input:focus,select:focus{border-color:#4a9eff;}
@@ -151,7 +185,7 @@ input::placeholder{color:#6b7a96;}
 
 .globe-layout{
   display:grid;
-  grid-template-columns:1fr 360px;
+  grid-template-columns:1fr;
   gap:14px;
   align-items:start;
 }
@@ -160,8 +194,13 @@ input::placeholder{color:#6b7a96;}
 }
 #globeCanvas{
   width:100%;
-  height:560px;
+  height:640px;
   display:block;
+}
+#map2dCanvas{
+  width:100%;
+  height:640px;
+  display:none;
 }
 .globe-side{
   padding:14px 14px 16px;
@@ -218,8 +257,36 @@ input::placeholder{color:#6b7a96;}
   header{flex-direction:column;text-align:center;}
   .globe-layout{grid-template-columns:1fr;}
   #globeCanvas{height:520px;}
+  #map2dCanvas{height:520px;}
+}
+
+/* Region tabs (Orta Dogu, Asya...) */
+.region-tabs{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+.region-tab{
+  border:1px solid #1e2d47;
+  background:rgba(74,158,255,.08);
+  color:#b7d8ff;
+  padding:9px 12px;
+  border-radius:999px;
+  font-size:12px;
+  font-family:monospace;
+  cursor:pointer;
+  user-select:none;
+}
+.region-tab.active{
+  background:rgba(255,59,59,.14);
+  border-color:#ff3b3b;
+  color:#ffd0d0;
 }
 </style>
+<!-- Leaflet (2D harita) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
 <div class="app">
@@ -236,15 +303,15 @@ input::placeholder{color:#6b7a96;}
   </header>
 
   <div class="tabs">
-    <button class="tab active" onclick="showTab('quiz')">🎯 Quiz</button>
+    <button class="tab" onclick="showTab('quiz')">🎯 Quiz</button>
     <button class="tab" onclick="showTab('list')">📚 Kelimeler</button>
     <button class="tab" onclick="showTab('add')">✏️ Ekle</button>
     <button class="tab" onclick="showTab('ai')">🤖 AI Araştır</button>
-    <button class="tab" onclick="showTab('globe')">🗺️ Dünya Küresi</button>
+    <button class="tab active" onclick="showTab('globe')">🗺️ Dünya Küresi</button>
   </div>
 
   <!-- QUIZ -->
-  <div class="panel active" id="tab-quiz">
+  <div class="panel" id="tab-quiz">
     <div class="mode-row">
       <button class="btn btn-primary" id="mode-en-tr" onclick="setMode('en-tr')">EN → TR</button>
       <button class="btn btn-secondary" id="mode-tr-en" onclick="setMode('tr-en')">TR → EN</button>
@@ -368,10 +435,15 @@ input::placeholder{color:#6b7a96;}
   </div>
 
   <!-- GLOBE -->
-  <div class="panel" id="tab-globe">
+  <div class="panel active" id="tab-globe">
     <div class="globe-layout">
       <div class="card globe-main">
-        <canvas id="globeCanvas"></canvas>
+        <div class="globe-view-toggle" style="display:flex;gap:8px;justify-content:flex-end;margin-bottom:10px">
+          <button class="btn btn-blue" id="globeView3dBtn" type="button">3D</button>
+          <button class="btn btn-secondary" id="globeView2dBtn" type="button">2D</button>
+        </div>
+        <div id="globeCanvas"></div>
+        <div id="map2dCanvas"></div>
       </div>
 
       <div class="card globe-side">
@@ -390,11 +462,75 @@ input::placeholder{color:#6b7a96;}
 
         <label for="globeDate">Tarih</label>
         <input id="globeDate" type="date" />
-        <button class="btn btn-primary" id="globeEventsBtn" disabled>Olayları Getir (TODO)</button>
+        <button class="btn btn-primary" id="globeEventsBtn" disabled>Tarihi Olayları Getir</button>
         <div class="globe-note" id="globeEventsNote"></div>
 
+        <div class="hr"></div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="color:#a0aec0;font-size:12px;line-height:1.5">
+            Ozel GeoJSON (lokal dosya) yuklemek istersen buradan secebilirsin.
+            ( `file://` ile otomatik fetch bazen CORS yuzunden engelleniyor.)
+          </div>
+          <input id="customGeoInput" type="file" accept=".geojson,.json" style="display:none" />
+          <button class="btn btn-secondary" id="customGeoBtn" type="button">Custom GeoJSON Yukle</button>
+          <div class="globe-note" id="customGeoStatus" style="margin-top:0">Henüz dosya yuklenmedi.</div>
+        </div>
+
+        <div class="hr"></div>
+        <div class="kv">
+          <div class="k">2D Harita Teması</div>
+          <div class="v">
+            <select id="leafletTheme">
+              <option value="light" selected>Light (Beyaz)</option>
+              <option value="dark">Dark (Siyah)</option>
+              <option value="gray">Gray (Gri)</option>
+              <option value="voyager">Voyager (Renkli)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="color:#6b7a96;font-family:monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase">
+            Bölge Seçimi
+          </div>
+          <div class="region-tabs" id="regionTabs">
+            <button class="region-tab active" type="button" data-region-key="mideast">Ortadoğu</button>
+            <button class="region-tab" type="button" data-region-key="asia">Asya</button>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="color:#6b7a96;font-family:monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase">
+            OWID (IR Dataset)
+          </div>
+          <select id="owidIndicator">
+            <option value="military-expenditure-as-share-of-gdp">Askeri Harcama (% GSYH)</option>
+            <option value="refugee-population-by-country-or-territory-of-asylum">Multeci Nufusu (Asylum)</option>
+            <option value="trade-as-share-of-gdp">Ticaret Acikligi (% GSYH)</option>
+            <option value="democracy-index-eiu">Demokrasi Endeksi (EIU)</option>
+          </select>
+          <button class="btn btn-secondary" id="owidFetchBtn" type="button">OWID Veri Getir</button>
+          <div class="globe-note" id="owidNote" style="display:block;margin-top:0">
+            Bolge + tarih secip OWID gostergelerini karsilastirabilirsin.
+          </div>
+        </div>
+
+        <div class="hr"></div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="color:#6b7a96;font-family:monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase">
+            GDELT Haber Akışı
+          </div>
+          <input id="gdeltQuery" type="text" placeholder="Orn: Turkey NATO diplomacy" />
+          <button class="btn btn-secondary" id="gdeltFetchBtn" type="button">GDELT Haber Getir</button>
+          <div class="globe-note" id="gdeltNote" style="display:block;margin-top:0">
+            Canli haber akisi icin backend /api/news endpointini kullanir.
+          </div>
+        </div>
+
         <div class="hint" style="margin-top:12px">
-          Bu adımda sadece “Ortadoğu” seçimini görüyoruz. Bir sonraki adımda seçilen konum + tarih için olay çekme ve kelime eşleştirme gelecek.
+          Bu adımda bölge olarak “Ortadoğu/Asya” seçimini görüyoruz. Bir sonraki adımda seçilen konum + tarih için olay çekme ve kelime eşleştirme gelecek.
         </div>
       </div>
     </div>
@@ -1103,6 +1239,7 @@ function showTab(name) {
   });
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
+  document.body.classList.toggle('globe-home', name === 'globe');
   if(name==='list') renderList();
   if(name==='globe' && window.initGlobe) window.initGlobe();
 }
@@ -1689,202 +1826,980 @@ function notify(msg,type='info'){
 loadData();
 </script>
 
-<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/globe.gl"></script>
 <script>
   (function(){
     let initialized = false;
+    let initInProgress = false;
     let state = { selected: null }; // {lat, lon, region}
 
-    const MIDDLE_EAST_BOUNDS = {
+    // v1 fallback (yaklaşık kutu): GeoJSON gelmezse seçim de highlight da çalışsın.
+    const MIDDLE_EAST_BOUNDS_V1 = {
       latMin: 12,
       latMax: 42,
       lonMin: -14,
       lonMax: 52
     };
 
+    // GeoJSON dosyası: ülkeleri kodlarına göre "Ortadoğu"ya dahil ediyoruz.
+    // Not: MENA_GeoJSON içinde Kuzey Afrika ülkeleri de var; burada sadece Ortadoğu ülkelerini seçtik.
+    const MIDDLE_EAST_COUNTRY_A2 = new Set([
+      'AE', // UAE
+      'BH',
+      'CY', // Cyprus
+      'EG', // Egypt
+      'IR',
+      'IQ',
+      'IL',
+      'JO',
+      'KW',
+      'LB',
+      'OM',
+      'PS',
+      'QA',
+      'SA',
+      'SY',
+      'TR', // Türkiye
+      'YE'
+    ]);
+
+    // "Asya" için pratik/UN-like geniş bir ülke listesi (ISO A2).
+    // Not: Bu liste tam akademik tanım değil ama "tab" mantığı için yeterince iyi bir başlangıç.
+    const ASIA_COUNTRY_A2 = new Set([
+      'AF','AM','AZ','BH','BD','BN','BT','KH','CN','CY','GE','ID','IN','IQ','IR','IL',
+      'JP','JO','KG','KH','KP','KR','KW','KZ','LA','LB','LK','MY','MV','MN','MM',
+      'NP','OM','PH','PK','QA','SA','SG','SY','TH','TL','TJ','TM','TR','UZ','VN','YE',
+      'AE','QA'
+    ]);
+
+    // OWID grapher CSV kodları çoğunlukla ISO A3 kullandığı için A2->A3 map.
+    const ISO_A2_TO_A3 = {
+      AE:'ARE', AF:'AFG', AM:'ARM', AZ:'AZE', BD:'BGD', BH:'BHR', BN:'BRN', BT:'BTN',
+      CY:'CYP', CN:'CHN', EG:'EGY', GE:'GEO', ID:'IDN', IL:'ISR', IN:'IND', IQ:'IRQ',
+      IR:'IRN', JO:'JOR', JP:'JPN', KH:'KHM', KP:'PRK', KR:'KOR', KW:'KWT', KZ:'KAZ',
+      LA:'LAO', LB:'LBN', LK:'LKA', MM:'MMR', MN:'MNG', MY:'MYS', MV:'MDV', NP:'NPL',
+      OM:'OMN', PH:'PHL', PK:'PAK', PS:'PSE', QA:'QAT', SA:'SAU', SG:'SGP', SY:'SYR',
+      TH:'THA', TJ:'TJK', TL:'TLS', TM:'TKM', TR:'TUR', UZ:'UZB', VN:'VNM', YE:'YEM'
+    };
+
+    // Aktif bölge (3D/2D highlight ve seçim mantığı bunu temel alır)
+    let activeRegionKey = 'mideast'; // mideast | asia
+    let activeRegionLabel = 'Ortadoğu';
+    let activeIsoA2Set = MIDDLE_EAST_COUNTRY_A2;
+
+    const REGION_V1_BOUNDS = {
+      mideast: { latMin: 12, latMax: 42, lonMin: -14, lonMax: 52 },
+      asia: { latMin: 0, latMax: 78, lonMin: 20, lonMax: 180 }
+    };
+    let activeRegionV1Bounds = REGION_V1_BOUNDS[activeRegionKey];
+
+    // GeoJSON kaynak önceliği:
+    // 1) Kullanıcı özel dosyası (aynı framework, karışmasın diye tek kaynağı seçiyoruz)
+    // 2) Projede bulunan MENA.geojson
+    // 3) GitHub raw fallback
+    const REGION_GEOJSON_CUSTOM = 'custom.geo.json';
+    const REGION_GEOJSON_PRIMARY = 'MENA.geojson';
+    const REGION_GEOJSON_FALLBACK = 'https://raw.githubusercontent.com/wjdanalharthi/MENA_GeoJSON/master/MENA.geojson';
+
+    const WORLD_GEOJSON_FALLBACK = 'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson';
+
+    // polygon list: [{outer: [[lon,lat],...], holes: [[[lon,lat],...], ...]}]
+    let middleEastPolygons = null;
+    let middleEastBounds = null; // {latMin, latMax, lonMin, lonMax}
+    let regionReady = false;
+    let worldOutlinePolys = null; // 2D full world coastline (outer rings only)
+    let worldFeaturesCache = null; // full Feature[] for labels
+
+    function isInMiddleEastV1(lat, lon){
+      const v = activeRegionV1Bounds || MIDDLE_EAST_BOUNDS_V1;
+      return lat >= v.latMin &&
+             lat <= v.latMax &&
+             lon >= v.lonMin &&
+             lon <= v.lonMax;
+    }
+
+    // Ray-casting point-in-polygon test (lon/lat düzlem yaklaşımı).
+    function pointInRing(lon, lat, ringLonLat){
+      let inside = false;
+      for(let i = 0, j = ringLonLat.length - 1; i < ringLonLat.length; j = i++){
+        const xi = ringLonLat[i][0], yi = ringLonLat[i][1];
+        const xj = ringLonLat[j][0], yj = ringLonLat[j][1];
+        const intersect =
+          ((yi > lat) !== (yj > lat)) &&
+          (lon < (xj - xi) * (lat - yi) / (yj - yi) + xi);
+        if(intersect) inside = !inside;
+      }
+      return inside;
+    }
+
+    function isInMiddleEastPolygon(lat, lon){
+      if(!middleEastPolygons || !middleEastBounds) return false;
+
+      // Global quick reject.
+      if(lat < middleEastBounds.latMin || lat > middleEastBounds.latMax ||
+         lon < middleEastBounds.lonMin || lon > middleEastBounds.lonMax) return false;
+
+      for(const poly of middleEastPolygons){
+        if(!pointInRing(lon, lat, poly.outer)) continue;
+        let inHole = false;
+        for(const hole of (poly.holes || [])){
+          if(pointInRing(lon, lat, hole)){ inHole = true; break; }
+        }
+        if(!inHole) return true;
+      }
+      return false;
+    }
+
     function isInMiddleEast(lat, lon){
-      return lat >= MIDDLE_EAST_BOUNDS.latMin &&
-             lat <= MIDDLE_EAST_BOUNDS.latMax &&
-             lon >= MIDDLE_EAST_BOUNDS.lonMin &&
-             lon <= MIDDLE_EAST_BOUNDS.lonMax;
+      if(regionReady) return isInMiddleEastPolygon(lat, lon);
+      return isInMiddleEastV1(lat, lon);
     }
 
-    function latLonToVec3(lat, lon, radius){
-      const phi = (90 - lat) * Math.PI / 180;
-      const theta = (lon + 180) * Math.PI / 180;
-      const x = -radius * Math.sin(phi) * Math.cos(theta);
-      const z =  radius * Math.sin(phi) * Math.sin(theta);
-      const y =  radius * Math.cos(phi);
-      return new THREE.Vector3(x, y, z);
+    async function loadMiddleEastPolygons(customDataOverride){
+      if(customDataOverride) worldOutlinePolys = null;
+      async function loadJson(url){
+        const res = await fetch(url);
+        if(!res.ok) throw new Error('GeoJSON load failed: ' + res.status);
+        return await res.json();
+      }
+
+      function parseWorldOutlineRingsFromFeatures(features){
+        const rings = [];
+        for(const f of features){
+          const geom = f && f.geometry;
+          if(!geom || !geom.type || !geom.coordinates) continue;
+          if(geom.type === 'Polygon'){
+            const coords = geom.coordinates;
+            if(coords && coords[0] && coords[0].length) rings.push(coords[0]);
+          } else if(geom.type === 'MultiPolygon'){
+            const multi = geom.coordinates;
+            for(const polyCoords of multi){
+              if(polyCoords && polyCoords[0] && polyCoords[0].length) rings.push(polyCoords[0]);
+            }
+          }
+        }
+        return rings;
+      }
+
+      function parsePolysFromFeatures(features){
+        const polys = [];
+        const bounds = { latMin: Infinity, latMax: -Infinity, lonMin: Infinity, lonMax: -Infinity };
+
+        function getA2CodeFromProps(props){
+          if(!props) return null;
+          for(const [k, v] of Object.entries(props)){
+            if(typeof v !== 'string') continue;
+            const val = v.trim().toUpperCase();
+            if(val.length !== 2) continue;
+            const lk = String(k).toLowerCase();
+            // GeoJSON varyantlarında farklı property adları olabiliyor.
+            if(
+              lk === 'code_a2' || lk === 'codea2' ||
+              lk === 'iso_a2' || lk === 'isoa2' ||
+              lk.endsWith('_a2') || lk === 'a2' ||
+              lk.includes('alpha-2') || lk.includes('alpha2') ||
+              lk.includes('iso3166') || lk.includes('iso3166-1-alpha-2')
+            ){
+              return val;
+            }
+          }
+          return null;
+        }
+
+        function ringIntersectsV1Bounds(ringLonLat){
+          // ring: [[lon,lat], ...]
+          let latMin = Infinity, latMax = -Infinity, lonMin = Infinity, lonMax = -Infinity;
+          for(const coord of ringLonLat){
+            const lon = coord[0], lat = coord[1];
+            if(lat < latMin) latMin = lat;
+            if(lat > latMax) latMax = lat;
+            if(lon < lonMin) lonMin = lon;
+            if(lon > lonMax) lonMax = lon;
+          }
+
+          // bbox intersection test
+          const v = activeRegionV1Bounds || MIDDLE_EAST_BOUNDS_V1;
+          return !(latMin > v.latMax || latMax < v.latMin || lonMin > v.lonMax || lonMax < v.lonMin);
+        }
+
+        function extendBoundsFromRing(ringLonLat){
+          for(const coord of ringLonLat){
+            const lon = coord[0], lat = coord[1];
+            if(lat < bounds.latMin) bounds.latMin = lat;
+            if(lat > bounds.latMax) bounds.latMax = lat;
+            if(lon < bounds.lonMin) bounds.lonMin = lon;
+            if(lon > bounds.lonMax) bounds.lonMax = lon;
+          }
+        }
+
+        // Önce A2 property'si gerçekten var mı ölçelim.
+        let matchedA2Count = 0;
+        let anyA2Count = 0;
+        for(const f of features){
+          const geom = f && f.geometry;
+          if(!geom || !geom.type || !geom.coordinates) continue;
+          const codeA2 = getA2CodeFromProps(f && f.properties);
+          if(codeA2){
+            anyA2Count++;
+            if(activeIsoA2Set.has(codeA2)) matchedA2Count++;
+          }
+        }
+
+        // Eğer A2 kodları listemle eşleşiyorsa filtre uygula; yoksa karışmaması için v1 bbox içinde kalanlara indir.
+        // Ayrıca: çok az poligon dönüyorsa (filtreden kaynaklı) v1 bbox ile daha genişleyecek fallback uygula.
+        const buildPolys = (useCodeFilter) => {
+          polys.length = 0;
+          bounds.latMin = Infinity; bounds.latMax = -Infinity; bounds.lonMin = Infinity; bounds.lonMax = -Infinity;
+
+          for(const f of features){
+            const geom = f && f.geometry;
+            if(!geom || !geom.type || !geom.coordinates) continue;
+
+            const codeA2 = useCodeFilter ? getA2CodeFromProps(f && f.properties) : null;
+            if(useCodeFilter && (!codeA2 || !activeIsoA2Set.has(codeA2))) continue;
+
+            if(geom.type === 'Polygon'){
+              const coords = geom.coordinates; // [outer, hole1, hole2...]
+              if(!coords.length) continue;
+              const outer = coords[0];
+              const holes = coords.slice(1);
+
+              if(!useCodeFilter && (!outer || !outer.length)) continue;
+              if(!useCodeFilter && outer && outer.length && !ringIntersectsV1Bounds(outer)) continue;
+
+              polys.push({ outer, holes });
+
+              extendBoundsFromRing(outer);
+              for(const h of holes) extendBoundsFromRing(h);
+            } else if(geom.type === 'MultiPolygon'){
+              const multi = geom.coordinates; // [ [ [outer, holes...] ], [ ... ] ]
+              for(const polyCoords of multi){
+                if(!polyCoords || !polyCoords.length) continue;
+                const outer = polyCoords[0];
+                const holes = polyCoords.slice(1);
+
+                if(!useCodeFilter && (!outer || !outer.length)) continue;
+                if(!useCodeFilter && outer && outer.length && !ringIntersectsV1Bounds(outer)) continue;
+
+                polys.push({ outer, holes });
+
+                extendBoundsFromRing(outer);
+                for(const h of holes) extendBoundsFromRing(h);
+              }
+            }
+          }
+
+          return polys.length;
+        };
+
+        const useCodeFilterInitial = matchedA2Count > 0;
+        const n1 = buildPolys(useCodeFilterInitial);
+        if(n1 < 3 && useCodeFilterInitial){
+          // Çok az poligon geldi -> muhtemelen property/filtresi uymadı, karışmadan daha geniş yaklaşım.
+          buildPolys(false);
+        }
+
+        return polys.length ? { polys, bounds } : null;
+      }
+
+      // Eğer kullanıcı dosyadan (FileReader ile) yüklediyse doğrudan bunu parse ediyoruz.
+      if(customDataOverride){
+        const features = (customDataOverride && Array.isArray(customDataOverride.features))
+          ? customDataOverride.features
+          : [];
+        if(!features.length) throw new Error('Custom GeoJSON has no features.');
+
+        worldFeaturesCache = features;
+        if(!worldOutlinePolys) worldOutlinePolys = parseWorldOutlineRingsFromFeatures(features);
+        const parsed = parsePolysFromFeatures(features);
+        if(parsed) return { ...parsed, sourceUsed: 'custom-upload' };
+      }
+
+      const isFileProtocol =
+        typeof location !== 'undefined' && location && location.protocol === 'file:';
+      // file:// altında local fetch genelde CORS nedeniyle engelleniyor.
+      const sources = isFileProtocol
+        ? [WORLD_GEOJSON_FALLBACK]
+        : [REGION_GEOJSON_CUSTOM, WORLD_GEOJSON_FALLBACK];
+      let lastErr = null;
+
+      for(const url of sources){
+        try{
+          const data = await loadJson(url);
+          const features = (data && Array.isArray(data.features)) ? data.features : [];
+          if(!features.length) continue; // boş GeoJSON -> sıradaki kaynağa geç
+
+          worldFeaturesCache = features;
+          if(!worldOutlinePolys) worldOutlinePolys = parseWorldOutlineRingsFromFeatures(features);
+          const parsed = parsePolysFromFeatures(features);
+          if(parsed) return { ...parsed, sourceUsed: url };
+        } catch(e){
+          lastErr = e;
+        }
+      }
+
+      throw new Error(
+        'Middle East polygons not found in GeoJSON. ' +
+        (lastErr ? ('Last error: ' + lastErr.message) : '')
+      );
     }
 
-    function vectorToLatLon(v){
-      const r = Math.sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
-      const lat = 90 - Math.acos(v.y / r) * 180 / Math.PI;
-      const lon = Math.atan2(v.z, -v.x) * 180 / Math.PI - 180;
-      return {lat, lon};
+    async function ensureGlobeLibrary(){
+      if(typeof Globe === 'function') return true;
+      const cdnCandidates = [
+        'https://cdn.jsdelivr.net/npm/globe.gl',
+        'https://unpkg.com/globe.gl'
+      ];
+      for(const src of cdnCandidates){
+        try{
+          await new Promise((resolve, reject) => {
+            const s = document.createElement('script');
+            s.src = src;
+            s.async = true;
+            s.onload = () => resolve();
+            s.onerror = () => reject(new Error('script load failed'));
+            document.head.appendChild(s);
+          });
+          if(typeof Globe === 'function') return true;
+        } catch(_e){}
+      }
+      return typeof Globe === 'function';
     }
 
-    window.initGlobe = function(){
-      if(initialized) return;
-      initialized = true;
+    window.initGlobe = async function(){
+      if(initialized || initInProgress) return;
+      initInProgress = true;
 
       const canvas = document.getElementById('globeCanvas');
+      const canvas2d = document.getElementById('map2dCanvas');
       const regionPill = document.getElementById('globeRegionPill');
       const coordsPill = document.getElementById('globeCoordsPill');
       const coordsText = document.getElementById('globeCoordsText');
       const dateInput = document.getElementById('globeDate');
       const eventsBtn = document.getElementById('globeEventsBtn');
       const eventsNote = document.getElementById('globeEventsNote');
+      const owidIndicator = document.getElementById('owidIndicator');
+      const owidFetchBtn = document.getElementById('owidFetchBtn');
+      const owidNote = document.getElementById('owidNote');
+      const gdeltQuery = document.getElementById('gdeltQuery');
+      const gdeltFetchBtn = document.getElementById('gdeltFetchBtn');
+      const gdeltNote = document.getElementById('gdeltNote');
 
-      if(!canvas) return;
+      // Leaflet (2D) state
+      let leafletMap = null;
+      let leafletWorldLayer = null;
+      let leafletRegionLayer = null;
+      let worldGeojsonCache = null;
+      let leafletBaseLayer = null;
 
-      // Scene
-      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      if(!canvas){
+        initInProgress = false;
+        return;
+      }
 
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
-      const group = new THREE.Group();
-      scene.add(group);
+      const globeReady = await ensureGlobeLibrary();
+      if(!globeReady){
+        canvas.innerHTML = '<div style="padding:16px;color:#f87171;font-family:monospace">3D kutuphanesi yuklenemedi. Internet, VPN/Adblock ve CDN erisimini kontrol et.</div>';
+        initInProgress = false;
+        return;
+      }
 
-      // Earth
-      const R = 2.6;
-      const earthGeo = new THREE.SphereGeometry(R, 64, 64);
-      const texLoader = new THREE.TextureLoader();
-      const earthTex = texLoader.load('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg');
-      const earthMat = new THREE.MeshPhongMaterial({ map: earthTex, shininess: 5 });
-      const earth = new THREE.Mesh(earthGeo, earthMat);
-      group.add(earth);
+      if(gdeltQuery && !gdeltQuery.value){
+        gdeltQuery.value = 'middle east international relations diplomacy';
+      }
 
-      // Lights
-      const light1 = new THREE.DirectionalLight(0xffffff, 1.1);
-      light1.position.set(5, 2, 3);
-      scene.add(light1);
-      const light2 = new THREE.AmbientLight(0x445566, 0.7);
-      scene.add(light2);
+      let viewMode = '3d';
+      const btn3d = document.getElementById('globeView3dBtn');
+      const btn2d = document.getElementById('globeView2dBtn');
 
-      // Middle East highlight (red "area" as dense points for v1)
-      const highlightGeo = new THREE.BufferGeometry();
-      const highlightPoints = [];
-      const step = 1.8; // smaller = denser (more solid-looking)
+      function setViewMode(mode){
+        viewMode = mode;
+        if(canvas) canvas.style.display = (mode === '3d') ? 'block' : 'none';
+        if(canvas2d) canvas2d.style.display = (mode === '2d') ? 'block' : 'none';
+        if(mode === '2d' && typeof ensureLeafletMap === 'function'){
+          ensureLeafletMap();
+          if(typeof updateLeafletRegion === 'function') updateLeafletRegion();
+        }
+        if(mode === '2d' && leafletMap) leafletMap.invalidateSize();
+        if(mode === '3d' && typeof resize === 'function') resize(); // canvas boyutu güncellensin
+      }
 
-      for(let lat = MIDDLE_EAST_BOUNDS.latMin; lat <= MIDDLE_EAST_BOUNDS.latMax; lat += step){
-        for(let lon = MIDDLE_EAST_BOUNDS.lonMin; lon <= MIDDLE_EAST_BOUNDS.lonMax; lon += step){
-          const p = latLonToVec3(lat, lon, R + 0.01);
-          highlightPoints.push(p.x, p.y, p.z);
+      if(btn3d && btn2d){
+        btn3d.addEventListener('click', () => setViewMode('3d'));
+        btn2d.addEventListener('click', () => setViewMode('2d'));
+      }
+
+      function updateHomeLayoutHeights(){
+        // globe-home modunda canvas yüksekliğini stabil tut
+        if(!document.body.classList.contains('globe-home')) return;
+        const headerEl = document.querySelector('header');
+        const tabsEl = document.querySelector('.tabs');
+        const sideEl = document.querySelector('#tab-globe .globe-side');
+        const top = (headerEl ? headerEl.offsetHeight : 0) + (tabsEl ? tabsEl.offsetHeight : 0) + 16;
+        const bottom = (sideEl ? sideEl.offsetHeight : 0) + 32;
+
+        const tabGlobe = document.getElementById('tab-globe');
+        if(tabGlobe) tabGlobe.style.paddingTop = top + 'px';
+
+        const h = Math.max(220, window.innerHeight - top - bottom);
+        if(canvas) canvas.style.height = h + 'px';
+        if(canvas2d) canvas2d.style.height = h + 'px';
+
+        if(leafletMap) leafletMap.invalidateSize();
+        if(typeof resize === 'function') resize();
+      }
+
+      // default: 3D
+      if(canvas2d) canvas2d.style.display = 'none';
+
+      // Custom GeoJSON overrides (2D/3D dataset)
+      let lastCustomGeoJson = null;
+
+      // Region tabs (Ortadoğu, Asya...)
+      const regionTabs = Array.from(document.querySelectorAll('#regionTabs .region-tab'));
+      function setActiveRegion(regionKey){
+        activeRegionKey = regionKey;
+        activeRegionLabel = (regionKey === 'asia') ? 'Asya' : 'Ortadoğu';
+        activeIsoA2Set = (regionKey === 'asia') ? ASIA_COUNTRY_A2 : MIDDLE_EAST_COUNTRY_A2;
+        activeRegionV1Bounds = REGION_V1_BOUNDS[activeRegionKey];
+
+        regionTabs.forEach(btn => {
+          const isActive = btn.dataset.regionKey === regionKey;
+          btn.classList.toggle('active', isActive);
+        });
+
+        if(gdeltQuery){
+          gdeltQuery.value = regionKey === 'asia'
+            ? 'asia international relations diplomacy'
+            : 'middle east international relations diplomacy';
+        }
+
+        regionReady = false;
+        applyHighlightFromData(lastCustomGeoJson);
+        fetchOwidRegionalSummary();
+      }
+      regionTabs.forEach(btn => {
+        btn.addEventListener('click', () => setActiveRegion(btn.dataset.regionKey));
+      });
+
+      // 3D engine: globe.gl (three-globe wrapper)
+      let R = 120;
+      let globe = null;
+      try{
+        globe = new Globe(canvas, {
+          rendererConfig: { antialias: true, alpha: true },
+          waitForGlobeReady: true,
+          animateIn: false
+        })
+          .backgroundColor('rgba(0,0,0,0)')
+          .globeImageUrl('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg')
+          .showAtmosphere(true)
+          .atmosphereAltitude(0.12)
+          .showGraticules(false)
+          .polygonsData([])
+          .polygonGeoJsonGeometry('geometry')
+          .polygonCapColor(() => '#ff3b3b')
+          .polygonSideColor(() => '#ff3b3b')
+          .polygonStrokeColor(() => '#ff3b3b')
+          .polygonAltitude(0.01)
+          .polygonsTransitionDuration(0)
+          .onGlobeClick(({ lat, lng }) => setSelection(lat, lng));
+      } catch(err){
+        canvas.innerHTML = '<div style="padding:16px;color:#f87171;font-family:monospace">3D baslatma hatasi: ' + (err && err.message ? err.message : 'bilinmeyen hata') + '</div>';
+        initInProgress = false;
+        return;
+      }
+
+      initialized = true;
+      initInProgress = false;
+
+      if(typeof globe.getGlobeRadius === 'function'){
+        R = globe.getGlobeRadius();
+      }
+
+      const controls = globe.controls();
+      if(controls){
+        controls.autoRotate = false;
+        controls.enablePan = false;
+      }
+
+      // GeoJSON geldikçe daha doğru polygon tabanlı kırmızı boyamaya geç.
+      async function applyHighlightFromData(customOverride){
+        try{
+          // UI: kullanıcı henüz seçim yapmamışsa kısa bir durum yaz.
+          if(regionPill && !state.selected) regionPill.textContent = 'Bölge: ' + activeRegionLabel + ' (GeoJSON yükleniyor...)';
+
+          const { polys, bounds, sourceUsed } = await loadMiddleEastPolygons(customOverride);
+          middleEastPolygons = polys;
+          middleEastBounds = bounds;
+          regionReady = true;
+
+          // three-globe polygons layer ile kırmızı dolgu/shape
+          const regionFeatures = (middleEastPolygons || []).map(poly => {
+            const holes = poly.holes || [];
+            return {
+              type: 'Feature',
+              properties: {},
+              geometry: {
+                type: 'Polygon',
+                coordinates: [poly.outer, ...holes]
+              }
+            };
+          });
+
+          globe
+            .polygonsData(regionFeatures)
+            .polygonGeoJsonGeometry('geometry')
+            // Daha transparan: alttaki doku/isimler görünsün
+            .polygonCapColor(() => 'rgba(255,59,59,0.22)')
+            .polygonSideColor(() => 'rgba(255,59,59,0.10)')
+            .polygonStrokeColor(() => 'rgba(255,59,59,0.55)')
+            .polygonAltitude(activeRegionKey === 'asia' ? 0.008 : 0.006)
+            .polygonsTransitionDuration(0);
+
+          // Ülke isimleri (labels) – sadece aktif bölgedeki ülkeler (kalabalık olmasın).
+          function getCountryName(props){
+            if(!props) return null;
+            return props.admin || props.name || props.name_long || props.formal_en_name || props.sovereignt || null;
+          }
+          function getA2(props){
+            if(!props) return null;
+            // datasets/geo-countries: ISO3166-1-Alpha-2
+            const a2 = props.code_a2 || props.iso_a2 || props['ISO3166-1-Alpha-2'] || props.iso2 || props.A2 || null;
+            return (typeof a2 === 'string') ? a2.trim().toUpperCase() : null;
+          }
+          function geomBboxCenter(geom){
+            let lonMin=Infinity, lonMax=-Infinity, latMin=Infinity, latMax=-Infinity;
+            const pushCoord = (c) => {
+              if(!c || c.length < 2) return;
+              const lon = c[0], lat = c[1];
+              if(lon < lonMin) lonMin = lon;
+              if(lon > lonMax) lonMax = lon;
+              if(lat < latMin) latMin = lat;
+              if(lat > latMax) latMax = lat;
+            };
+            const walkRing = (ring) => {
+              if(!ring || !ring.length) return;
+              const step = Math.max(1, Math.floor(ring.length / 120));
+              for(let i=0;i<ring.length;i+=step) pushCoord(ring[i]);
+            };
+            if(!geom || !geom.type || !geom.coordinates) return null;
+            if(geom.type === 'Polygon'){
+              const coords = geom.coordinates;
+              if(coords && coords[0]) walkRing(coords[0]);
+            } else if(geom.type === 'MultiPolygon'){
+              for(const poly of geom.coordinates || []){
+                if(poly && poly[0]) walkRing(poly[0]);
+              }
+            } else {
+              return null;
+            }
+            if(!isFinite(lonMin) || !isFinite(latMin)) return null;
+            return { lon: (lonMin+lonMax)/2, lat: (latMin+latMax)/2 };
+          }
+
+          const labelItems = [];
+          if(worldFeaturesCache && Array.isArray(worldFeaturesCache)){
+            for(const f of worldFeaturesCache){
+              const props = f && f.properties;
+              const geom = f && f.geometry;
+              const a2 = getA2(props);
+              if(!a2 || !activeIsoA2Set.has(a2)) continue;
+              const name = getCountryName(props);
+              const c = geomBboxCenter(geom);
+              if(!name || !c) continue;
+              labelItems.push({ name, lat: c.lat, lng: c.lon });
+            }
+          }
+
+          globe
+            .labelsData(labelItems)
+            .labelText('name')
+            .labelLat('lat')
+            .labelLng('lng')
+            .labelColor(() => 'rgba(255,255,255,0.9)')
+            .labelSize(activeRegionKey === 'asia' ? 0.35 : 0.45)
+            .labelAltitude(0.03)
+            .labelsTransitionDuration(0);
+
+          if(regionPill && !state.selected) {
+            const label =
+              (sourceUsed === REGION_GEOJSON_CUSTOM || sourceUsed === 'custom-upload') ? 'custom' :
+              (sourceUsed === REGION_GEOJSON_PRIMARY ? 'MENA' : 'GitHub');
+            regionPill.textContent = 'Bölge: ' + activeRegionLabel + ' (' + label + ')';
+          }
+
+          updateLeafletRegion();
+        } catch(e){
+          // GeoJSON yüklenmezse v1 bounds highlight kalır (zaten çalışıyor).
+          console.warn('GeoJSON highlight update failed:', e);
+          if(regionPill && !state.selected) regionPill.textContent = 'Bölge: ' + activeRegionLabel + ' (v1)';
         }
       }
 
-      highlightGeo.setAttribute('position', new THREE.Float32BufferAttribute(highlightPoints, 3));
-      const highlightMat = new THREE.PointsMaterial({
-        color: 0xff3b3b,
-        size: 0.08,
-        transparent: true,
-        opacity: 0.25
-      });
-      const highlight = new THREE.Points(highlightGeo, highlightMat);
-      group.add(highlight);
+      // Custom GeoJSON: file:// CORS engelini aşmak için FileReader ile okuyoruz.
+      const customGeoInput = document.getElementById('customGeoInput');
+      const customGeoBtn = document.getElementById('customGeoBtn');
+      const customGeoStatus = document.getElementById('customGeoStatus');
+      if(customGeoBtn && customGeoInput){
+        customGeoBtn.addEventListener('click', () => customGeoInput.click());
+        customGeoInput.addEventListener('change', () => {
+          const file = customGeoInput.files && customGeoInput.files[0];
+          if(!file) return;
+          if(customGeoStatus) customGeoStatus.textContent = 'Dosya yukleniyor: ' + file.name;
 
-      // Selection marker
-      const marker = new THREE.Mesh(
-        new THREE.SphereGeometry(0.07, 18, 18),
-        new THREE.MeshBasicMaterial({ color: 0xffffff })
-      );
-      marker.visible = false;
-      group.add(marker);
-
-      // Raycasting
-      const raycaster = new THREE.Raycaster();
-      const mouse = new THREE.Vector2();
-
-      function resize(){
-        const w = canvas.clientWidth;
-        const h = canvas.clientHeight;
-        if(w <= 0 || h <= 0) return;
-        renderer.setSize(w, h, false);
-        camera.aspect = w / h;
-        camera.position.set(0, 0, 8.2);
-        camera.lookAt(0, 0, 0);
-        camera.updateProjectionMatrix();
+          const reader = new FileReader();
+          reader.onload = async () => {
+            try{
+              const json = JSON.parse(String(reader.result));
+              const fc = json && Array.isArray(json.features) ? json.features.length : 0;
+              if(!fc){
+                throw new Error('features yok (0). Dosya doğru mu?');
+              }
+              lastCustomGeoJson = json;
+              await applyHighlightFromData(json);
+              if(customGeoStatus) customGeoStatus.textContent = `Custom GeoJSON yuklendi (${fc} feature): ${file.name}`;
+            } catch(err){
+              console.warn('Custom GeoJSON parse failed:', err);
+              if(customGeoStatus) customGeoStatus.textContent = 'Custom GeoJSON parse/uygunluk hatasi.';
+            }
+          };
+          reader.onerror = () => {
+            if(customGeoStatus) customGeoStatus.textContent = 'Dosya okunamadi.';
+          };
+          reader.readAsText(file);
+        });
       }
 
-      resize();
+      // İlk yükleme (file:// ise local denemeyeceğiz, GitHub fallback kullanılacak).
+      applyHighlightFromData(null);
+      fetchOwidRegionalSummary();
+      fetchGdeltNewsSummary();
 
-      window.addEventListener('resize', resize);
-
-      // Drag rotate
-      let dragging = false;
-      let lastX = 0, lastY = 0;
-
-      canvas.addEventListener('pointerdown', (e) => {
-        dragging = true;
-        lastX = e.clientX;
-        lastY = e.clientY;
-      });
-      window.addEventListener('pointerup', () => dragging = false);
-      window.addEventListener('pointermove', (e) => {
-        if(!dragging) return;
-        const dx = e.clientX - lastX;
-        const dy = e.clientY - lastY;
-        lastX = e.clientX;
-        lastY = e.clientY;
-        group.rotation.y += dx * 0.005;
-        group.rotation.x += dy * 0.003;
-        group.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, group.rotation.x));
-      });
-
-      function updateEventsBtn(){
-        const ok = state.selected && !!dateInput.value;
-        eventsBtn.disabled = !ok;
-      }
-
-      dateInput.addEventListener('change', updateEventsBtn);
-      updateEventsBtn();
-
-      canvas.addEventListener('click', (e) => {
-        const rect = canvas.getBoundingClientRect();
-        const x = (e.clientX - rect.left) / rect.width;
-        const y = (e.clientY - rect.top) / rect.height;
-        mouse.x = x * 2 - 1;
-        mouse.y = -(y * 2) + 1;
-        raycaster.setFromCamera(mouse, camera);
-
-        const hits = raycaster.intersectObject(earth, false);
-        if(!hits.length) return;
-
-        const v = hits[0].point.clone().normalize();
-        const {lat, lon} = vectorToLatLon(v);
-        const region = isInMiddleEast(lat, lon) ? 'Ortadoğu' : 'Ortadoğu dışında';
+      function setSelection(lat, lon){
+        const region = isInMiddleEast(lat, lon) ? activeRegionLabel : (activeRegionLabel + ' dışında');
         state.selected = { lat, lon, region };
-        marker.position.copy(latLonToVec3(lat, lon, R + 0.02));
-        marker.visible = true;
 
-        regionPill.textContent = 'Bölge: ' + (region === 'Ortadoğu' ? 'Ortadoğu' : 'Diğer');
+        regionPill.textContent = 'Bölge: ' + (region === activeRegionLabel ? activeRegionLabel : 'Diğer');
         coordsPill.textContent = `Koordinat: ${lat.toFixed(2)}, ${lon.toFixed(2)}`;
         coordsText.textContent = `Seçim: lat=${lat.toFixed(2)}°, lon=${lon.toFixed(2)}°`;
 
         updateEventsBtn();
         eventsNote.style.display = 'none';
-      });
-
-      eventsBtn.addEventListener('click', () => {
-        if(!state.selected) return;
-        const date = dateInput.value || '(seçilmedi)';
-        eventsNote.style.display = 'block';
-        eventsNote.textContent =
-          `TODO: ${state.selected.region} için olayları çek + ` +
-          `tarih=${date} + koordinat=${state.selected.lat.toFixed(2)},${state.selected.lon.toFixed(2)} ` +
-          `-> kelime havuzunu eşleştir.`;
-      });
-
-      // Render loop
-      function animate(){
-        requestAnimationFrame(animate);
-        group.rotation.y += 0.0012;
-        renderer.render(scene, camera);
       }
-      animate();
+
+      async function resolveBackendBase(){
+        if(!(location && location.protocol === 'file:')) return '';
+        const candidates = ['http://localhost:3000','http://localhost:3001','http://localhost:3002','http://localhost:3003'];
+        for(const base of candidates){
+          try{
+            const h = await fetch(base + '/api/health');
+            if(!h.ok) continue;
+            // Yeni backend'i ayırt etmek için OWID route var mı bak.
+            const probe = await fetch(base + '/api/owid/summary?slug=trade-as-share-of-gdp&codes=TUR');
+            if(probe.status !== 404) return base;
+          } catch(_e){}
+        }
+        return 'http://localhost:3000';
+      }
+
+      async function fetchOwidRegionalSummary(){
+        if(!owidIndicator || !owidNote) return;
+        const slug = owidIndicator.value;
+        const yearFromDate = dateInput && dateInput.value ? Number(String(dateInput.value).slice(0,4)) : null;
+        const a3Set = new Set(Array.from(activeIsoA2Set).map(a2 => ISO_A2_TO_A3[a2]).filter(Boolean));
+        if(!a3Set.size){
+          owidNote.textContent = 'OWID: bolge ulke kodlari bulunamadi.';
+          return;
+        }
+
+        owidNote.textContent = 'OWID verisi yukleniyor...';
+        try{
+          const backendBase = await resolveBackendBase();
+          const codeList = Array.from(a3Set).join(',');
+          const yearPart = Number.isFinite(yearFromDate) ? `&year=${yearFromDate}` : '';
+          const url =
+            `${backendBase}/api/owid/summary?slug=${encodeURIComponent(slug)}` +
+            `&codes=${encodeURIComponent(codeList)}${yearPart}`;
+          const res = await fetch(url);
+          const json = await res.json();
+          if(!res.ok || !json.success){
+            throw new Error((json && json.error) ? json.error : `HTTP ${res.status}`);
+          }
+          if(!json.data){
+            owidNote.textContent = 'OWID: secili bolge icin veri bulunamadi.';
+            return;
+          }
+          const topTxt = (json.data.top || []).map(r => `${r.code}: ${Number(r.value).toFixed(2)}`).join(' | ');
+          owidNote.textContent =
+            `OWID ${activeRegionLabel} (${json.data.yearLabel}) ortalama: ${Number(json.data.avg).toFixed(2)} | ` +
+            `ulke sayisi: ${json.count} | top3: ${topTxt}`;
+        } catch(err){
+          owidNote.textContent = 'OWID veri cekme hatasi: ' + (err && err.message ? err.message : String(err));
+        }
+      }
+
+      async function fetchGdeltNewsSummary(){
+        if(!gdeltNote) return;
+        const fallbackQuery = activeRegionKey === 'asia'
+          ? 'asia international relations diplomacy'
+          : 'middle east international relations diplomacy';
+        const q = (gdeltQuery && gdeltQuery.value && gdeltQuery.value.trim()) || fallbackQuery;
+
+        const backendBase = await resolveBackendBase();
+
+        gdeltNote.textContent = 'GDELT verisi yukleniyor...';
+        try{
+          const url = `${backendBase}/api/news?query=${encodeURIComponent(q)}&lang=en&maxRecords=8`;
+          const res = await fetch(url);
+          const json = await res.json();
+          if(!res.ok || !json.success){
+            throw new Error((json && json.error) ? json.error : `HTTP ${res.status}`);
+          }
+          const arr = Array.isArray(json.data) ? json.data : [];
+          if(!arr.length){
+            gdeltNote.textContent = 'GDELT: sonuc bulunamadi.';
+            return;
+          }
+          const top = arr.slice(0, 4).map(a => a.title || '(baslik yok)').join(' | ');
+          gdeltNote.textContent = `GDELT sonuc: ${arr.length} haber | ${top}`;
+        } catch(err){
+          gdeltNote.textContent =
+            'GDELT hatasi: backend veya GDELT ag erisimi sorunu olabilir. ' +
+            'Terminalde `npm start` acik olsun. ' +
+            (err && err.message ? `Detay: ${err.message}` : '');
+        }
+      }
+
+      function polysToFeatureCollection(polys){
+        const feats = (polys || []).map(poly => ({
+          type: 'Feature',
+          properties: {},
+          geometry: {
+            type: 'Polygon',
+            coordinates: [poly.outer, ...(poly.holes || [])]
+          }
+        }));
+        return { type: 'FeatureCollection', features: feats };
+      }
+
+      function updateLeafletRegion(){
+        if(!leafletMap) return;
+        if(!middleEastPolygons || !middleEastPolygons.length) return;
+
+        const regionGeojson = polysToFeatureCollection(middleEastPolygons);
+        if(leafletRegionLayer) leafletRegionLayer.remove();
+
+        leafletRegionLayer = L.geoJSON(regionGeojson, {
+          style: () => ({
+            color: '#ff3b3b',
+            weight: 1,
+            fillColor: '#ff3b3b',
+            fillOpacity: 0.35
+          })
+        }).addTo(leafletMap);
+      }
+
+      async function ensureLeafletMap(){
+        if(leafletMap) return;
+        if(typeof L === 'undefined') return;
+
+        leafletMap = L.map('map2dCanvas', { worldCopyJump: true }).setView([20, 0], 2);
+
+        function themeToUrl(theme){
+          switch(String(theme||'').toLowerCase()){
+            case 'dark':
+              return 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+            case 'gray':
+              return 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png';
+            case 'voyager':
+              return 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+            case 'light':
+            default:
+              return 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+          }
+        }
+
+        function applyLeafletTheme(theme){
+          const url = themeToUrl(theme);
+          if(leafletBaseLayer) leafletBaseLayer.remove();
+          leafletBaseLayer = L.tileLayer(url, {
+            maxZoom: 18,
+            attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+          }).addTo(leafletMap);
+
+          // Tema ile uyumlu arka plan (tile boşluklarında siyah görünmesin)
+          const mapEl = document.getElementById('map2dCanvas');
+          if(mapEl){
+            const t = String(theme || '').toLowerCase();
+            if(t === 'dark'){
+              mapEl.style.background = '#0a0e1a';
+            } else if(t === 'gray'){
+              mapEl.style.background = '#e5e7eb';
+            } else if(t === 'voyager'){
+              mapEl.style.background = '#dbeafe';
+            } else {
+              // light default
+              mapEl.style.background = '#f3f4f6';
+            }
+          }
+        }
+
+        const themeSelect = document.getElementById('leafletTheme');
+        // Varsayılan: light (daha temiz/görünür)
+        const savedTheme = localStorage.getItem('IRL_leafletTheme') || 'light';
+        if(themeSelect) themeSelect.value = savedTheme;
+        applyLeafletTheme(savedTheme);
+
+        if(themeSelect){
+          themeSelect.addEventListener('change', () => {
+            const t = themeSelect.value;
+            localStorage.setItem('IRL_leafletTheme', t);
+            applyLeafletTheme(t);
+          });
+        }
+
+        leafletMap.on('click', (e) => {
+          if(!e || !e.latlng) return;
+          setSelection(e.latlng.lat, e.latlng.lng);
+        });
+
+        // World outline once
+        try{
+          if(!worldGeojsonCache){
+            const res = await fetch(WORLD_GEOJSON_FALLBACK);
+            if(res && res.ok){
+              worldGeojsonCache = await res.json();
+            }
+          }
+          if(worldGeojsonCache){
+            leafletWorldLayer = L.geoJSON(worldGeojsonCache, {
+              style: () => ({
+                color: 'rgba(160,190,255,0.35)',
+                weight: 0.6,
+                fillOpacity: 0
+              })
+            }).addTo(leafletMap);
+          }
+        } catch(err){
+          console.warn('Leaflet world load failed:', err);
+        }
+
+        updateLeafletRegion();
+        leafletMap.invalidateSize();
+      }
+
+      function resize(){
+        const w = canvas.clientWidth;
+        const h = canvas.clientHeight;
+        if(w <= 0 || h <= 0) return;
+        globe.width(w).height(h);
+        if(canvas2d && viewMode === '2d' && leafletMap) {
+          // Leaflet boyutu güncellemesi
+          leafletMap.invalidateSize();
+        }
+      }
+
+      resize();
+
+      window.addEventListener('resize', resize);
+      window.addEventListener('resize', updateHomeLayoutHeights);
+      updateHomeLayoutHeights();
+
+      function updateEventsBtn(){
+        const ok = state.selected && state.selected.region === activeRegionLabel && !!dateInput.value;
+        eventsBtn.disabled = !ok;
+      }
+
+      dateInput.addEventListener('change', updateEventsBtn);
+      dateInput.addEventListener('change', fetchOwidRegionalSummary);
+      updateEventsBtn();
+
+      if(owidFetchBtn) owidFetchBtn.addEventListener('click', fetchOwidRegionalSummary);
+      if(owidIndicator) owidIndicator.addEventListener('change', fetchOwidRegionalSummary);
+      if(gdeltFetchBtn) gdeltFetchBtn.addEventListener('click', fetchGdeltNewsSummary);
+      if(gdeltQuery) gdeltQuery.addEventListener('keydown', (e) => { if(e.key === 'Enter') fetchGdeltNewsSummary(); });
+
+      function escapeHtml(s){
+        return String(s || '')
+          .replaceAll('&', '&amp;')
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;')
+          .replaceAll("'", '&#39;');
+      }
+
+      function daysBefore(yyyyMmDd, days){
+        const d = new Date(`${yyyyMmDd}T00:00:00Z`);
+        if(!Number.isFinite(d.getTime())) return yyyyMmDd;
+        d.setUTCDate(d.getUTCDate() - days);
+        const y = d.getUTCFullYear();
+        const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(d.getUTCDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+      }
+
+      function renderEventsList(items, selectedDate){
+        const arr = Array.isArray(items) ? items : [];
+        if(!arr.length){
+          eventsNote.innerHTML = '<div>Secilen tarih araliginda olay bulunamadi.</div>';
+          return;
+        }
+        const rows = arr.slice(0, 8).map((a, idx) => {
+          const dt = escapeHtml((a.seendate || '').slice(0, 10) || selectedDate || '-');
+          const title = escapeHtml(a.title || '(baslik yok)');
+          const domain = escapeHtml(a.domain || a.sourcecommonname || 'kaynak yok');
+          const url = escapeHtml(a.url || '#');
+          return (
+            `<div style="margin:8px 0;padding:8px;border:1px solid #1e2d47;border-radius:8px">` +
+            `<div style="font-family:monospace;font-size:11px;color:#6b7a96">${idx + 1}. ${dt} - ${domain}</div>` +
+            `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#c8d8e8;text-decoration:none">${title}</a>` +
+            `</div>`
+          );
+        }).join('');
+        eventsNote.innerHTML = rows;
+      }
+
+      async function fetchRecentMiddleEastEvents(){
+        if(!state.selected || !dateInput.value){
+          eventsNote.style.display = 'block';
+          eventsNote.textContent = 'Once Ortadogu uzerinde bir nokta ve tarih sec.';
+          return;
+        }
+        if(activeRegionKey !== 'mideast' || state.selected.region !== activeRegionLabel){
+          eventsNote.style.display = 'block';
+          eventsNote.textContent = 'Bu surumde tarihi olaylar sadece Ortadogu secimi icin aktif.';
+          return;
+        }
+
+        const endDate = dateInput.value;
+        const startDate = daysBefore(endDate, 30);
+        const backendBase = await resolveBackendBase();
+        const q = 'middle east diplomacy OR ceasefire OR conflict OR negotiation';
+        const url =
+          `${backendBase}/api/events?query=${encodeURIComponent(q)}` +
+          `&lang=en&startDate=${encodeURIComponent(startDate)}` +
+          `&endDate=${encodeURIComponent(endDate)}&maxRecords=12`;
+
+        eventsNote.style.display = 'block';
+        eventsNote.textContent = `Olaylar yukleniyor... (${startDate} -> ${endDate})`;
+
+        try{
+          const res = await fetch(url);
+          const json = await res.json();
+          if(!res.ok || !json.success){
+            throw new Error((json && json.error) ? json.error : `HTTP ${res.status}`);
+          }
+          renderEventsList(json.data || [], endDate);
+        } catch(err){
+          eventsNote.textContent =
+            'Tarihi olaylar cekilemedi. ' +
+            (err && err.message ? `Detay: ${err.message}` : 'Bilinmeyen hata');
+        }
+      }
+
+      eventsBtn.addEventListener('click', fetchRecentMiddleEastEvents);
+
     };
 
     // Eğer kullanıcı doğrudan globe sekmesine geldiyse hazır et
@@ -1893,6 +2808,13 @@ loadData();
       if(el && el.classList.contains('active')) window.initGlobe();
     });
   })();
+</script>
+
+<script>
+  // Default landing: Globe as homepage
+  document.addEventListener('DOMContentLoaded', () => {
+    try { if(typeof showTab === 'function') showTab('globe'); } catch(e){}
+  });
 </script>
 </body>
 </html>
