@@ -9,6 +9,8 @@
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "react-chrono": "^3.3.3",
+    "react-globe.gl": "^2.37.0"
   }
 }
