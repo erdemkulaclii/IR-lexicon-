@@ -45,7 +45,6 @@ body.globe-home .globe-main.card{
   padding:0;
   background:transparent;
 }
-body.globe-home #globeCanvas,
 body.globe-home #map2dCanvas{height:100%;}
 body.globe-home .globe-side{
   position:fixed;
@@ -199,15 +198,27 @@ input::placeholder{color:#6b7a96;}
 .globe-main{
   padding:0;
 }
-#globeCanvas{
+#map2dCanvas{
   width:100%;
   height:640px;
   display:block;
 }
-#map2dCanvas{
-  width:100%;
-  height:640px;
-  display:none;
+.history-mask, .history-area, .history-arrow-line, .history-arrow-head{
+  transition: opacity 0.5s ease;
+}
+.history-area{
+  animation: areaFadeIn 0.6s ease forwards;
+}
+@keyframes areaFadeIn{
+  from{opacity:0} to{opacity:1}
+}
+.history-arrow-line{
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: drawLine 0.8s ease forwards 0.2s;
+}
+@keyframes drawLine{
+  to{stroke-dashoffset:0}
 }
 .globe-side{
   padding:14px 14px 16px;
@@ -263,7 +274,6 @@ input::placeholder{color:#6b7a96;}
   .ai-en{flex:0 0 140px;}
   header{flex-direction:column;text-align:center;}
   .globe-layout{grid-template-columns:1fr;}
-  #globeCanvas{height:520px;}
   #map2dCanvas{height:520px;}
   body.globe-home .globe-side{
     left:10px;
@@ -390,6 +400,51 @@ input::placeholder{color:#6b7a96;}
   color:#c8d8e8;
   background:rgba(74,158,255,.06);
 }
+
+.unit-marker{
+  border-radius:50%;
+  border:2px solid;
+  box-shadow:0 0 6px rgba(255,255,255,0.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:700;font-family:monospace;color:#fff;
+  pointer-events:auto;cursor:pointer;
+  transition:transform 0.3s ease;
+}
+.unit-marker:hover{transform:scale(1.4);z-index:9999!important;}
+.unit-marker[data-country="EGY"]{background:rgba(0,128,0,0.85);border-color:#22c55e;}
+.unit-marker[data-country="SYR"]{background:rgba(200,50,50,0.85);border-color:#ef4444;}
+.unit-marker[data-country="ISR"]{background:rgba(0,100,200,0.85);border-color:#3b82f6;}
+.unit-marker[data-country="UN"]{background:rgba(100,100,200,0.85);border-color:#818cf8;}
+.unit-tooltip{
+  background:rgba(10,14,26,0.92);color:#e8e4d9;
+  padding:6px 10px;border-radius:6px;font-size:11px;font-family:monospace;
+  white-space:nowrap;pointer-events:none;border:1px solid #2a3f5f;
+}
+.phase-panel{
+  background:#111827;border:1px solid #1e2d47;border-radius:10px;
+  padding:12px;margin-top:8px;
+}
+.phase-panel h5{color:#c8a96e;font-family:Georgia,serif;font-size:14px;margin:0 0 8px 0;}
+.phase-panel-section{margin-top:10px;padding-top:8px;border-top:1px solid #1e2d47;}
+.phase-panel-section h6{color:#9bb9df;font-size:11px;font-family:monospace;text-transform:uppercase;letter-spacing:1px;margin:0 0 6px 0;}
+.term-chip{
+  display:inline-block;padding:3px 8px;margin:2px;border-radius:6px;
+  background:rgba(74,158,255,0.12);border:1px solid rgba(74,158,255,0.3);
+  color:#7dd3fc;font-size:11px;font-family:monospace;cursor:pointer;
+  transition:all 0.2s;
+}
+.term-chip:hover{background:rgba(74,158,255,0.25);border-color:#4a9eff;color:#fff;}
+.term-chip.added{background:rgba(74,222,128,0.15);border-color:#4ade80;color:#4ade80;}
+.phase-image{border-radius:8px;border:1px solid #1e2d47;max-width:100%;margin-top:6px;}
+.phase-image-caption{font-size:10px;color:#6b7a96;font-family:monospace;margin-top:4px;}
+.country-legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;}
+.country-legend-item{display:flex;align-items:center;gap:4px;font-size:11px;font-family:monospace;}
+.country-legend-dot{width:10px;height:10px;border-radius:50%;border:1.5px solid;}
+.front-line{
+  stroke-dasharray:8 4;
+  animation:frontDash 1.5s linear infinite;
+}
+@keyframes frontDash{to{stroke-dashoffset:-24}}
 </style>
 <!-- Leaflet (2D harita) -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
@@ -545,12 +600,7 @@ input::placeholder{color:#6b7a96;}
   <div class="panel active" id="tab-globe">
     <div class="globe-layout">
       <div class="card globe-main">
-        <div class="globe-view-toggle" style="display:flex;gap:8px;justify-content:flex-end;margin-bottom:10px">
-          <button class="btn btn-blue" id="globeView3dBtn" type="button">3D</button>
-          <button class="btn btn-secondary" id="globeView2dBtn" type="button">2D</button>
-        </div>
-        <div id="globeCanvas"></div>
-        <div id="map2dCanvas"></div>
+        <div id="map2dCanvas" style="width:100%;height:100%"></div>
       </div>
 
       <div class="card globe-side">
@@ -562,43 +612,24 @@ input::placeholder{color:#6b7a96;}
 
         <div class="kv">
           <div class="k">Koordinat (lat, lon)</div>
-          <div class="v" id="globeCoordsText">Küreye tıklayın.</div>
+          <div class="v" id="globeCoordsText">Haritaya tiklayin.</div>
         </div>
 
         <div class="hr"></div>
-        <div class="globe-side-tabs" id="historyModeTabs">
-          <button class="globe-side-tab active" data-side-mode="live" type="button">Canli Olay Akisi</button>
-          <button class="globe-side-tab" data-side-mode="history" type="button">Tarihi Olay Analizi</button>
-        </div>
-
-        <div class="globe-side-panel active" id="sideModeLive">
-          <label for="globeDate">Tarih</label>
-          <input id="globeDate" type="date" />
-          <button class="btn btn-primary" id="globeEventsBtn" disabled style="margin-top:8px">Tarihi Olayları Getir</button>
-          <div class="globe-note" id="globeEventsNote"></div>
-        </div>
-
-        <div class="globe-side-panel" id="sideModeHistory">
-          <div class="kv" style="margin-top:4px">
-            <div class="k">Hizli Tarihi Olay</div>
-            <div class="v" style="display:flex;gap:8px;flex-wrap:wrap">
-              <select id="historyPreset" style="min-width:220px">
-                <option value="yom-kippur">Yom Kippur Savasi (1973)</option>
-              </select>
-              <button class="btn btn-secondary" id="historyPresetBtn" type="button">Olaya Git</button>
-            </div>
+        <input id="globeDate" type="hidden" value="1973-10-06" />
+        <div class="globe-side-panel active" id="sideModeHistory">
+          <div style="margin-top:4px;margin-bottom:8px">
+            <h3 style="color:#c8a96e;font-family:Georgia,serif;font-size:18px;margin:0">Yom Kippur Savasi (1973)</h3>
+            <div style="color:#6b7a96;font-size:11px;font-family:monospace;margin-top:4px">6 Ekim 1973 &mdash; Tarihsel Similasyon</div>
           </div>
+          <select id="historyPreset" style="display:none"><option value="yom-kippur" selected>Yom Kippur</option></select>
           <div id="historyPhaseTabs" class="history-phase-tabs"></div>
           <div id="historyPhaseMeta" class="history-phase-meta"></div>
           <div id="historyMapLegend" class="history-map-legend" style="display:none"></div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
-            <button class="btn btn-secondary" id="historySimPlayBtn" type="button">Simulasyon Baslat</button>
-            <button class="btn btn-secondary" id="historySimStopBtn" type="button">Durdur</button>
-            <button class="btn btn-secondary" id="historySimNextBtn" type="button">Adim Ileri</button>
+            <button class="btn btn-secondary" id="historySimPlayBtn" type="button">Oynat</button>
           </div>
-          <div id="historySimNote" class="globe-note" style="display:block;margin-top:8px">
-            Ok yonu: acik renk baslangic, koyu renk bitis. Simulasyon fazlari sirayla oynatir.
-          </div>
+          <div id="historySimNote" class="globe-note" style="display:block;margin-top:8px"></div>
           <div id="historyStory" class="history-story" style="display:none"></div>
           <div class="globe-note" id="globeHistoryNote" style="display:block"></div>
         </div>
@@ -638,38 +669,7 @@ input::placeholder{color:#6b7a96;}
           </div>
         </div>
 
-        <div class="hr"></div>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <div style="color:#6b7a96;font-family:monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase">
-            OWID (IR Dataset)
-          </div>
-          <select id="owidIndicator">
-            <option value="military-expenditure-as-share-of-gdp">Askeri Harcama (% GSYH)</option>
-            <option value="refugee-population-by-country-or-territory-of-asylum">Multeci Nufusu (Asylum)</option>
-            <option value="trade-as-share-of-gdp">Ticaret Acikligi (% GSYH)</option>
-            <option value="democracy-index-eiu">Demokrasi Endeksi (EIU)</option>
-          </select>
-          <button class="btn btn-secondary" id="owidFetchBtn" type="button">OWID Veri Getir</button>
-          <div class="globe-note" id="owidNote" style="display:block;margin-top:0">
-            Bolge + tarih secip OWID gostergelerini karsilastirabilirsin.
-          </div>
-        </div>
-
-        <div class="hr"></div>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <div style="color:#6b7a96;font-family:monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase">
-            GDELT Haber Akışı
-          </div>
-          <input id="gdeltQuery" type="text" placeholder="Orn: Turkey NATO diplomacy" />
-          <button class="btn btn-secondary" id="gdeltFetchBtn" type="button">GDELT Haber Getir</button>
-          <div class="globe-note" id="gdeltNote" style="display:block;margin-top:0">
-            Canli haber akisi icin backend /api/news endpointini kullanir.
-          </div>
-        </div>
-
-        <div class="hint" style="margin-top:12px">
-          Bu adımda bölge olarak “Ortadoğu/Asya” seçimini görüyoruz. Bir sonraki adımda seçilen konum + tarih için olay çekme ve kelime eşleştirme gelecek.
-        </div>
+                <div class="hint" style="margin-top:12px">Faz butonlarina tiklayarak olaylari incele, Oynat ile similasyonu izle.</div>
       </div>
     </div>
   </div>
@@ -1964,7 +1964,6 @@ function notify(msg,type='info'){
 loadData();
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/globe.gl"></script>
 <script>
   (function(){
     let initialized = false;
@@ -2282,60 +2281,27 @@ loadData();
       );
     }
 
-    async function ensureGlobeLibrary(){
-      if(typeof Globe === 'function') return true;
-      const cdnCandidates = [
-        'https://cdn.jsdelivr.net/npm/globe.gl',
-        'https://unpkg.com/globe.gl'
-      ];
-      for(const src of cdnCandidates){
-        try{
-          await new Promise((resolve, reject) => {
-            const s = document.createElement('script');
-            s.src = src;
-            s.async = true;
-            s.onload = () => resolve();
-            s.onerror = () => reject(new Error('script load failed'));
-            document.head.appendChild(s);
-          });
-          if(typeof Globe === 'function') return true;
-        } catch(_e){}
-      }
-      return typeof Globe === 'function';
-    }
 
     window.initGlobe = async function(){
       if(initialized || initInProgress) return;
       initInProgress = true;
 
-      const canvas = document.getElementById('globeCanvas');
       const canvas2d = document.getElementById('map2dCanvas');
       const regionPill = document.getElementById('globeRegionPill');
       const coordsPill = document.getElementById('globeCoordsPill');
       const coordsText = document.getElementById('globeCoordsText');
       const dateInput = document.getElementById('globeDate');
-      const historyModeTabs = Array.from(document.querySelectorAll('#historyModeTabs .globe-side-tab'));
-      const sideModeLive = document.getElementById('sideModeLive');
       const sideModeHistory = document.getElementById('sideModeHistory');
       const historyPreset = document.getElementById('historyPreset');
-      const historyPresetBtn = document.getElementById('historyPresetBtn');
       const historyPhaseTabsEl = document.getElementById('historyPhaseTabs');
       const historyPhaseMeta = document.getElementById('historyPhaseMeta');
       const historyMapLegend = document.getElementById('historyMapLegend');
       const historySimPlayBtn = document.getElementById('historySimPlayBtn');
-      const historySimStopBtn = document.getElementById('historySimStopBtn');
-      const historySimNextBtn = document.getElementById('historySimNextBtn');
       const historySimNote = document.getElementById('historySimNote');
       const historyStory = document.getElementById('historyStory');
       const historyNote = document.getElementById('globeHistoryNote');
       const eventsBtn = document.getElementById('globeEventsBtn');
       const eventsNote = document.getElementById('globeEventsNote');
-      const owidIndicator = document.getElementById('owidIndicator');
-      const owidFetchBtn = document.getElementById('owidFetchBtn');
-      const owidNote = document.getElementById('owidNote');
-      const gdeltQuery = document.getElementById('gdeltQuery');
-      const gdeltFetchBtn = document.getElementById('gdeltFetchBtn');
-      const gdeltNote = document.getElementById('gdeltNote');
 
       // Leaflet (2D) state
       let leafletMap = null;
@@ -2349,48 +2315,12 @@ loadData();
       let historySimTimer = null;
       let historySimRunning = false;
       let historyFetchToken = 0;
-      const HISTORY_MINIMAL_MODE = true;
-
-      if(!canvas){
+      if(!canvas2d){
         initInProgress = false;
         return;
-      }
-
-      const globeReady = await ensureGlobeLibrary();
-      if(!globeReady){
-        canvas.innerHTML = '<div style="padding:16px;color:#f87171;font-family:monospace">3D kutuphanesi yuklenemedi. Internet, VPN/Adblock ve CDN erisimini kontrol et.</div>';
-        initInProgress = false;
-        return;
-      }
-
-      if(gdeltQuery && !gdeltQuery.value){
-        gdeltQuery.value = 'middle east international relations diplomacy';
-      }
-
-      let viewMode = '3d';
-      const btn3d = document.getElementById('globeView3dBtn');
-      const btn2d = document.getElementById('globeView2dBtn');
-
-      function setViewMode(mode){
-        viewMode = mode;
-        if(canvas) canvas.style.display = (mode === '3d') ? 'block' : 'none';
-        if(canvas2d) canvas2d.style.display = (mode === '2d') ? 'block' : 'none';
-        if(mode === '2d' && typeof ensureLeafletMap === 'function'){
-          ensureLeafletMap();
-          if(typeof updateLeafletRegion === 'function') updateLeafletRegion();
-        }
-        if(mode === '2d' && leafletMap) leafletMap.invalidateSize();
-        if(mode === '3d' && typeof resize === 'function') resize(); // canvas boyutu güncellensin
-        renderHistoryPhaseMapLayers();
-      }
-
-      if(btn3d && btn2d){
-        btn3d.addEventListener('click', () => setViewMode('3d'));
-        btn2d.addEventListener('click', () => setViewMode('2d'));
       }
 
       function updateHomeLayoutHeights(){
-        // globe-home modunda canvas yüksekliğini stabil tut
         if(!document.body.classList.contains('globe-home')) return;
         const headerEl = document.querySelector('header');
         const tabsEl = document.querySelector('.tabs');
@@ -2398,7 +2328,7 @@ loadData();
 
         const tabGlobe = document.getElementById('tab-globe');
         if(tabGlobe) tabGlobe.style.paddingTop = top + 'px';
-        if(sideModeLive || sideModeHistory){
+        if(sideModeHistory){
           const sideEl = document.querySelector('#tab-globe .globe-side');
           if(sideEl && window.innerWidth > 600){
             sideEl.style.top = top + 'px';
@@ -2408,26 +2338,12 @@ loadData();
         }
 
         const h = Math.max(260, window.innerHeight - top - 16);
-        if(canvas) canvas.style.height = h + 'px';
         if(canvas2d) canvas2d.style.height = h + 'px';
 
         if(leafletMap) leafletMap.invalidateSize();
-        if(typeof resize === 'function') resize();
       }
 
-      // default: 3D
-      if(canvas2d) canvas2d.style.display = 'none';
-
-      function setHistoryMode(mode){
-        const isHistory = mode === 'history';
-        if(sideModeLive) sideModeLive.classList.toggle('active', !isHistory);
-        if(sideModeHistory) sideModeHistory.classList.toggle('active', isHistory);
-        historyModeTabs.forEach(btn => btn.classList.toggle('active', btn.dataset.sideMode === mode));
-      }
-      historyModeTabs.forEach(btn => {
-        btn.addEventListener('click', () => setHistoryMode(btn.dataset.sideMode || 'live'));
-      });
-      setHistoryMode('history');
+      if(sideModeHistory) sideModeHistory.classList.add('active');
 
       // Custom GeoJSON overrides (2D/3D dataset)
       let lastCustomGeoJson = null;
@@ -2452,48 +2368,32 @@ loadData();
               id: 'neden',
               title: 'Neden',
               dateRange: '1967-1973',
-              summary: '1967 sonrasi statu-koyu degistirme hedefi ile cephelerin yeniden sekillenmesi.',
+              summary: '1967 Alti Gun Savasi sonrasi Misir ve Suriye kaybettikleri topraklari geri almak icin askeri hazirlik baslatti.',
               eventWindow: { start: '1973-09-01', end: '1973-10-05' },
               queryHint: 'egypt syria military buildup OR post-1967 tensions OR suez front mobilization',
-              focus: {
-                bounds: [[29.90, 31.20], [33.55, 36.35]],
-                altitude: 1.75
-              },
-              legendHint: 'Yiginak ve temas hatlari: hazirlik safhasi, sinirli hareketlilik.',
-              style: {
-                frontColor: '#38bdf8',
-                ringColor: 'rgba(125,211,252,0.45)',
-                operationWeight2d: 3.0
-              },
+              focus: { bounds: [[29.50, 31.00], [34.00, 36.80]], altitude: 1.75 },
+              countries: ['EGY','SYR','ISR'],
+              terms: [
+                { en: 'Status Quo', tr: 'Mevcut Durum', cat: 'Diplomasi' },
+                { en: 'Territorial Dispute', tr: 'Toprak Anlaşmazlığı', cat: 'Diplomasi' },
+                { en: 'Military Buildup', tr: 'Askeri Yığınak', cat: 'Güvenlik' },
+                { en: 'Deterrence', tr: 'Caydırıcılık', cat: 'Güvenlik' }
+              ],
+              image: { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/1973_Arab-Israeli_War_-_Oct_6.svg/400px-1973_Arab-Israeli_War_-_Oct_6.svg.png', caption: 'Yom Kippur Savasi baslangic durumu', source: 'Wikimedia Commons' },
+              units: [
+                { lat: 30.10, lon: 31.50, country: 'EGY', label: 'Misir 2. Ordu', size: 'large' },
+                { lat: 29.80, lon: 31.80, country: 'EGY', label: 'Misir 3. Ordu', size: 'large' },
+                { lat: 33.50, lon: 36.30, country: 'SYR', label: 'Suriye Zirhli Tugay', size: 'medium' },
+                { lat: 31.00, lon: 34.40, country: 'ISR', label: 'IDF Guney Komutanligi', size: 'medium' },
+                { lat: 33.00, lon: 35.60, country: 'ISR', label: 'IDF Kuzey Komutanligi', size: 'medium' }
+              ],
               operations: [
-                {
-                  from: [30.15, 31.25],
-                  to: [30.78, 33.05],
-                  label: 'Misir 2. ve 3. Ordu yiginagi',
-                  actor: 'Egypt',
-                  intensity: 0.45
-                },
-                {
-                  from: [33.55, 36.35],
-                  to: [33.12, 35.84],
-                  label: 'Suriye zırhlı birlik hazirligi',
-                  actor: 'Syria',
-                  intensity: 0.45
-                }
+                { from: [30.15, 31.25], to: [30.78, 33.05], label: 'Misir 2. ve 3. Ordu yiginagi', actor: 'Egypt', intensity: 0.45 },
+                { from: [33.55, 36.35], to: [33.12, 35.84], label: 'Suriye zirhli birlik hazirligi', actor: 'Syria', intensity: 0.45 }
               ],
               fronts: [
-                {
-                  label: 'Suez temas hatti (ateskes cizgisi)',
-                  points: [
-                    [31.20, 32.35], [30.92, 32.60], [30.55, 32.92], [30.20, 33.10]
-                  ]
-                },
-                {
-                  label: 'Golan temas hatti',
-                  points: [
-                    [33.30, 35.73], [33.18, 35.86], [33.06, 36.00], [32.94, 36.15]
-                  ]
-                }
+                { label: 'Suez temas hatti (ateskes cizgisi)', points: [[31.20, 32.35], [30.92, 32.60], [30.55, 32.92], [30.20, 33.10]] },
+                { label: 'Golan temas hatti', points: [[33.30, 35.73], [33.18, 35.86], [33.06, 36.00], [32.94, 36.15]] }
               ],
               markers: [
                 { lat: 30.70, lon: 33.80, label: 'Sinai' },
@@ -2504,48 +2404,33 @@ loadData();
               id: 'baslangic',
               title: 'Baslangic',
               dateRange: '6-10 Ekim 1973',
-              summary: 'Misir ve Suriye kuvvetlerinin surpriz taarruzu ile cephelerin hizla hareketlenmesi.',
+              summary: 'Misir ve Suriye kuvvetleri eszamanli surpriz saldiri baslatti. Misir Suez Kanalini gecti, Suriye Golan Tepelerine saldirdi.',
               eventWindow: { start: '1973-10-06', end: '1973-10-10' },
               queryHint: 'crossing suez canal OR yom kippur surprise attack OR golan offensive',
-              focus: {
-                bounds: [[29.95, 32.10], [33.55, 36.30]],
-                altitude: 1.6
-              },
-              legendHint: 'Kalın operasyon oklari iki cephede eszamanli ilk taarruzu gosterir.',
-              style: {
-                frontColor: '#22d3ee',
-                ringColor: 'rgba(250,204,21,0.58)',
-                operationWeight2d: 4.2
-              },
+              focus: { bounds: [[29.50, 31.50], [34.00, 36.80]], altitude: 1.6 },
+              countries: ['EGY','SYR','ISR'],
+              terms: [
+                { en: 'Surprise Attack', tr: 'Baskın Saldırı', cat: 'Güvenlik' },
+                { en: 'Two-Front War', tr: 'İki Cepheli Savaş', cat: 'Güvenlik' },
+                { en: 'Operation Badr', tr: 'Badr Harekâtı', cat: 'Güvenlik' },
+                { en: 'Crossing Operation', tr: 'Geçiş Harekâtı', cat: 'Güvenlik' }
+              ],
+              image: { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Yom_Kippur_War_map.svg/400px-Yom_Kippur_War_map.svg.png', caption: 'Ilk taarruz ve cephe hatlari', source: 'Wikimedia Commons' },
+              units: [
+                { lat: 30.50, lon: 32.30, country: 'EGY', label: 'Misir Suez Gecis Birlikleri', size: 'large' },
+                { lat: 30.00, lon: 32.50, country: 'EGY', label: 'Misir 3. Ordu (ilerliyor)', size: 'large' },
+                { lat: 33.30, lon: 36.00, country: 'SYR', label: 'Suriye 1. Zirhli Tumen', size: 'large' },
+                { lat: 33.10, lon: 35.70, country: 'SYR', label: 'Suriye Piyade (ilerliyor)', size: 'medium' },
+                { lat: 30.80, lon: 33.50, country: 'ISR', label: 'IDF Sinai Savunma', size: 'medium' },
+                { lat: 33.00, lon: 35.50, country: 'ISR', label: 'IDF Golan Savunma', size: 'medium' }
+              ],
               operations: [
-                {
-                  from: [30.02, 32.20],
-                  to: [30.72, 33.03],
-                  label: 'Suez gecisi - Badr Harekati',
-                  actor: 'Egypt',
-                  intensity: 0.95
-                },
-                {
-                  from: [33.42, 36.23],
-                  to: [33.00, 35.72],
-                  label: 'Golan ilk dalga taarruzu',
-                  actor: 'Syria',
-                  intensity: 0.92
-                }
+                { from: [30.02, 32.20], to: [30.72, 33.03], label: 'Suez gecisi - Badr Harekati', actor: 'Egypt', intensity: 0.95 },
+                { from: [33.42, 36.23], to: [33.00, 35.72], label: 'Golan ilk dalga taarruzu', actor: 'Syria', intensity: 0.92 }
               ],
               fronts: [
-                {
-                  label: 'Suez dogu yakasi tutunma hatti',
-                  points: [
-                    [31.12, 32.44], [30.86, 32.66], [30.58, 32.90], [30.30, 33.08]
-                  ]
-                },
-                {
-                  label: 'Golan ileri hat',
-                  points: [
-                    [33.22, 35.78], [33.12, 35.92], [33.02, 36.05], [32.92, 36.18]
-                  ]
-                }
+                { label: 'Suez dogu yakasi tutunma hatti', points: [[31.12, 32.44], [30.86, 32.66], [30.58, 32.90], [30.30, 33.08]] },
+                { label: 'Golan ileri hat', points: [[33.22, 35.78], [33.12, 35.92], [33.02, 36.05], [32.92, 36.18]] }
               ],
               markers: [
                 { lat: 30.00, lon: 32.55, label: 'Suez Kanali', side: 'egypt' },
@@ -2556,48 +2441,32 @@ loadData();
               id: 'askeri-kirilma',
               title: 'Askeri Kirilma',
               dateRange: '11-23 Ekim 1973',
-              summary: 'Karsi taarruzla cephe dengesi degisti, catisma sinirlari yeniden cizildi.',
+              summary: 'Israil karsi taarruz baslatti. Sinai\'da Suez Kanalini batiya gecti (Gazelle Harekati). Golan\'da Suriye geri itildi.',
               eventWindow: { start: '1973-10-11', end: '1973-10-23' },
               queryHint: 'israeli counteroffensive OR operation gazelle OR sinai crossing',
-              focus: {
-                bounds: [[30.05, 32.35], [33.55, 36.35]],
-                altitude: 1.55
-              },
-              legendHint: 'Yon degistiren oklar, karsi taarruz ve denge degisimini vurgular.',
-              style: {
-                frontColor: '#7dd3fc',
-                ringColor: 'rgba(251,146,60,0.52)',
-                operationWeight2d: 3.8
-              },
+              focus: { bounds: [[29.50, 31.50], [34.00, 36.80]], altitude: 1.55 },
+              countries: ['EGY','SYR','ISR'],
+              terms: [
+                { en: 'Counteroffensive', tr: 'Karşı Taarruz', cat: 'Güvenlik' },
+                { en: 'Operation Gazelle', tr: 'Gazelle Harekâtı', cat: 'Güvenlik' },
+                { en: 'Encirclement', tr: 'Kuşatma', cat: 'Güvenlik' },
+                { en: 'Superpower Rivalry', tr: 'Süper Güç Rekabeti', cat: 'Diplomasi' }
+              ],
+              image: { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/1973_sinai_war_maps2.jpg/400px-1973_sinai_war_maps2.jpg', caption: 'Karsi taarruz ve cephe degisimi', source: 'Wikimedia Commons' },
+              units: [
+                { lat: 30.40, lon: 32.40, country: 'ISR', label: 'IDF Sharon Tugayi (Kanal gecisi)', size: 'large' },
+                { lat: 31.00, lon: 33.20, country: 'ISR', label: 'IDF Sinai Karsi Taarruz', size: 'large' },
+                { lat: 33.20, lon: 36.00, country: 'ISR', label: 'IDF Golan Karsi Taarruz', size: 'large' },
+                { lat: 30.20, lon: 32.60, country: 'EGY', label: 'Misir 3. Ordu (kusatma altinda)', size: 'medium' },
+                { lat: 33.40, lon: 36.20, country: 'SYR', label: 'Suriye Savunma Hatti', size: 'medium' }
+              ],
               operations: [
-                {
-                  from: [31.02, 33.08],
-                  to: [30.34, 32.45],
-                  label: 'Sinai karsi taarruz - Kanal batiya gecis',
-                  actor: 'Israel',
-                  intensity: 0.9
-                },
-                {
-                  from: [33.00, 35.72],
-                  to: [33.32, 36.14],
-                  label: 'Golan geri itis ve dengeleme',
-                  actor: 'Israel',
-                  intensity: 0.84
-                }
+                { from: [31.02, 33.08], to: [30.34, 32.45], label: 'Sinai karsi taarruz - Kanal batiya gecis', actor: 'Israel', intensity: 0.9 },
+                { from: [33.00, 35.72], to: [33.32, 36.14], label: 'Golan geri itis ve dengeleme', actor: 'Israel', intensity: 0.84 }
               ],
               fronts: [
-                {
-                  label: 'Sinai degisen temas hatti',
-                  points: [
-                    [31.04, 32.52], [30.82, 32.62], [30.62, 32.75], [30.45, 32.95]
-                  ]
-                },
-                {
-                  label: 'Golan yeni savunma hatti',
-                  points: [
-                    [33.30, 35.95], [33.22, 36.08], [33.12, 36.20], [33.02, 36.32]
-                  ]
-                }
+                { label: 'Sinai degisen temas hatti', points: [[31.04, 32.52], [30.82, 32.62], [30.62, 32.75], [30.45, 32.95]] },
+                { label: 'Golan yeni savunma hatti', points: [[33.30, 35.95], [33.22, 36.08], [33.12, 36.20], [33.02, 36.32]] }
               ],
               markers: [
                 { lat: 30.40, lon: 32.55, label: 'Bitter Lake hatti', side: 'israel' },
@@ -2607,48 +2476,35 @@ loadData();
             {
               id: 'diplomatik-sonuc',
               title: 'Diplomatik Sonuc',
-              dateRange: '24 Ekim 1973 ve sonrası',
-              summary: 'BM ateskesi ve sonrasinda Camp David surecine uzanan diplomatik hat.',
+              dateRange: '24 Ekim 1973 ve sonrasi',
+              summary: 'BM Guvenlik Konseyi 338 sayili kararla ateskes ilan etti. ABD Disisleri Bakani Kissinger mekik diplomasisi baslatti.',
               eventWindow: { start: '1973-10-24', end: '1973-11-30' },
               queryHint: 'UNSC resolution 338 OR ceasefire diplomacy OR shuttle diplomacy middle east',
-              focus: {
-                bounds: [[29.90, -78.20], [41.10, 36.50]],
-                altitude: 2.2
-              },
-              legendHint: 'Diplomatik hatlar Kahire, BM ve Washington arasindaki sureci izletir.',
-              style: {
-                frontColor: '#67e8f9',
-                ringColor: 'rgba(103,232,249,0.5)',
-                operationWeight2d: 3.2
-              },
+              focus: { bounds: [[28.00, 30.00], [34.00, 37.00]], altitude: 2.2 },
+              countries: ['EGY','SYR','ISR'],
+              terms: [
+                { en: 'Ceasefire', tr: 'Ateşkes', cat: 'Diplomasi' },
+                { en: 'UNSC Resolution', tr: 'BM Güvenlik Konseyi Kararı', cat: 'Diplomasi' },
+                { en: 'Shuttle Diplomacy', tr: 'Mekik Diplomasisi', cat: 'Diplomasi' },
+                { en: 'Camp David Accords', tr: 'Camp David Anlaşmaları', cat: 'Diplomasi' },
+                { en: 'Balance of Power', tr: 'Güç Dengesi', cat: 'Diplomasi' }
+              ],
+              image: { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Camp_David%2C_Menachem_Begin%2C_Anwar_El_Sadat%2C_1978.jpg/400px-Camp_David%2C_Menachem_Begin%2C_Anwar_El_Sadat%2C_1978.jpg', caption: 'Camp David sureci (1978)', source: 'Wikimedia Commons' },
+              units: [
+                { lat: 30.04, lon: 31.23, country: 'EGY', label: 'Kahire - Diplomatik merkez', size: 'small' },
+                { lat: 31.77, lon: 35.22, country: 'ISR', label: 'Kudus - Diplomatik merkez', size: 'small' },
+                { lat: 33.51, lon: 36.28, country: 'SYR', label: 'Sam - Diplomatik merkez', size: 'small' }
+              ],
               operations: [
-                {
-                  from: [30.40, 32.55],
-                  to: [40.75, -73.98],
-                  label: 'BM 338 / New York diplomasi trafigi',
-                  actor: 'UN',
-                  intensity: 0.78
-                },
-                {
-                  from: [30.40, 32.55],
-                  to: [38.90, -77.04],
-                  label: 'ABD mekik diplomasisi',
-                  actor: 'US',
-                  intensity: 0.82
-                }
+                { from: [30.04, 31.23], to: [31.77, 35.22], label: 'Misir-Israil ateskes muzakereleri', actor: 'UN', intensity: 0.78 },
+                { from: [31.77, 35.22], to: [33.51, 36.28], label: 'Israil-Suriye ayrilma gorusmeleri', actor: 'UN', intensity: 0.70 }
               ],
               fronts: [
-                {
-                  label: 'Sinai ateskes hatti',
-                  points: [
-                    [31.08, 32.48], [30.84, 32.67], [30.62, 32.86], [30.40, 33.04]
-                  ]
-                }
+                { label: 'Sinai ateskes hatti', points: [[31.08, 32.48], [30.84, 32.67], [30.62, 32.86], [30.40, 33.04]] }
               ],
               markers: [
-                { lat: 40.75, lon: -73.98, label: 'BM (New York)', side: 'diplomacy' },
-                { lat: 38.90, lon: -77.04, label: 'Washington', side: 'diplomacy' },
-                { lat: 30.04, lon: 31.23, label: 'Kahire diplomatik merkez', side: 'diplomacy' }
+                { lat: 30.04, lon: 31.23, label: 'Kahire', side: 'diplomacy' },
+                { lat: 31.77, lon: 35.22, label: 'Kudus', side: 'diplomacy' }
               ]
             }
           ]
@@ -2863,15 +2719,9 @@ loadData();
             if(leafletMap){
               leafletMap.fitBounds([[minLat, minLon], [maxLat, maxLon]], {
                 padding: [22, 22],
-                animate: !HISTORY_MINIMAL_MODE,
-                duration: HISTORY_MINIMAL_MODE ? 0 : 0.8
+                animate: true,
+                duration: 0.8
               });
-            }
-            if(globe && typeof globe.pointOfView === 'function'){
-              const centerLat = (minLat + maxLat) / 2;
-              const centerLon = (minLon + maxLon) / 2;
-              const alt = Number.isFinite(Number(focus.altitude)) ? Number(focus.altitude) : 1.75;
-              globe.pointOfView({ lat: centerLat, lng: centerLon, altitude: alt }, HISTORY_MINIMAL_MODE ? 220 : 900);
             }
           }
           return;
@@ -2881,22 +2731,13 @@ loadData();
         if(Number.isFinite(lat) && Number.isFinite(lon)){
           if(leafletMap){
             const zoom = Number.isFinite(Number(focus.zoom)) ? Number(focus.zoom) : 5;
-            leafletMap.setView([lat, lon], zoom, { animate: !HISTORY_MINIMAL_MODE });
-          }
-          if(globe && typeof globe.pointOfView === 'function'){
-            const alt = Number.isFinite(Number(focus.altitude)) ? Number(focus.altitude) : 1.65;
-            globe.pointOfView({ lat, lng: lon, altitude: alt }, HISTORY_MINIMAL_MODE ? 220 : 900);
+            leafletMap.setView([lat, lon], zoom, { animate: true });
           }
         }
       }
 
       function renderHistoryMapLegend(phase){
         if(!historyMapLegend) return;
-        if(HISTORY_MINIMAL_MODE){
-          historyMapLegend.style.display = 'none';
-          historyMapLegend.innerHTML = '';
-          return;
-        }
         if(!phase){
           historyMapLegend.style.display = 'none';
           historyMapLegend.innerHTML = '';
@@ -2922,6 +2763,7 @@ loadData();
           const idx = Number(btn.getAttribute('data-phase-idx'));
           if(!Number.isFinite(idx)) return;
           stopHistorySimulation();
+          if(historySimPlayBtn) historySimPlayBtn.textContent = 'Oynat';
           selectHistoryPhase(idx, { fetchEvents: true });
         });
       }
@@ -2933,18 +2775,9 @@ loadData();
         }
         historySimRunning = false;
         renderHistoryPhaseMapLayers();
-        if(historySimNote){
-          historySimNote.textContent =
-            'Simulasyon durdu. Acik->koyu ok operasyonu, mavi kesik cizgi temas hattini gosterir.';
-        }
       }
 
       function clearHistoryPhaseMapLayers(){
-        if(globe){
-          globe.arcsData([]);
-          globe.pointsData([]);
-          globe.ringsData([]);
-        }
         if(leafletHistoryLayer){
           leafletHistoryLayer.clearLayers();
         }
@@ -2994,62 +2827,17 @@ loadData();
           btn.classList.toggle('active', isActive);
         });
 
-        if(gdeltQuery){
-          gdeltQuery.value = regionKey === 'asia'
-            ? 'asia international relations diplomacy'
-            : 'middle east international relations diplomacy';
-        }
-
         regionReady = false;
         applyHighlightFromData(lastCustomGeoJson);
-        fetchOwidRegionalSummary();
       }
       regionTabs.forEach(btn => {
         btn.addEventListener('click', () => setActiveRegion(btn.dataset.regionKey));
       });
 
-      // 3D engine: globe.gl (three-globe wrapper)
-      let R = 120;
-      let globe = null;
-      try{
-        globe = new Globe(canvas, {
-          rendererConfig: { antialias: true, alpha: true },
-          waitForGlobeReady: true,
-          animateIn: false
-        })
-          .backgroundColor('rgba(0,0,0,0)')
-          .globeImageUrl('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg')
-          .showAtmosphere(true)
-          .atmosphereAltitude(0.12)
-          .showGraticules(false)
-          .polygonsData([])
-          .polygonGeoJsonGeometry('geometry')
-          .polygonCapColor(() => '#ff3b3b')
-          .polygonSideColor(() => '#ff3b3b')
-          .polygonStrokeColor(() => '#ff3b3b')
-          .polygonAltitude(0.01)
-          .polygonsTransitionDuration(0)
-          .onGlobeClick(({ lat, lng }) => setSelection(lat, lng));
-      } catch(err){
-        canvas.innerHTML = '<div style="padding:16px;color:#f87171;font-family:monospace">3D baslatma hatasi: ' + (err && err.message ? err.message : 'bilinmeyen hata') + '</div>';
-        initInProgress = false;
-        return;
-      }
-
       initialized = true;
       initInProgress = false;
 
-      if(typeof globe.getGlobeRadius === 'function'){
-        R = globe.getGlobeRadius();
-      }
-
-      const controls = globe.controls();
-      if(controls){
-        controls.autoRotate = false;
-        controls.enablePan = false;
-      }
-
-      // GeoJSON geldikçe daha doğru polygon tabanlı kırmızı boyamaya geç.
+      // GeoJSON geldikce bolge verisi yukle.
       async function applyHighlightFromData(customOverride){
         try{
           // UI: kullanıcı henüz seçim yapmamışsa kısa bir durum yaz.
@@ -3059,94 +2847,6 @@ loadData();
           middleEastPolygons = polys;
           middleEastBounds = bounds;
           regionReady = true;
-
-          // three-globe polygons layer ile kırmızı dolgu/shape
-          const regionFeatures = (middleEastPolygons || []).map(poly => {
-            const holes = poly.holes || [];
-            return {
-              type: 'Feature',
-              properties: {},
-              geometry: {
-                type: 'Polygon',
-                coordinates: [poly.outer, ...holes]
-              }
-            };
-          });
-
-          globe
-            .polygonsData(regionFeatures)
-            .polygonGeoJsonGeometry('geometry')
-            // Daha transparan: alttaki doku/isimler görünsün
-            .polygonCapColor(() => 'rgba(255,59,59,0.22)')
-            .polygonSideColor(() => 'rgba(255,59,59,0.10)')
-            .polygonStrokeColor(() => 'rgba(255,59,59,0.55)')
-            .polygonAltitude(activeRegionKey === 'asia' ? 0.008 : 0.006)
-            .polygonsTransitionDuration(0);
-
-          // Ülke isimleri (labels) – sadece aktif bölgedeki ülkeler (kalabalık olmasın).
-          function getCountryName(props){
-            if(!props) return null;
-            return props.admin || props.name || props.name_long || props.formal_en_name || props.sovereignt || null;
-          }
-          function getA2(props){
-            if(!props) return null;
-            // datasets/geo-countries: ISO3166-1-Alpha-2
-            const a2 = props.code_a2 || props.iso_a2 || props['ISO3166-1-Alpha-2'] || props.iso2 || props.A2 || null;
-            return (typeof a2 === 'string') ? a2.trim().toUpperCase() : null;
-          }
-          function geomBboxCenter(geom){
-            let lonMin=Infinity, lonMax=-Infinity, latMin=Infinity, latMax=-Infinity;
-            const pushCoord = (c) => {
-              if(!c || c.length < 2) return;
-              const lon = c[0], lat = c[1];
-              if(lon < lonMin) lonMin = lon;
-              if(lon > lonMax) lonMax = lon;
-              if(lat < latMin) latMin = lat;
-              if(lat > latMax) latMax = lat;
-            };
-            const walkRing = (ring) => {
-              if(!ring || !ring.length) return;
-              const step = Math.max(1, Math.floor(ring.length / 120));
-              for(let i=0;i<ring.length;i+=step) pushCoord(ring[i]);
-            };
-            if(!geom || !geom.type || !geom.coordinates) return null;
-            if(geom.type === 'Polygon'){
-              const coords = geom.coordinates;
-              if(coords && coords[0]) walkRing(coords[0]);
-            } else if(geom.type === 'MultiPolygon'){
-              for(const poly of geom.coordinates || []){
-                if(poly && poly[0]) walkRing(poly[0]);
-              }
-            } else {
-              return null;
-            }
-            if(!isFinite(lonMin) || !isFinite(latMin)) return null;
-            return { lon: (lonMin+lonMax)/2, lat: (latMin+latMax)/2 };
-          }
-
-          const labelItems = [];
-          if(worldFeaturesCache && Array.isArray(worldFeaturesCache)){
-            for(const f of worldFeaturesCache){
-              const props = f && f.properties;
-              const geom = f && f.geometry;
-              const a2 = getA2(props);
-              if(!a2 || !activeIsoA2Set.has(a2)) continue;
-              const name = getCountryName(props);
-              const c = geomBboxCenter(geom);
-              if(!name || !c) continue;
-              labelItems.push({ name, lat: c.lat, lng: c.lon });
-            }
-          }
-
-          globe
-            .labelsData(labelItems)
-            .labelText('name')
-            .labelLat('lat')
-            .labelLng('lng')
-            .labelColor(() => 'rgba(255,255,255,0.9)')
-            .labelSize(activeRegionKey === 'asia' ? 0.35 : 0.45)
-            .labelAltitude(0.03)
-            .labelsTransitionDuration(0);
 
           if(regionPill && !state.selected) {
             const label =
@@ -3199,8 +2899,6 @@ loadData();
 
       // İlk yükleme (file:// ise local denemeyeceğiz, GitHub fallback kullanılacak).
       applyHighlightFromData(null);
-      fetchOwidRegionalSummary();
-      fetchGdeltNewsSummary();
 
       function setSelection(lat, lon){
         const region = isInMiddleEast(lat, lon) ? activeRegionLabel : (activeRegionLabel + ' dışında');
@@ -3211,7 +2909,7 @@ loadData();
         coordsText.textContent = `Seçim: lat=${lat.toFixed(2)}°, lon=${lon.toFixed(2)}°`;
 
         updateEventsBtn();
-        eventsNote.style.display = 'none';
+        if(eventsNote) eventsNote.style.display = 'none';
       }
 
       async function resolveBackendBase(){
@@ -3227,74 +2925,6 @@ loadData();
           } catch(_e){}
         }
         return 'http://localhost:3000';
-      }
-
-      async function fetchOwidRegionalSummary(){
-        if(!owidIndicator || !owidNote) return;
-        const slug = owidIndicator.value;
-        const yearFromDate = dateInput && dateInput.value ? Number(String(dateInput.value).slice(0,4)) : null;
-        const a3Set = new Set(Array.from(activeIsoA2Set).map(a2 => ISO_A2_TO_A3[a2]).filter(Boolean));
-        if(!a3Set.size){
-          owidNote.textContent = 'OWID: bolge ulke kodlari bulunamadi.';
-          return;
-        }
-
-        owidNote.textContent = 'OWID verisi yukleniyor...';
-        try{
-          const backendBase = await resolveBackendBase();
-          const codeList = Array.from(a3Set).join(',');
-          const yearPart = Number.isFinite(yearFromDate) ? `&year=${yearFromDate}` : '';
-          const url =
-            `${backendBase}/api/owid/summary?slug=${encodeURIComponent(slug)}` +
-            `&codes=${encodeURIComponent(codeList)}${yearPart}`;
-          const res = await fetch(url);
-          const json = await res.json();
-          if(!res.ok || !json.success){
-            throw new Error((json && json.error) ? json.error : `HTTP ${res.status}`);
-          }
-          if(!json.data){
-            owidNote.textContent = 'OWID: secili bolge icin veri bulunamadi.';
-            return;
-          }
-          const topTxt = (json.data.top || []).map(r => `${r.code}: ${Number(r.value).toFixed(2)}`).join(' | ');
-          owidNote.textContent =
-            `OWID ${activeRegionLabel} (${json.data.yearLabel}) ortalama: ${Number(json.data.avg).toFixed(2)} | ` +
-            `ulke sayisi: ${json.count} | top3: ${topTxt}`;
-        } catch(err){
-          owidNote.textContent = 'OWID veri cekme hatasi: ' + (err && err.message ? err.message : String(err));
-        }
-      }
-
-      async function fetchGdeltNewsSummary(){
-        if(!gdeltNote) return;
-        const fallbackQuery = activeRegionKey === 'asia'
-          ? 'asia international relations diplomacy'
-          : 'middle east international relations diplomacy';
-        const q = (gdeltQuery && gdeltQuery.value && gdeltQuery.value.trim()) || fallbackQuery;
-
-        const backendBase = await resolveBackendBase();
-
-        gdeltNote.textContent = 'GDELT verisi yukleniyor...';
-        try{
-          const url = `${backendBase}/api/news?query=${encodeURIComponent(q)}&lang=en&maxRecords=8`;
-          const res = await fetch(url);
-          const json = await res.json();
-          if(!res.ok || !json.success){
-            throw new Error((json && json.error) ? json.error : `HTTP ${res.status}`);
-          }
-          const arr = Array.isArray(json.data) ? json.data : [];
-          if(!arr.length){
-            gdeltNote.textContent = 'GDELT: sonuc bulunamadi.';
-            return;
-          }
-          const top = arr.slice(0, 4).map(a => a.title || '(baslik yok)').join(' | ');
-          gdeltNote.textContent = `GDELT sonuc: ${arr.length} haber | ${top}`;
-        } catch(err){
-          gdeltNote.textContent =
-            'GDELT hatasi: backend veya GDELT ag erisimi sorunu olabilir. ' +
-            'Terminalde `npm start` acik olsun. ' +
-            (err && err.message ? `Detay: ${err.message}` : '');
-        }
       }
 
       function polysToFeatureCollection(polys){
@@ -3417,35 +3047,21 @@ loadData();
       }
 
       function resize(){
-        const w = canvas.clientWidth;
-        const h = canvas.clientHeight;
-        if(w <= 0 || h <= 0) return;
-        globe.width(w).height(h);
-        if(canvas2d && viewMode === '2d' && leafletMap) {
-          // Leaflet boyutu güncellemesi
-          leafletMap.invalidateSize();
-        }
+        if(leafletMap) leafletMap.invalidateSize();
       }
-
-      resize();
 
       window.addEventListener('resize', resize);
       window.addEventListener('resize', updateHomeLayoutHeights);
       updateHomeLayoutHeights();
 
       function updateEventsBtn(){
+        if(!eventsBtn) return;
         const ok = state.selected && state.selected.region === activeRegionLabel && !!dateInput.value;
         eventsBtn.disabled = !ok;
       }
 
       dateInput.addEventListener('change', updateEventsBtn);
-      dateInput.addEventListener('change', fetchOwidRegionalSummary);
       updateEventsBtn();
-
-      if(owidFetchBtn) owidFetchBtn.addEventListener('click', fetchOwidRegionalSummary);
-      if(owidIndicator) owidIndicator.addEventListener('change', fetchOwidRegionalSummary);
-      if(gdeltFetchBtn) gdeltFetchBtn.addEventListener('click', fetchGdeltNewsSummary);
-      if(gdeltQuery) gdeltQuery.addEventListener('keydown', (e) => { if(e.key === 'Enter') fetchGdeltNewsSummary(); });
 
       function escapeHtml(s){
         return String(s || '')
@@ -3546,110 +3162,145 @@ loadData();
           if(historyPhaseMeta) historyPhaseMeta.textContent = '';
           return;
         }
-        const title = escapeHtml(preset.title || 'Tarihi Olay');
-        const summary = escapeHtml(preset.summary || '');
-        const phases = Array.isArray(preset.phases) ? preset.phases : [];
-        const activePhase = getActiveHistoryPhase();
+        var title = escapeHtml(preset.title || 'Tarihi Olay');
+        var summary = escapeHtml(preset.summary || '');
+        var phases = Array.isArray(preset.phases) ? preset.phases : [];
+        var activePhase = getActiveHistoryPhase();
         if(historyPhaseMeta){
-          const dateTxt = activePhase && activePhase.dateRange ? activePhase.dateRange : (preset.date || '-');
-          historyPhaseMeta.textContent = `Aktif faz: ${escapeHtml(activePhase ? activePhase.title : 'Genel')} | ${escapeHtml(dateTxt)}`;
+          var dateTxt = activePhase && activePhase.dateRange ? activePhase.dateRange : (preset.date || '-');
+          historyPhaseMeta.textContent = escapeHtml(activePhase ? activePhase.title : 'Genel') + ' | ' + escapeHtml(dateTxt);
         }
         renderHistoryMapLegend(activePhase);
-        const oneLine = activePhase
-          ? `Faz: ${escapeHtml(activePhase.title || '-')} - ${escapeHtml(activePhase.summary || '')}`
+
+        var html = '<div class="phase-panel">';
+
+        // Phase summary
+        var phaseSummary = activePhase
+          ? escapeHtml(activePhase.summary || '')
           : summary;
-        const detailsList = phases.map((p, idx) =>
-          `<div style="margin-top:6px"><strong>${idx + 1}. ${escapeHtml(p.t || '-')}</strong> - ${escapeHtml(p.d || '')}</div>`
-        ).join('');
+        html += '<h5>' + escapeHtml(activePhase ? activePhase.title : title) + '</h5>';
+        html += '<div style="font-size:12px;line-height:1.6;color:#e6edf8;margin-bottom:8px">' + phaseSummary + '</div>';
+
+        // Country legend
+        if(activePhase && Array.isArray(activePhase.countries)){
+          var countryNames = { 'EGY': 'Misir', 'SYR': 'Suriye', 'ISR': 'Israil' };
+          var countryColors = { 'EGY': '#22c55e', 'SYR': '#ef4444', 'ISR': '#3b82f6' };
+          html += '<div class="country-legend">';
+          activePhase.countries.forEach(function(c){
+            html += '<div class="country-legend-item"><div class="country-legend-dot" style="background:'+countryColors[c]+'40;border-color:'+countryColors[c]+'"></div>' + (countryNames[c]||c) + '</div>';
+          });
+          html += '</div>';
+        }
+
+        // Operations panel
+        if(activePhase && Array.isArray(activePhase.operations) && activePhase.operations.length > 0){
+          html += '<div class="phase-panel-section"><h6>Askeri Harekatlar</h6>';
+          activePhase.operations.forEach(function(op){
+            var actorColor = {'Egypt':'#22c55e','Syria':'#ef4444','Israel':'#3b82f6','UN':'#818cf8','US':'#f59e0b'}[op.actor] || '#f97316';
+            html += '<div style="display:flex;align-items:center;gap:6px;margin:4px 0;font-size:12px;color:#cddcf1">';
+            html += '<span style="color:'+actorColor+';font-weight:700;min-width:8px">&#x2192;</span> ';
+            html += escapeHtml(op.label || 'Harekat');
+            html += '</div>';
+          });
+          html += '</div>';
+        }
+
+        // IR Terms panel
+        if(activePhase && Array.isArray(activePhase.terms) && activePhase.terms.length > 0){
+          html += '<div class="phase-panel-section"><h6>IR Kavramlari (tiklayarak ekle)</h6><div>';
+          activePhase.terms.forEach(function(t){
+            var isAdded = typeof words !== 'undefined' && Array.isArray(words) && words.some(function(w){ return w.en.toLowerCase() === t.en.toLowerCase(); });
+            html += '<span class="term-chip'+(isAdded?' added':'')+'" data-term-en="'+escapeHtml(t.en)+'" data-term-tr="'+escapeHtml(t.tr)+'" data-term-cat="'+escapeHtml(t.cat||'Diplomasi')+'" title="'+escapeHtml(t.tr)+'">';
+            html += escapeHtml(t.en);
+            if(isAdded) html += ' &#10003;';
+            html += '</span>';
+          });
+          html += '</div></div>';
+        }
+
+        // Image panel
+        if(activePhase && activePhase.image && activePhase.image.url){
+          html += '<div class="phase-panel-section"><h6>Gorsel</h6>';
+          html += '<img class="phase-image" src="'+escapeHtml(activePhase.image.url)+'" alt="'+escapeHtml(activePhase.image.caption||'')+'" loading="lazy" onerror="this.style.display=\'none\'">';
+          html += '<div class="phase-image-caption">' + escapeHtml(activePhase.image.caption||'') + ' <span style="color:#4a9eff">(' + escapeHtml(activePhase.image.source||'') + ')</span></div>';
+          html += '</div>';
+        }
+
+        // Full details
+        html += '<details style="margin-top:8px;border:1px solid #1e2d47;border-radius:8px;padding:6px 8px;color:#c9d7eb">';
+        html += '<summary style="cursor:pointer;color:#9bb9df;font-size:12px">Tum fazlar ve detaylar</summary>';
+        html += '<div style="margin-top:6px;font-size:12px;line-height:1.55;color:#cddcf1">' + summary;
+        phases.forEach(function(p, idx){
+          html += '<div style="margin-top:6px"><strong>' + (idx+1) + '. ' + escapeHtml(p.t||'-') + '</strong> - ' + escapeHtml(p.d||'') + '</div>';
+        });
+        html += '</div></details>';
+
+        html += '</div>';
         historyStory.style.display = 'block';
-        historyStory.innerHTML =
-          `<h4>${title}</h4>` +
-          `<div style="font-size:12px;line-height:1.5;color:#e6edf8;margin-bottom:8px;padding:8px;border:1px solid #2a3f5f;border-radius:8px;background:rgba(74,158,255,.08)">${oneLine}</div>` +
-          `<details style="border:1px solid #243650;border-radius:8px;padding:6px 8px;color:#c9d7eb">` +
-          `<summary style="cursor:pointer;color:#9bb9df">Detayli anlatim</summary>` +
-          `<div style="margin-top:6px;font-size:12px;line-height:1.55;color:#cddcf1">${summary}${detailsList ? `<div style="margin-top:6px">${detailsList}</div>` : ''}</div>` +
-          `</details>`;
+        historyStory.innerHTML = html;
       }
 
       function buildHistoryPhaseVisualData(phase){
-        const operations = phase && Array.isArray(phase.operations)
+        var operations = phase && Array.isArray(phase.operations)
           ? phase.operations
           : (phase && Array.isArray(phase.lines) ? phase.lines : []);
-        const OP_ACTIVE_START = 'rgba(251,146,60,0.78)';
-        const OP_ACTIVE_END = 'rgba(249,115,22,0.90)';
-        const mainOp = operations.find(l =>
-          Array.isArray(l.from) && Array.isArray(l.to) &&
-          Number.isFinite(Number(l.from[0])) && Number.isFinite(Number(l.from[1])) &&
-          Number.isFinite(Number(l.to[0])) && Number.isFinite(Number(l.to[1]))
-        );
 
-        const arcs = mainOp ? [{
-          kind: 'operation',
-          startLat: Number(mainOp.from[0]),
-          startLng: Number(mainOp.from[1]),
-          endLat: Number(mainOp.to[0]),
-          endLng: Number(mainOp.to[1]),
-          label: mainOp.label || '',
-          colorStart: OP_ACTIVE_START,
-          colorEnd: OP_ACTIVE_END,
-          altitude: 0.08
-        }] : [];
+        var validOps = operations.filter(function(l){
+          return Array.isArray(l.from) && Array.isArray(l.to) &&
+            Number.isFinite(Number(l.from[0])) && Number.isFinite(Number(l.from[1])) &&
+            Number.isFinite(Number(l.to[0])) && Number.isFinite(Number(l.to[1]));
+        });
 
-        const polylines2d = arcs.map(a => ({
-          from: [a.startLat, a.startLng],
-          to: [a.endLat, a.endLng],
-          label: a.label,
-          color: '#f97316'
-        }));
+        var polylines2d = validOps.map(function(op){
+          return {
+            from: [Number(op.from[0]), Number(op.from[1])],
+            to: [Number(op.to[0]), Number(op.to[1])],
+            label: op.label || '',
+            actor: op.actor || '',
+            color: '#f97316'
+          };
+        });
 
-        let areaPolygon2d = [];
-        const phaseArea = phase && Array.isArray(phase.area) ? phase.area : [];
+        var areaPolygon2d = [];
+        var phaseArea = phase && Array.isArray(phase.area) ? phase.area : [];
         if(phaseArea.length >= 3){
           areaPolygon2d = phaseArea
-            .map(p => [Number(p[0]), Number(p[1])])
-            .filter(p => Number.isFinite(p[0]) && Number.isFinite(p[1]));
+            .map(function(p){ return [Number(p[0]), Number(p[1])]; })
+            .filter(function(p){ return Number.isFinite(p[0]) && Number.isFinite(p[1]); });
         }
         if(areaPolygon2d.length < 3){
-          const focus = phase && phase.focus ? phase.focus : null;
+          var focus = phase && phase.focus ? phase.focus : null;
           if(focus && Array.isArray(focus.bounds) && focus.bounds.length === 2){
-            const minLat = Number(focus.bounds[0][0]);
-            const minLon = Number(focus.bounds[0][1]);
-            const maxLat = Number(focus.bounds[1][0]);
-            const maxLon = Number(focus.bounds[1][1]);
-            if(
-              Number.isFinite(minLat) && Number.isFinite(minLon) &&
-              Number.isFinite(maxLat) && Number.isFinite(maxLon)
-            ){
+            var minLat = Number(focus.bounds[0][0]);
+            var minLon = Number(focus.bounds[0][1]);
+            var maxLat = Number(focus.bounds[1][0]);
+            var maxLon = Number(focus.bounds[1][1]);
+            if(Number.isFinite(minLat) && Number.isFinite(minLon) &&
+               Number.isFinite(maxLat) && Number.isFinite(maxLon)){
               areaPolygon2d = [
-                [minLat, minLon],
-                [minLat, maxLon],
-                [maxLat, maxLon],
-                [maxLat, minLon]
+                [minLat, minLon], [minLat, maxLon],
+                [maxLat, maxLon], [maxLat, minLon]
               ];
             }
           }
         }
-        if(areaPolygon2d.length < 3 && mainOp){
-          const a = [Number(mainOp.from[0]), Number(mainOp.from[1])];
-          const b = [Number(mainOp.to[0]), Number(mainOp.to[1])];
-          const minLat = Math.min(a[0], b[0]) - 0.6;
-          const maxLat = Math.max(a[0], b[0]) + 0.6;
-          const minLon = Math.min(a[1], b[1]) - 0.8;
-          const maxLon = Math.max(a[1], b[1]) + 0.8;
+        if(areaPolygon2d.length < 3 && validOps.length > 0){
+          var allCoords = [];
+          validOps.forEach(function(op){
+            allCoords.push([Number(op.from[0]), Number(op.from[1])]);
+            allCoords.push([Number(op.to[0]), Number(op.to[1])]);
+          });
+          var lats = allCoords.map(function(c){ return c[0]; });
+          var lons = allCoords.map(function(c){ return c[1]; });
           areaPolygon2d = [
-            [minLat, minLon],
-            [minLat, maxLon],
-            [maxLat, maxLon],
-            [maxLat, minLon]
+            [Math.min.apply(null,lats)-0.6, Math.min.apply(null,lons)-0.8],
+            [Math.min.apply(null,lats)-0.6, Math.max.apply(null,lons)+0.8],
+            [Math.max.apply(null,lats)+0.6, Math.max.apply(null,lons)+0.8],
+            [Math.max.apply(null,lats)+0.6, Math.min.apply(null,lons)-0.8]
           ];
         }
 
-        return {
-          arcs,
-          points: [],
-          polylines2d,
-          areaPolygon2d
-        };
+        return { polylines2d: polylines2d, areaPolygon2d: areaPolygon2d };
       }
 
       function buildLeafletArrowHead(from, to){
@@ -3675,94 +3326,122 @@ loadData();
       function renderHistoryPhaseMapLayers(){
         const phase = getActiveHistoryPhase();
         const visual = buildHistoryPhaseVisualData(phase);
-        const suppressLabels = true;
 
-        // 3D katmanlar
-        if(globe){
-          globe
-            .arcsData(visual.arcs)
-            .arcStartLat('startLat')
-            .arcStartLng('startLng')
-            .arcEndLat('endLat')
-            .arcEndLng('endLng')
-            .arcLabel(() => '')
-            .arcColor(() => ['rgba(251,146,60,0.72)', 'rgba(249,115,22,0.88)'])
-            .arcStroke(() => null)
-            .arcAltitude(d => d && Number.isFinite(Number(d.altitude)) ? Number(d.altitude) : 0.08)
-            .arcDashLength(() => 1)
-            .arcDashGap(() => 0)
-            .arcDashAnimateTime(() => 0)
-            .arcsTransitionDuration(200);
-
-          globe
-            .pointsData([])
-            .pointLat('lat')
-            .pointLng('lng')
-            .pointColor(() => '#f59e0b')
-            .pointAltitude(0.015)
-            .pointRadius(0.08)
-            .pointsTransitionDuration(200);
-
-          globe
-            .ringsData([])
-            .ringLat('lat')
-            .ringLng('lng')
-            .ringColor(() => 'rgba(0,0,0,0)')
-            .ringMaxRadius(0.12)
-            .ringPropagationSpeed(1.8)
-            .ringRepeatPeriod(1100)
-            .ringsTransitionDuration(0);
+        if(!leafletMap) return;
+        if(!leafletHistoryLayer){
+          leafletHistoryLayer = L.layerGroup().addTo(leafletMap);
         }
+        leafletHistoryLayer.clearLayers();
 
-        // 2D katmanlar
-        if(leafletMap){
-          if(!leafletHistoryLayer){
-            leafletHistoryLayer = L.layerGroup().addTo(leafletMap);
-          }
-          leafletHistoryLayer.clearLayers();
+        const ACTOR_COLORS = {
+          'Egypt': '#22c55e', 'Syria': '#ef4444', 'Israel': '#3b82f6',
+          'UN': '#818cf8', 'US': '#f59e0b'
+        };
+        const COUNTRY_COLORS = {
+          'EGY': { fill: '#22c55e', stroke: '#16a34a' },
+          'SYR': { fill: '#ef4444', stroke: '#dc2626' },
+          'ISR': { fill: '#3b82f6', stroke: '#2563eb' }
+        };
 
-          const area = Array.isArray(visual.areaPolygon2d) ? visual.areaPolygon2d : [];
-          if(area.length >= 3){
-            const outer = [[85, -180], [85, 180], [-85, 180], [-85, -180]];
-            L.polygon([outer, area], {
-              stroke: false,
-              fillColor: '#05070c',
-              fillOpacity: 0.34,
-              fillRule: 'evenodd',
-              interactive: false
-            }).addTo(leafletHistoryLayer);
-            L.polygon(area, {
-              color: '#fb923c',
-              weight: 1.1,
-              opacity: 0.85,
-              fillColor: '#f97316',
-              fillOpacity: 0.22,
-              interactive: false
-            }).addTo(leafletHistoryLayer);
-          }
-
-          visual.polylines2d.forEach((l) => {
-            const a = l.from;
-            const b = l.to;
-            const poly = L.polyline([a, b], {
-              color: '#f97316',
-              weight: 1.6,
-              opacity: 0.9
-            });
-            poly.addTo(leafletHistoryLayer);
-
-            const arrowHead = buildLeafletArrowHead(a, b);
-            if(arrowHead){
-              L.polygon(arrowHead, {
-                color: '#fb923c',
-                weight: 0.8,
-                opacity: 0.9,
-                fillColor: '#f97316',
-                fillOpacity: 0.84
+        // Country borders highlight from world GeoJSON
+        const activeCountries = phase && Array.isArray(phase.countries) ? phase.countries : [];
+        if(worldGeojsonCache && activeCountries.length > 0){
+          const features = worldGeojsonCache.features || [];
+          features.forEach(function(f){
+            if(!f || !f.properties || !f.geometry) return;
+            const a3 = f.properties['ISO3166-1-Alpha-3'] || f.properties.iso_a3 || f.properties.ISO_A3 || f.properties.adm0_a3 || '';
+            if(!activeCountries.includes(a3)) return;
+            const cc = COUNTRY_COLORS[a3];
+            if(!cc) return;
+            try {
+              L.geoJSON(f, {
+                style: function(){ return {
+                  color: cc.stroke,
+                  weight: 2.5,
+                  fillColor: cc.fill,
+                  fillOpacity: 0.12,
+                  dashArray: null
+                }; }
               }).addTo(leafletHistoryLayer);
-            }
+            } catch(e){}
           });
         }
+
+        // Area mask
+        const area = Array.isArray(visual.areaPolygon2d) ? visual.areaPolygon2d : [];
+        if(area.length >= 3){
+          var outer = [[85, -180], [85, 180], [-85, 180], [-85, -180]];
+          L.polygon([outer, area], {
+            stroke: false, fillColor: '#05070c', fillOpacity: 0.28,
+            fillRule: 'evenodd', interactive: false, className: 'history-mask'
+          }).addTo(leafletHistoryLayer);
+        }
+
+        // Front lines (dashed)
+        var fronts = phase && Array.isArray(phase.fronts) ? phase.fronts : [];
+        fronts.forEach(function(fr){
+          if(!fr.points || fr.points.length < 2) return;
+          var coords = fr.points.map(function(p){ return [Number(p[0]), Number(p[1])]; });
+          L.polyline(coords, {
+            color: '#38bdf8', weight: 2, opacity: 0.7,
+            dashArray: '8 4', className: 'front-line'
+          }).addTo(leafletHistoryLayer);
+          var mid = coords[Math.floor(coords.length/2)];
+          L.marker(mid, {
+            icon: L.divIcon({
+              className: 'history-label',
+              html: '<span style="background:rgba(10,14,26,0.85);color:#38bdf8;padding:2px 6px;border-radius:4px;font-size:10px;font-family:monospace;white-space:nowrap;pointer-events:none">' + (fr.label||'') + '</span>',
+              iconSize: [0,0], iconAnchor: [0,12]
+            }), interactive: false
+          }).addTo(leafletHistoryLayer);
+        });
+
+        // Operation arrows with actor colors
+        visual.polylines2d.forEach(function(l){
+          var a = l.from, b = l.to;
+          var color = ACTOR_COLORS[l.actor] || '#f97316';
+          L.polyline([a, b], {
+            color: color, weight: 2.5, opacity: 0.92,
+            className: 'history-arrow-line'
+          }).addTo(leafletHistoryLayer);
+
+          var arrowHead = buildLeafletArrowHead(a, b);
+          if(arrowHead){
+            L.polygon(arrowHead, {
+              color: color, weight: 1, opacity: 0.95,
+              fillColor: color, fillOpacity: 0.9,
+              className: 'history-arrow-head'
+            }).addTo(leafletHistoryLayer);
+          }
+
+          if(l.label){
+            var midLat = (a[0]+b[0])/2, midLon = (a[1]+b[1])/2;
+            L.marker([midLat, midLon], {
+              icon: L.divIcon({
+                className: 'history-label',
+                html: '<span style="background:rgba(10,14,26,0.88);color:'+color+';padding:2px 8px;border-radius:4px;font-size:11px;font-family:monospace;white-space:nowrap;border:1px solid '+color+'40">' + l.label + '</span>',
+                iconSize: [0,0], iconAnchor: [0,16]
+              }), interactive: false
+            }).addTo(leafletHistoryLayer);
+          }
+        });
+
+        // Military unit markers
+        var units = phase && Array.isArray(phase.units) ? phase.units : [];
+        units.forEach(function(u){
+          var sz = u.size === 'large' ? 22 : (u.size === 'medium' ? 16 : 12);
+          var icon = L.divIcon({
+            className: 'unit-marker',
+            html: '<div class="unit-marker" data-country="'+(u.country||'')+'" style="width:'+sz+'px;height:'+sz+'px" title="'+escapeHtml(u.label||'')+'"></div>',
+            iconSize: [sz, sz],
+            iconAnchor: [sz/2, sz/2]
+          });
+          var m = L.marker([Number(u.lat), Number(u.lon)], { icon: icon });
+          m.bindTooltip(escapeHtml(u.label||''), {
+            className: 'unit-tooltip', direction: 'top', offset: [0, -sz/2-4]
+          });
+          m.addTo(leafletHistoryLayer);
+        });
       }
 
       function buildHistoryIntro(preset, startDate, endDate, phase){
@@ -3851,88 +3530,93 @@ loadData();
         stopHistorySimulation();
         currentHistoryPreset = preset;
         currentHistoryPhaseIdx = getDefaultHistoryPhaseIdx(preset, key);
-        setHistoryMode('history');
-        if(HISTORY_MINIMAL_MODE) setViewMode('2d');
         if(activeRegionKey !== 'mideast') setActiveRegion('mideast');
         dateInput.value = preset.date;
         setSelection(preset.lat, preset.lon);
         updateEventsBtn();
+        await ensureLeafletMap();
         selectHistoryPhase(currentHistoryPhaseIdx, { fetchEvents: true, syncDate: false });
       }
 
-      eventsBtn.addEventListener('click', fetchRecentMiddleEastEvents);
-      if(historyPresetBtn) historyPresetBtn.addEventListener('click', applyHistoryPreset);
+      if(eventsBtn) eventsBtn.addEventListener('click', fetchRecentMiddleEastEvents);
 
-      if(historyPreset){
-        historyPreset.addEventListener('change', () => {
-          const key = historyPreset.value;
-          if(!key || !HISTORY_PRESETS[key]) return;
-          const preset = HISTORY_PRESETS[key];
-          stopHistorySimulation();
-          currentHistoryPreset = preset;
-          currentHistoryPhaseIdx = getDefaultHistoryPhaseIdx(preset, key);
-          if(HISTORY_MINIMAL_MODE) setViewMode('2d');
-          if(activeRegionKey !== 'mideast') setActiveRegion('mideast');
-          dateInput.value = preset.date;
-          setSelection(preset.lat, preset.lon);
-          updateEventsBtn();
-          selectHistoryPhase(currentHistoryPhaseIdx, { fetchEvents: true, syncDate: false });
-        });
-      }
-
-      if(historyPreset && !historyPreset.value && HISTORY_PRESETS['yom-kippur']){
+      // Yom Kippur otomatik yukle
+      (async function autoLoadYomKippur(){
+        if(!historyPreset) return;
         historyPreset.value = 'yom-kippur';
         const preset = HISTORY_PRESETS['yom-kippur'];
+        if(!preset) return;
         currentHistoryPreset = preset;
         currentHistoryPhaseIdx = getDefaultHistoryPhaseIdx(preset, 'yom-kippur');
-        if(HISTORY_MINIMAL_MODE) setViewMode('2d');
         if(activeRegionKey !== 'mideast') setActiveRegion('mideast');
         dateInput.value = preset.date;
         setSelection(preset.lat, preset.lon);
+        await ensureLeafletMap();
         selectHistoryPhase(currentHistoryPhaseIdx, { fetchEvents: true, syncDate: false });
-        ensureLeafletMap();
-        renderHistoryPhaseMapLayers();
-      }
+      })();
 
+      // Oynat / Duraklat toggle
       if(historySimPlayBtn){
         historySimPlayBtn.addEventListener('click', () => {
+          if(historySimRunning){
+            stopHistorySimulation();
+            historySimPlayBtn.textContent = 'Oynat';
+            return;
+          }
           if(!currentHistoryPreset && historyPreset && historyPreset.value && HISTORY_PRESETS[historyPreset.value]){
             currentHistoryPreset = HISTORY_PRESETS[historyPreset.value];
             currentHistoryPhaseIdx = getDefaultHistoryPhaseIdx(currentHistoryPreset, historyPreset.value);
           }
           const phases = getPresetPhases(currentHistoryPreset);
           if(!phases.length){
-            if(historySimNote) historySimNote.textContent = 'Simulasyon icin once tarihi olay sec. (Olaya Git)';
+            if(historySimNote) historySimNote.textContent = 'Faz verisi bulunamadi.';
             return;
           }
-          stopHistorySimulation();
           historySimRunning = true;
-          // Ilk tikta aninda hareket olsun; kullanici "calismiyor" hissine dusmesin.
+          historySimPlayBtn.textContent = 'Duraklat';
           const firstIdx = (currentHistoryPhaseIdx + 1) % phases.length;
           selectHistoryPhase(firstIdx, { fetchEvents: true });
           if(historySimNote){
-            historySimNote.textContent = `Simulasyon basladi (${phases.length} faz).`;
+            historySimNote.textContent = `Similasyon: ${currentHistoryPhaseIdx + 1} / ${phases.length}`;
           }
           historySimTimer = setInterval(() => {
-            const nextIdx = (currentHistoryPhaseIdx + 1) % phases.length;
+            const p = getPresetPhases(currentHistoryPreset);
+            const nextIdx = (currentHistoryPhaseIdx + 1) % p.length;
             selectHistoryPhase(nextIdx, { fetchEvents: true });
-          }, 2600);
+            if(historySimNote){
+              historySimNote.textContent = `Similasyon: ${nextIdx + 1} / ${p.length}`;
+            }
+            if(nextIdx === p.length - 1){
+              stopHistorySimulation();
+              historySimPlayBtn.textContent = 'Oynat';
+              if(historySimNote) historySimNote.textContent = 'Similasyon tamamlandi.';
+            }
+          }, 3000);
         });
       }
 
-      if(historySimStopBtn){
-        historySimStopBtn.addEventListener('click', stopHistorySimulation);
-      }
 
-      if(historySimNextBtn){
-        historySimNextBtn.addEventListener('click', () => {
-          const phases = getPresetPhases(currentHistoryPreset);
-          if(!phases.length) return;
-          stopHistorySimulation();
-          const nextIdx = (currentHistoryPhaseIdx + 1) % phases.length;
-          selectHistoryPhase(nextIdx, { fetchEvents: true });
-        });
-      }
+      // Term chip click -> add word to vocabulary
+      document.addEventListener('click', function(e){
+        var chip = e.target.closest ? e.target.closest('.term-chip') : null;
+        if(!chip) return;
+        var en = chip.getAttribute('data-term-en');
+        var tr = chip.getAttribute('data-term-tr');
+        var cat = chip.getAttribute('data-term-cat') || 'Diplomasi';
+        if(!en || !tr) return;
+        if(typeof words !== 'undefined' && Array.isArray(words)){
+          if(words.some(function(w){ return w.en.toLowerCase() === en.toLowerCase(); })){
+            if(typeof notify === 'function') notify('"' + en + '" zaten kelime listenizde!', 'error');
+            return;
+          }
+          words.push({ en: en, tr: tr, cat: cat, mastery: 0, attempts: 0, correct: 0 });
+          if(typeof saveData === 'function') saveData();
+          if(typeof updateStats === 'function') updateStats();
+          chip.classList.add('added');
+          chip.innerHTML = escapeHtml(en) + ' &#10003;';
+          if(typeof notify === 'function') notify('"' + en + '" kelime listenize eklendi!', 'success');
+        }
+      });
 
     };
 
