@@ -1,0 +1,246 @@
+/* War sim unit icons — scoped; do NOT override .leaflet-marker-icon transform (breaks Leaflet). */
+
+.unit-icon {
+  background: none !important;
+  border: none !important;
+}
+
+.leaflet-marker-icon.unit-icon-root {
+  overflow: visible !important;
+  position: relative;
+}
+
+.leaflet-marker-icon.unit-icon-root .unit {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  pointer-events: none;
+}
+
+.leaflet-marker-icon.unit-icon-root .unit .unit-motion {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: center center;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  pointer-events: none;
+}
+
+/* Unit icons — glow kapalı; hafif okunaklılık için çok hafif gölge */
+.leaflet-marker-icon.unit-icon-root .unit .unit-motion .unit-img {
+  width: 26px;
+  height: 26px;
+  max-width: 26px;
+  max-height: 26px;
+  object-fit: contain;
+  pointer-events: auto;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  filter: none;
+}
+
+.unit-icon.plane .unit-img {
+  filter: none;
+}
+
+.unit-icon.tank .unit-img {
+  filter: none;
+}
+
+.unit-icon.soldier .unit-img {
+  width: 22px;
+  height: 22px;
+  max-width: 22px;
+  max-height: 22px;
+  filter: none;
+}
+
+/* Depth between unit types: zIndexOffset on markers in units.js (plane > tank > soldier); scale on .unit-motion */
+
+.unit-plane-trail {
+  stroke-linecap: round;
+  filter: none;
+}
+
+.unit-trail {
+  opacity: 0.32;
+  stroke-dasharray: 5 6;
+}
+
+.unit-explosion-marker {
+  background: none !important;
+  border: none !important;
+  pointer-events: none !important;
+}
+
+.unit-explosion {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.unit-explosion-ring {
+  position: absolute;
+  width: 70%;
+  height: 70%;
+  border-radius: 50%;
+  border: 2px solid rgba(251, 146, 60, 0.65);
+  box-shadow: 0 0 6px rgba(251, 146, 60, 0.35);
+  transform: translate3d(0, 0, 0) scale(0.35);
+  opacity: 0.5;
+  will-change: transform, opacity;
+}
+
+@keyframes irlexExplosionRing {
+  to {
+    transform: translate3d(0, 0, 0) scale(2.2);
+    opacity: 0;
+  }
+}
+
+@keyframes irlexExplosionSmoke {
+  to {
+    transform: translate3d(0, 0, 0) scale(1.6);
+    opacity: 0.18;
+  }
+}
+
+.unit-explosion-ring-animate {
+  animation: irlexExplosionRing 0.55s ease-out forwards;
+}
+
+.unit-explosion-smoke {
+  position: absolute;
+  width: 90%;
+  height: 90%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(80, 80, 80, 0.2) 0%, transparent 70%);
+  transform: translate3d(0, 0, 0) scale(0.5);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.unit-explosion-smoke-animate {
+  animation: irlexExplosionSmoke 0.55s ease-out forwards;
+}
+
+/* Arrival impact */
+.unit-impact-marker {
+  background: none !important;
+  border: none !important;
+  pointer-events: none !important;
+}
+
+.unit-impact {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.unit-impact-pulse {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid rgba(251, 191, 36, 0.85);
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.45);
+  animation: irlexImpactPulse 0.65s ease-out forwards;
+}
+
+.unit-impact-core {
+  position: absolute;
+  width: 22%;
+  height: 22%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.75);
+  animation: irlexImpactCore 0.65s ease-out forwards;
+}
+
+@keyframes irlexImpactPulse {
+  0% {
+    transform: scale(0.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+@keyframes irlexImpactCore {
+  0% {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+
+/* Overlay paths should not steal hover from timeline / UI (markers stay interactive) */
+.leaflet-overlay-pane {
+  pointer-events: none !important;
+}
+
+.leaflet-marker-pane,
+.leaflet-tooltip-pane,
+.leaflet-popup-pane {
+  pointer-events: auto !important;
+}
+
+.timeline,
+.timeline-container,
+.info-box {
+  pointer-events: auto;
+}
+
+/* Flow lines: ok ucu; glow yok */
+.leaflet-overlay-pane svg path.irlex-flow-path {
+  marker-end: url(#irlex-arrowhead);
+  filter: none;
+}
+
+.leaflet-overlay-pane svg path.irlex-flow-path.irlex-flow-plane {
+  filter: none;
+}
+
+.leaflet-overlay-pane svg path.irlex-flow-path.irlex-flow-tank {
+  stroke-linecap: round;
+  filter: none;
+}
+
+.leaflet-overlay-pane svg path.irlex-flow-path.irlex-flow-soldier {
+  filter: none;
+}
+
+@keyframes unitPulse {
+  0%,
+  100% {
+    opacity: 0.9;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.unit-icon.active img {
+  animation: unitPulse 1.5s ease-in-out infinite;
+}

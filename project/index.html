@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>War timeline — Levant theatre</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="header__titles">
+        <h1 class="header__title" id="headerTitle">Six-Day War (1967)</h1>
+        <p class="header__subtitle" id="headerSubtitle">1967 — operational timeline</p>
+      </div>
+      <div class="header__controls">
+        <label class="war-select-label" for="warSelector">Conflict</label>
+        <select id="warSelector" class="war-selector" aria-label="Select war">
+          <option value="six_day_war">Six-Day War</option>
+          <option value="yom_kippur">Yom Kippur War</option>
+        </select>
+        <button type="button" id="btnPlayPause" class="btn btn--primary" aria-pressed="false">
+          <span class="btn__icon btn__icon--play" aria-hidden="true">▶</span>
+          <span class="btn__icon btn__icon--pause" aria-hidden="true">❚❚</span>
+          <span class="btn__label" id="btnPlayPauseLabel">Play</span>
+        </button>
+      </div>
+    </header>
+
+    <section class="timeline-bar" aria-label="War timeline">
+      <div class="timeline-bar__labels">
+        <span id="timelineStart">Day 1 · June 5</span>
+        <span id="timelineEnd">Day 6 · June 10</span>
+      </div>
+      <div class="slider-wrap">
+        <input
+          type="range"
+          id="daySlider"
+          class="day-slider"
+          min="0"
+          max="5000"
+          value="0"
+          step="1"
+          aria-valuemin="0"
+          aria-valuemax="5"
+          aria-valuenow="0"
+          aria-label="Timeline day"
+        />
+      </div>
+      <div class="day-readout">
+        <span id="dayLabel" class="day-readout__main">—</span>
+        <span id="dayDate" class="day-readout__date">—</span>
+      </div>
+    </section>
+
+    <main class="battle-wrap">
+      <div id="battlefield" class="battlefield" role="img" aria-label="Theatre map: Egypt, Israel, Jordan, Syria">
+        <div class="map-layer" aria-hidden="true">
+          <div class="region region--egypt">Sinai / Egypt</div>
+          <div class="region region--israel">Israel</div>
+          <div class="region region--westbank">West Bank</div>
+          <div class="region region--golan">Golan</div>
+        </div>
+        <div id="unitsRoot" class="units-root"></div>
+      </div>
+    </main>
+
+    <div id="tooltip" class="tooltip" role="tooltip" aria-hidden="true"></div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

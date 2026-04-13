@@ -45,6 +45,8 @@ body.globe-home .globe-main.card{
   padding:0;
   background:transparent;
 }
+body.globe-home .globe-main.card{display:flex;flex-direction:column;}
+body.globe-home .map-stack{flex:1;min-height:0;height:100%;}
 body.globe-home #map2dCanvas{height:100%;}
 body.globe-home .globe-side{
   position:fixed;
@@ -198,10 +200,61 @@ input::placeholder{color:#6b7a96;}
 .globe-main{
   padding:0;
 }
-#map2dCanvas{
+.map-stack{
+  position:relative;
   width:100%;
   height:640px;
+  overflow:hidden;
+}
+.leaflet-container .map-overlay{
+  position:absolute;
+  inset:0;
+  z-index:250;
+  background:transparent;
+  pointer-events:none;
+}
+.leaflet-container.leaflet-tone-military{
+  filter:none;
+}
+#map2dCanvas{
+  width:100%;
+  height:100%;
+  min-height:200px;
   display:block;
+}
+.sim-briefing-panel{
+  margin-top:12px;
+  padding:12px 12px 14px;
+  border-radius:10px;
+  border:1px solid rgba(74,158,255,0.22);
+  background:rgba(8,12,20,0.65);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.04);
+}
+.sim-briefing-kicker{
+  font-size:9px;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:#5c6b86;
+  font-family:monospace;
+  margin-bottom:6px;
+}
+.sim-briefing-date{
+  font-size:11px;
+  font-family:monospace;
+  color:#7dd3fc;
+  margin-bottom:8px;
+}
+.sim-briefing-title{
+  font-size:14px;
+  font-weight:600;
+  color:#e8edf4;
+  line-height:1.35;
+  margin-bottom:8px;
+}
+.sim-briefing-body{
+  font-size:12px;
+  line-height:1.55;
+  color:#9bb9df;
 }
 .history-mask, .history-area, .history-arrow-line, .history-arrow-head{
   transition: opacity 0.5s ease;
@@ -212,11 +265,131 @@ input::placeholder{color:#6b7a96;}
 @keyframes areaFadeIn{
   from{opacity:0} to{opacity:1}
 }
-.history-arrow-line{
+.history-arrow-line:not(.irlex-flow-path){
   stroke-dasharray: 1000;
   stroke-dashoffset: 1000;
   animation: drawLine 0.8s ease forwards 0.2s;
 }
+.irlex-map-label{
+  display:inline-block;
+  background:rgba(8,12,20,0.88);
+  color:#fff;
+  padding:5px 9px;
+  font-size:12px;
+  line-height:1.3;
+  border-radius:6px;
+  font-family:system-ui,-apple-system,Segoe UI,sans-serif;
+  font-weight:600;
+  white-space:nowrap;
+  pointer-events:none;
+  border:1px solid rgba(255,255,255,0.22);
+  box-shadow:none;
+}
+.irlex-map-label-actor{
+  display:block;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+  color:#93c5fd;
+  margin-bottom:2px;
+  font-family:monospace;
+}
+.irlex-map-label-title{
+  display:block;
+  font-weight:600;
+  color:#f8fafc;
+}
+/* Lider / olay portre pinleri (Paradox-benzeri; glow yok) */
+.leaflet-marker-icon.irlex-portrait-marker{
+  background:none!important;
+  border:none!important;
+  overflow:visible!important;
+}
+.irlex-portrait-pin{
+  position:relative;
+  width:76px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  pointer-events:none;
+  font-family:system-ui,-apple-system,Segoe UI,sans-serif;
+}
+.irlex-portrait-ring{
+  position:relative;
+  width:56px;
+  height:56px;
+  border-radius:50%;
+  overflow:hidden;
+  border:3px solid #2c1810;
+  box-sizing:border-box;
+  background:#1a1520;
+  flex-shrink:0;
+}
+/* Tam daire dolgusu: yuzler ortada, dikdortgen kırpma */
+.leaflet-marker-icon.irlex-portrait-marker .irlex-portrait-img{
+  position:absolute;
+  left:0;
+  top:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center 22%;
+  border-radius:50%;
+  display:block;
+  max-width:none!important;
+  max-height:none!important;
+  filter:grayscale(0.25) contrast(1.05);
+  pointer-events:none;
+}
+.irlex-portrait-placeholder{
+  position:absolute;
+  left:0;
+  top:0;
+  width:100%;
+  height:100%;
+  border-radius:50%;
+  background:linear-gradient(145deg,#2a2435,#1a1520);
+}
+.irlex-portrait-crown{
+  position:absolute;
+  top:-2px;
+  left:50%;
+  width:22px;
+  height:13px;
+  margin-left:-11px;
+  filter:none;
+  pointer-events:none;
+}
+.irlex-portrait-banner{
+  margin-top:4px;
+  min-width:100%;
+  max-width:120px;
+  padding:3px 6px 4px;
+  background:#b91c1c;
+  border:1px solid rgba(255,255,255,0.85);
+  border-radius:2px;
+  text-align:center;
+  line-height:1.15;
+}
+.irlex-portrait-role{
+  display:block;
+  font-size:8px;
+  font-weight:600;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,0.88);
+  margin-bottom:1px;
+}
+.irlex-portrait-name{
+  display:block;
+  font-size:11px;
+  font-weight:700;
+  color:#fff;
+  white-space:normal;
+  word-break:break-word;
+}
+/* Flow path glow + unit lighting: irlex-map-sim/styles.css */
 @keyframes drawLine{
   to{stroke-dashoffset:0}
 }
@@ -274,7 +447,8 @@ input::placeholder{color:#6b7a96;}
   .ai-en{flex:0 0 140px;}
   header{flex-direction:column;text-align:center;}
   .globe-layout{grid-template-columns:1fr;}
-  #map2dCanvas{height:520px;}
+  .map-stack{height:520px;}
+  #map2dCanvas{min-height:240px;}
   body.globe-home .globe-side{
     left:10px;
     right:10px;
@@ -381,9 +555,10 @@ input::placeholder{color:#6b7a96;}
   cursor:pointer;
 }
 .history-phase-btn.active{
-  border-color:#4a9eff;
+  border-color:rgba(74,158,255,0.65);
   color:#dbeafe;
   background:rgba(74,158,255,.14);
+  box-shadow:none;
 }
 .history-phase-meta{
   margin-top:8px;
@@ -445,10 +620,166 @@ input::placeholder{color:#6b7a96;}
   animation:frontDash 1.5s linear infinite;
 }
 @keyframes frontDash{to{stroke-dashoffset:-24}}
+
+/* ═══ CINEMATIC ENGINE ═══ */
+/* Above .globe-side (z-index 6000) in globe-home so slider/play are reachable */
+.sim-timeline-bar.timeline-container,
+.sim-timeline-bar{
+  position:absolute;bottom:0;left:0;right:0;z-index:9999;
+  display:flex;align-items:center;gap:10px;
+  padding:8px 16px;
+  background:linear-gradient(180deg,rgba(5,7,12,0.0) 0%,rgba(5,7,12,0.92) 40%,rgba(5,7,12,0.97) 100%);
+  backdrop-filter:blur(6px);
+  font-family:monospace;color:#c8d8e8;font-size:12px;
+  pointer-events:auto;
+  transition:opacity 0.4s;
+}
+body.dragging .info-panel{
+  pointer-events:none;
+}
+
+/* Globe-home: sidebar is fixed z-index 6000 over the map; lift timeline into map band */
+body.globe-home .sim-timeline-bar.timeline-container,
+body.globe-home .sim-timeline-bar{
+  position:fixed;
+  left:calc(16px + min(380px,100vw - 32px) + 8px);
+  right:16px;
+  bottom:16px;
+  z-index:10000;
+}
+@media(max-width:600px){
+  body.globe-home .sim-timeline-bar.timeline-container,
+  body.globe-home .sim-timeline-bar{
+    left:10px;
+    right:10px;
+    bottom:calc(18px + 48vh);
+  }
+}
+.sim-play-btn{
+  width:36px;height:36px;border:none;border-radius:50%;
+  background:rgba(74,158,255,0.15);color:#4a9eff;
+  font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all 0.25s;flex-shrink:0;
+}
+.sim-play-btn:hover{background:rgba(74,158,255,0.35);transform:scale(1.1);}
+.sim-play-btn.playing{background:rgba(239,68,68,0.18);color:#ef4444;}
+.sim-slider{
+  --sim-progress:0%;
+  flex:1;-webkit-appearance:none;appearance:none;height:6px;
+  border-radius:3px;cursor:pointer;
+  outline:none;
+  background:linear-gradient(to right,
+    rgba(74,158,255,0.88) 0%,
+    rgba(74,158,255,0.88) var(--sim-progress),
+    rgba(74,158,255,0.14) var(--sim-progress),
+    rgba(74,158,255,0.14) 100%);
+  transition:background 0.12s ease-out;
+}
+.sim-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;width:14px;height:14px;border-radius:50%;
+  background:#4a9eff;border:2px solid #0a0e1a;cursor:pointer;
+  box-shadow:0 0 8px rgba(74,158,255,0.5);
+}
+.sim-slider::-moz-range-thumb{
+  width:14px;height:14px;border-radius:50%;
+  background:#4a9eff;border:2px solid #0a0e1a;cursor:pointer;
+}
+.sim-speed-btn{
+  padding:3px 8px;border:1px solid rgba(74,158,255,0.25);border-radius:4px;
+  background:transparent;color:#6b7a96;font-size:11px;font-family:monospace;
+  cursor:pointer;transition:all 0.2s;
+}
+.sim-speed-btn.active{background:rgba(74,158,255,0.2);color:#4a9eff;border-color:#4a9eff;}
+.sim-speed-btn:hover{color:#c8d8e8;}
+.sim-time-display{
+  min-width:90px;text-align:center;color:#9bb9df;
+  font-size:11px;font-variant-numeric:tabular-nums;
+}
+.sim-phase-indicator{
+  color:#c8a96e;font-size:11px;font-weight:600;
+  max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+
+/* Glow classes — kept for API compatibility; no filters (ışık/glow kapalı) */
+.sim-glow-active,.sim-glow-soft,.sim-glow-plane,.sim-glow-tank,.sim-glow-soldier{filter:none;}
+/* Flow polyline type classes */
+.irlex-flow-plane{stroke-linecap:round;}
+.irlex-flow-tank{stroke-linecap:square;}
+.irlex-flow-soldier{stroke-linecap:round;}
+/* Unit icon image markers */
+.irlex-unit-img-marker{background:none!important;border:none!important;}
+.irlex-unit-img-marker img{
+  display:block;
+  pointer-events:none;
+  /* SVG'ler renklendirilecekse filter kullanılır */
+}
+
+/* Pulse animation for zones */
+@keyframes simPulse{
+  0%,100%{opacity:0.12}
+  50%{opacity:0.28}
+}
+.sim-zone-pulse{animation:none;}
+
+/* Flow trail — glow animasyonu kapalı */
+.sim-flow-glow{animation:none;}
+
+/* Fog of war */
+.sim-fog{pointer-events:none;transition:opacity 1s ease;}
+
+/* Custom tooltip */
+body.dragging .sim-tooltip{opacity:0!important;visibility:hidden!important;}
+.sim-tooltip{
+  position:fixed;z-index:9999;pointer-events:none;
+  padding:8px 12px;border-radius:8px;
+  background:rgba(10,14,26,0.94);border:1px solid rgba(74,158,255,0.3);
+  color:#e6edf8;font-size:12px;font-family:monospace;line-height:1.5;
+  max-width:260px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.5);
+  opacity:0;transition:opacity 0.2s;
+}
+.sim-tooltip.visible{opacity:1;}
+.sim-tooltip-title{color:#4a9eff;font-weight:700;margin-bottom:2px;}
+.sim-tooltip-desc{color:#9bb9df;font-size:11px;}
+
+/* Smooth panel transitions */
+.history-story{transition:opacity 0.4s ease,transform 0.4s ease;}
+.sim-panel-enter{opacity:0;transform:translateY(8px);}
+.sim-panel-visible{opacity:1;transform:translateY(0);}
+
+/* Unit marker enhanced hover */
+.unit-marker{transition:transform 0.3s ease,filter 0.3s ease;}
+.unit-marker:hover{transform:scale(1.22);filter:none;z-index:9999!important;}
+
+/* Ant-path — minimal shadow (not cartoon glow) */
+.leaflet-ant-path{filter:none;}
+
+/* Briefing arrow: 6–10px SVG, subtle shadow */
+.leaflet-arrow-head-marker{background:none!important;border:none!important;}
+.arrow-head-wrap{display:flex;align-items:center;justify-content:flex-end;transform-origin:100% 50%;will-change:transform;}
+.arrow-head-svg{filter:none;opacity:1;display:block;}
+.leaflet-overlay-pane svg path.history-arrow-line,
+.leaflet-overlay-pane svg path.sim-flow-strike{stroke-linecap:round;stroke-linejoin:round;}
+.leaflet-overlay-pane .sim-flow-arrow-head path{filter:none;}
+.leaflet-overlay-pane svg path.sim-flow-arrow-poly{pointer-events:none;}
+
+/* Map container needs relative for timeline bar */
+.globe-main{position:relative;overflow:hidden;}
+
+/* SVG animated unit icons */
+/* .unit-icon rules: irlex-map-sim/styles.css */
+.sim-war-date{font-size:11px;font-family:monospace;color:#9bb9df;min-width:88px;}
 </style>
 <!-- Leaflet (2D harita) -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-ant-path@1.3.0/dist/leaflet-ant-path.js"></script>
+<script src="https://unpkg.com/leaflet-polylinedecorator@1.6.0/dist/leaflet.polylineDecorator.js"></script>
+<link rel="stylesheet" href="irlex-map-sim/styles.css" />
+<script>window.IRLEX_ICON_BASE = './icons/';</script>
+<script src="irlex-map-sim/js/wars.js"></script>
+<script src="irlex-map-sim/js/units.js"></script>
+<script src="irlex-map-sim/js/engine.js"></script>
 </head>
 <body>
 <div class="app">
@@ -600,10 +931,28 @@ input::placeholder{color:#6b7a96;}
   <div class="panel active" id="tab-globe">
     <div class="globe-layout">
       <div class="card globe-main">
-        <div id="map2dCanvas" style="width:100%;height:100%"></div>
+        <div class="map-stack">
+          <div id="map2dCanvas" style="width:100%;height:100%"></div>
+        </div>
+        <div class="sim-timeline-bar timeline-container timeline" id="simTimelineBar">
+          <button class="sim-play-btn" id="simPlayBtn" type="button" title="Oynat / Duraklat">&#9654;</button>
+          <input class="sim-slider" id="simSlider" type="range" min="0" max="1000" value="0" step="1" />
+          <div class="sim-time-display" id="simTimeDisplay">00:00 / 00:00</div>
+          <div class="sim-war-date" id="simWarDate" title="Simule edilen tarih">1973-10-06</div>
+          <div class="sim-phase-indicator" id="simPhaseIndicator"></div>
+          <div style="display:flex;gap:4px">
+            <button class="sim-speed-btn active" data-speed="1" type="button">1x</button>
+            <button class="sim-speed-btn" data-speed="2" type="button">2x</button>
+            <button class="sim-speed-btn" data-speed="4" type="button">4x</button>
+          </div>
+        </div>
+      </div>
+      <div class="sim-tooltip" id="simTooltip">
+        <div class="sim-tooltip-title" id="simTooltipTitle"></div>
+        <div class="sim-tooltip-desc" id="simTooltipDesc"></div>
       </div>
 
-      <div class="card globe-side">
+      <div class="card globe-side info-panel info-box">
         <h3>Konum + Tarih</h3>
         <div class="globe-row">
           <span class="pill" id="globeRegionPill">Bölge: —</span>
@@ -619,10 +968,20 @@ input::placeholder{color:#6b7a96;}
         <input id="globeDate" type="hidden" value="1973-10-06" />
         <div class="globe-side-panel active" id="sideModeHistory">
           <div style="margin-top:4px;margin-bottom:8px">
-            <h3 style="color:#c8a96e;font-family:Georgia,serif;font-size:18px;margin:0">Yom Kippur Savasi (1973)</h3>
-            <div style="color:#6b7a96;font-size:11px;font-family:monospace;margin-top:4px">6 Ekim 1973 &mdash; Tarihsel Similasyon</div>
+            <h3 id="historyPresetTitle" style="color:#c8a96e;font-family:Georgia,serif;font-size:18px;margin:0">Yom Kippur Savasi (1973)</h3>
+            <div id="historyPresetSubtitle" style="color:#6b7a96;font-size:11px;font-family:monospace;margin-top:4px">6 Ekim 1973 &mdash; Tarihsel Similasyon</div>
           </div>
-          <select id="historyPreset" style="display:none"><option value="yom-kippur" selected>Yom Kippur</option></select>
+          <select id="historyPreset" class="history-preset-select" style="margin-top:8px;width:100%;max-width:100%;font-size:12px">
+            <option value="yom-kippur" selected>Yom Kippur (1973)</option>
+            <option value="six-day-war-1967">Altı Gün Savaşı (1967)</option>
+            <option value="arab-israeli-wars">Arap-İsrail zaman çizelgesi (1948–1973)</option>
+          </select>
+          <div class="sim-briefing-panel" id="simBriefingPanel">
+            <div class="sim-briefing-kicker">Operational picture</div>
+            <div class="sim-briefing-date" id="simBriefingDate">—</div>
+            <div class="sim-briefing-title" id="simBriefingTitle">—</div>
+            <div class="sim-briefing-body" id="simBriefingBody">Select a war preset and use the timeline to advance the simulation.</div>
+          </div>
           <div id="historyPhaseTabs" class="history-phase-tabs"></div>
           <div id="historyPhaseMeta" class="history-phase-meta"></div>
           <div id="historyMapLegend" class="history-map-legend" style="display:none"></div>
@@ -650,7 +1009,8 @@ input::placeholder{color:#6b7a96;}
           <div class="k">2D Harita Teması</div>
           <div class="v">
             <select id="leafletTheme">
-              <option value="light" selected>Light (Beyaz)</option>
+              <option value="military" selected>Military (NATO dark)</option>
+              <option value="light">Light (Beyaz)</option>
               <option value="dark">Dark (Siyah)</option>
               <option value="gray">Gray (Gri)</option>
               <option value="voyager">Voyager (Renkli)</option>
@@ -1966,6 +2326,1269 @@ loadData();
 
 <script>
   (function(){
+    // ═══════════════════════════════════════════════════════════
+    // CINEMATIC SIMULATION ENGINE
+    // ═══════════════════════════════════════════════════════════
+
+    class TimelineController {
+      constructor(totalDuration) {
+        this.currentTime = 0;
+        this.totalDuration = totalDuration || 40000;
+        this.speed = 1;
+        this.playing = false;
+        this._listeners = {};
+        this._rafId = null;
+        this._anchorPerf = 0;
+        this._timeAtAnchor = 0;
+        this._orch = null;
+      }
+      bindOrchestrator(orch) { this._orch = orch; }
+      on(evt, fn) { (this._listeners[evt] = this._listeners[evt] || []).push(fn); }
+      emit(evt, data) { (this._listeners[evt] || []).forEach(function(fn){ fn(data); }); }
+      _cancelRaf() {
+        if (this._rafId) cancelAnimationFrame(this._rafId);
+        this._rafId = null;
+      }
+      _tick() {
+        var self = this;
+        if (!self.playing) return;
+        var now = performance.now();
+        self.currentTime = self._timeAtAnchor + (now - self._anchorPerf) * self.speed;
+        if (self.currentTime >= self.totalDuration) {
+          self.currentTime = self.totalDuration;
+          self.playing = false;
+          self._cancelRaf();
+          self.emit('complete');
+          self.emit('timeupdate', self.currentTime);
+          if (self._orch) self._orch._renderFrame();
+          return;
+        }
+        self.emit('timeupdate', self.currentTime);
+        if (self._orch) self._orch._renderFrame();
+        self._rafId = requestAnimationFrame(function() { self._tick(); });
+      }
+      play() {
+        if (this.playing) return;
+        this.playing = true;
+        this._anchorPerf = performance.now();
+        this._timeAtAnchor = this.currentTime;
+        this._cancelRaf();
+        this.emit('play');
+        this._rafId = requestAnimationFrame(this._tick.bind(this));
+      }
+      pause() {
+        if (!this.playing) return;
+        this.playing = false;
+        this._cancelRaf();
+        this.emit('pause');
+      }
+      toggle() { this.playing ? this.pause() : this.play(); }
+      seek(t) {
+        this.currentTime = Math.max(0, Math.min(t, this.totalDuration));
+        if (this.playing) {
+          this._anchorPerf = performance.now();
+          this._timeAtAnchor = this.currentTime;
+        }
+        this.emit('seek', this.currentTime);
+      }
+      setSpeed(s) {
+        if (this.playing) {
+          var now = performance.now();
+          this.currentTime = this._timeAtAnchor + (now - this._anchorPerf) * this.speed;
+          this._timeAtAnchor = this.currentTime;
+          this._anchorPerf = now;
+        }
+        this.speed = s;
+        this.emit('speedchange', s);
+      }
+      getPhaseIndex(phaseDuration) {
+        if (!phaseDuration || phaseDuration <= 0) return 0;
+        if (!this.totalDuration || this.totalDuration <= 0) return 0;
+        var maxIdx = Math.max(0, Math.floor(this.totalDuration / phaseDuration) - 1);
+        return Math.min(Math.max(0, Math.floor(this.currentTime / phaseDuration)), maxIdx);
+      }
+      getPhaseProgress(phaseDuration) {
+        if (!phaseDuration || phaseDuration <= 0) return 0;
+        var phaseStart = this.getPhaseIndex(phaseDuration) * phaseDuration;
+        return Math.min(1, (this.currentTime - phaseStart) / phaseDuration);
+      }
+      formatTime(ms) {
+        var s = Math.floor(ms / 1000);
+        var m = Math.floor(s / 60);
+        s = s % 60;
+        return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+      }
+    }
+
+    class EventManager {
+      constructor() {
+        this.events = [];
+        this.phaseDuration = 10000;
+      }
+      loadFromPreset(preset) {
+        this.events = [];
+        var phases = (preset && preset.mapPhases) || [];
+        var self = this;
+        phases.forEach(function(phase, pi) {
+          var phaseStart = pi * self.phaseDuration;
+          var phaseEnd = phaseStart + self.phaseDuration;
+
+          if (phase.countries && phase.countries.length) {
+            self.events.push({
+              id: phase.id + '_zone',
+              type: 'zone',
+              phaseIndex: pi,
+              startTime: phaseStart,
+              endTime: phaseEnd,
+              data: {
+                countries: phase.countries,
+                zoneIntensity: typeof phase.zoneIntensity === 'number' ? phase.zoneIntensity : 1
+              },
+              style: { fadeIn: 800 },
+              meta: { title: phase.title, description: phase.summary }
+            });
+          }
+
+          (phase.fronts || []).forEach(function(front, fi) {
+            self.events.push({
+              id: phase.id + '_front_' + fi,
+              type: 'front',
+              phaseIndex: pi,
+              startTime: phaseStart + 400,
+              endTime: phaseEnd,
+              data: { points: front.points, label: front.label },
+              style: { color: '#38bdf8', fadeIn: 600 },
+              meta: { title: front.label }
+            });
+          });
+
+          (phase.operations || []).forEach(function(op, oi) {
+            var stagger = 600 + oi * 800;
+            self.events.push({
+              id: phase.id + '_flow_' + oi,
+              type: 'flow',
+              phaseIndex: pi,
+              startTime: phaseStart + stagger,
+              endTime: phaseEnd,
+              data: {
+                from: op.from,
+                to: op.to,
+                actor: op.actor,
+                intensity: op.intensity || 0.8,
+                lineKind: op.lineKind || null,
+                unitType: op.unitType || null
+              },
+              style: { color: self._actorColor(op.actor), fadeIn: 500 },
+              meta: { title: op.label, description: op.actor + ' harekati' }
+            });
+          });
+
+          (phase.units || []).forEach(function(unit, ui) {
+            var stagger = 1200 + ui * 300;
+            self.events.push({
+              id: phase.id + '_unit_' + ui,
+              type: 'point',
+              phaseIndex: pi,
+              startTime: phaseStart + stagger,
+              endTime: phaseEnd,
+              data: { lat: unit.lat, lon: unit.lon, country: unit.country, label: unit.label, size: unit.size },
+              style: { fadeIn: 400 },
+              meta: { title: unit.label, description: unit.country }
+            });
+          });
+
+          if (!(preset && preset.arabIsraeliWarTimeline)) {
+            (phase.animatedUnits || []).forEach(function(au, ai) {
+              var span = phaseEnd - phaseStart;
+              var startOff = au.startOffsetMs != null ? au.startOffsetMs : 1200 + ai * 320;
+              var startT = phaseStart + startOff;
+              var endT = phaseEnd;
+              if (typeof au.endFrac === 'number' && au.endFrac > 0 && au.endFrac <= 1) {
+                endT = Math.min(phaseEnd, Math.max(startT + 650, phaseStart + span * au.endFrac));
+              }
+              self.events.push({
+                id: phase.id + '_anim_' + ai,
+                type: 'unit',
+                phaseIndex: pi,
+                startTime: startT,
+                endTime: endT,
+                data: {
+                  unitType: au.type,
+                  path: au.path,
+                  label: au.label,
+                  speed: au.speed || 6000,
+                  pathJitter: !!au.pathJitter
+                },
+                style: { fadeIn: 300 },
+                meta: { title: au.label }
+              });
+            });
+          }
+        });
+        if (preset && preset.arabIsraeliWarTimeline && window.IRLEX_WarEngine && window.IRLEX_WarEngine.appendTimelineUnitEvents) {
+          var totalMs = self.phaseDuration * Math.max(1, phases.length);
+          window.IRLEX_WarEngine.appendTimelineUnitEvents(self, totalMs);
+        }
+        return this.events;
+      }
+      getActiveEvents(currentTime) {
+        return this.events.filter(function(e) {
+          return currentTime >= e.startTime && currentTime <= e.endTime;
+        });
+      }
+      getPhaseEvents(phaseIndex) {
+        return this.events.filter(function(e) { return e.phaseIndex === phaseIndex; });
+      }
+      _actorColor(actor) {
+        var m = { 'Egypt': '#22c55e', 'Syria': '#ef4444', 'Israel': '#3b82f6', 'UN': '#818cf8', 'US': '#f59e0b', 'USSR': '#dc2626' };
+        return m[actor] || '#f97316';
+      }
+    }
+
+    class CameraSystem {
+      constructor(map) {
+        this._map = map;
+        this._animating = false;
+        this._startView = null;
+        this._endView = null;
+        this._duration = 0;
+        this._elapsed = 0;
+      }
+      setMap(map) { this._map = map; }
+      focusBounds(bounds, duration) {
+        if (!this._map || !bounds) return;
+        duration = duration || 1200;
+        var map = this._map;
+        var nudge = function () {
+          try {
+            var z = map.getZoom();
+            if (z != null && isFinite(z)) map.setZoom(z + 0.1, { animate: true, duration: 0.35 });
+          } catch (e) {}
+        };
+        try {
+          this._map.flyToBounds(bounds, {
+            padding: [30, 30],
+            duration: duration / 1000,
+            easeLinearity: 0.25,
+            complete: nudge
+          });
+        } catch(e) {
+          try { this._map.fitBounds(bounds, { padding: [30, 30], animate: true }); } catch(e2){}
+        }
+      }
+      focusOn(lat, lon, zoom, duration) {
+        if (!this._map) return;
+        duration = duration || 1000;
+        var map = this._map;
+        var nudge = function () {
+          try {
+            var z = map.getZoom();
+            if (z != null && isFinite(z)) map.setZoom(z + 0.08, { animate: true, duration: 0.32 });
+          } catch (e) {}
+        };
+        try {
+          this._map.flyTo([lat, lon], zoom || 7, {
+            duration: duration / 1000,
+            easeLinearity: 0.25,
+            complete: nudge
+          });
+        } catch(e) {
+          try { this._map.setView([lat, lon], zoom || 7, { animate: true }); } catch(e2){}
+        }
+      }
+      focusPhase(phase) {
+        if (!phase || !phase.focus) return;
+        var f = phase.focus;
+        if (f.bounds && f.bounds.length === 2) {
+          this.focusBounds(f.bounds, 1400);
+        } else if (f.lat != null && f.lon != null) {
+          this.focusOn(f.lat, f.lon, f.zoom, 1200);
+        }
+      }
+    }
+
+    class EffectSystem {
+      constructor() {
+        this._fogLayer = null;
+        this._glowLayers = new Set();
+        this._pulseTimers = [];
+      }
+      createFog(map, layerGroup) {
+        if (this._fogLayer) return this._fogLayer;
+        var outer = [[85, -180], [85, 180], [-85, 180], [-85, -180]];
+        this._fogLayer = L.polygon([outer], {
+          stroke: false,
+          fillColor: '#05070c',
+          fillOpacity: 0.45,
+          interactive: false,
+          className: 'sim-fog',
+          pane: 'overlayPane'
+        });
+        if (layerGroup) this._fogLayer.addTo(layerGroup);
+        return this._fogLayer;
+      }
+      updateFogHoles(activeEvents, layerGroup) {
+        if (!this._fogLayer) return;
+        var holes = [];
+        activeEvents.forEach(function(evt) {
+          var center = null;
+          if (evt.type === 'flow' && evt.data) {
+            center = [(evt.data.from[0] + evt.data.to[0]) / 2, (evt.data.from[1] + evt.data.to[1]) / 2];
+          } else if (evt.type === 'point' && evt.data) {
+            center = [evt.data.lat, evt.data.lon];
+          }
+          if (center) {
+            var r = 2.5;
+            var pts = [];
+            for (var a = 0; a < 360; a += 15) {
+              var rad = a * Math.PI / 180;
+              pts.push([center[0] + r * Math.cos(rad), center[1] + r * Math.sin(rad)]);
+            }
+            holes.push(pts);
+          }
+        });
+        try {
+          if (this._fogLayer._map) this._fogLayer.remove();
+        } catch(e) {}
+        var outer = [[85, -180], [85, 180], [-85, 180], [-85, -180]];
+        var latlngs = [outer].concat(holes);
+        this._fogLayer = L.polygon(latlngs, {
+          stroke: false,
+          fillColor: '#05070c',
+          fillOpacity: 0.40,
+          fillRule: 'evenodd',
+          interactive: false,
+          className: 'sim-fog'
+        });
+        if (layerGroup) this._fogLayer.addTo(layerGroup);
+      }
+      applyGlow(layer, unitType) {
+        if (!layer || !layer._path) return;
+        layer._path.classList.remove(
+          'sim-glow-active', 'sim-glow-plane', 'sim-glow-tank', 'sim-glow-soldier'
+        );
+        layer._irlexGlowType = unitType || null;
+        this._glowLayers.add(layer);
+      }
+      removeGlow(layer) {
+        if (!layer || !layer._path) return;
+        layer._path.classList.remove(
+          'sim-glow-active', 'sim-glow-plane', 'sim-glow-tank', 'sim-glow-soldier'
+        );
+        layer._irlexGlowType = null;
+        this._glowLayers.delete(layer);
+      }
+      clearAll() {
+        this._glowLayers.forEach(function(l) {
+          try {
+            if (l._path) {
+              l._path.classList.remove(
+                'sim-glow-active', 'sim-glow-plane', 'sim-glow-tank', 'sim-glow-soldier'
+              );
+            }
+          } catch(e) {}
+        });
+        this._glowLayers.clear();
+        try { if (this._fogLayer && this._fogLayer._map) this._fogLayer.remove(); } catch(e) {}
+        this._fogLayer = null;
+      }
+    }
+
+    // ═══ SVG units: irlex-map-sim/js/units.js (IRLEX_Units) ═══
+    var Unit = window.IRLEX_Units && window.IRLEX_Units.Unit;
+    var UnitManager = window.IRLEX_Units && window.IRLEX_Units.UnitManager;
+    if (!Unit || !UnitManager) {
+      console.error('IRLEX_Units not loaded — check irlex-map-sim/js/units.js and script order.');
+    }
+
+    window.__simulationState = {
+      progress: 0,
+      duration: 40000,
+      isPlaying: false,
+      startTime: null
+    };
+
+    function warDateFromProgress(p, preset) {
+      if (preset && preset.arabIsraeliWarTimeline && window.IRLEX_WarEngine && window.IRLEX_WarEngine.getDateStringFromProgress) {
+        return window.IRLEX_WarEngine.getDateStringFromProgress(p);
+      }
+      if (preset && preset.simDateRange && preset.simDateRange.start && preset.simDateRange.end) {
+        var rs = new Date(String(preset.simDateRange.start).trim() + 'T12:00:00').getTime();
+        var re = new Date(String(preset.simDateRange.end).trim() + 'T23:59:59').getTime();
+        var cur = rs + (re - rs) * Math.max(0, Math.min(1, p));
+        var d = new Date(cur);
+        var y = d.getFullYear();
+        var mo = d.getMonth() + 1;
+        var day = d.getDate();
+        var ms = mo < 10 ? '0' + mo : '' + mo;
+        var ds = day < 10 ? '0' + day : '' + day;
+        return y + '-' + ms + '-' + ds;
+      }
+      var startMs = new Date('1973-10-06T00:00:00').getTime();
+      var endMs = new Date('1973-10-24T23:59:59').getTime();
+      var cur = startMs + (endMs - startMs) * Math.max(0, Math.min(1, p));
+      var d = new Date(cur);
+      var y = d.getFullYear();
+      var mo = d.getMonth() + 1;
+      var day = d.getDate();
+      var ms = mo < 10 ? '0' + mo : '' + mo;
+      var ds = day < 10 ? '0' + day : '' + day;
+      return y + '-' + ms + '-' + ds;
+    }
+
+    /** Great-circle distance in metres — arrow sizing */
+    function IRLEX_haversineM(a, b) {
+      var R = 6371000;
+      var φ1 = (a[0] * Math.PI) / 180;
+      var φ2 = (b[0] * Math.PI) / 180;
+      var Δφ = ((b[0] - a[0]) * Math.PI) / 180;
+      var Δλ = ((b[1] - a[1]) * Math.PI) / 180;
+      var s =
+        Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+        Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+      return 2 * R * Math.asin(Math.min(1, Math.sqrt(Math.max(0, s))));
+    }
+
+    /** plane | tank | soldier — from unitType, lineKind, or intensity */
+    function IRLEX_flowUnitMode(d) {
+      var ut = d && d.unitType;
+      if (ut === 'plane' || ut === 'tank' || ut === 'soldier') return ut;
+      if (d && d.lineKind === 'air') return 'plane';
+      if (d && d.lineKind === 'ground') return 'tank';
+      var inten = d && typeof d.intensity === 'number' ? d.intensity : 0;
+      return inten >= 0.92 ? 'plane' : 'tank';
+    }
+
+    /** 6–10px only; short segment → smaller; gentle zoom scaling */
+    function IRLEX_arrowPixelSize(distM, zoom) {
+      var z = typeof zoom === 'number' ? zoom : 10;
+      var base = distM < 70000 ? 6 : distM < 180000 ? 7 : distM < 350000 ? 8 : 9;
+      var zMul = 1 + (z - 10) * 0.028;
+      var px = Math.round(base * zMul);
+      return Math.max(6, Math.min(10, px));
+    }
+
+    /** DivIcon — uses custom SVG icons from ./icons/ folder with correct rotation */
+    function IRLEX_buildArrowDivIcon(map, from, to, color, unitMode) {
+      if (!map || !from || !to) return null;
+      var distM = IRLEX_haversineM(from, to);
+      if (!Number.isFinite(distM) || distM < 400) return null;
+      var size = IRLEX_arrowPixelSize(distM, map.getZoom());
+      var p0 = map.latLngToLayerPoint(L.latLng(from[0], from[1]));
+      var p1 = map.latLngToLayerPoint(L.latLng(to[0], to[1]));
+      var angleDeg = (Math.atan2(p1.y - p0.y, p1.x - p0.x) * 180) / Math.PI;
+
+      var iconBase = window.IRLEX_ICON_BASE || './icons/';
+
+      // SVG dosya adları — icons/ klasöründeki gerçek dosyalar
+      var iconFile, baseRotation;
+      if (unitMode === 'plane') {
+        iconFile = 'plane-2-svgrepo-com.svg';
+        // svgrepo uçak ikonları genellikle YUKARI bakar (0° = up)
+        // Harita rotasyonu sağa (+X) istediğinden +90° ekliyoruz
+        baseRotation = 90;
+      } else if (unitMode === 'soldier') {
+        iconFile = 'helmet-soldier-svgrepo-com.svg';
+        // Kask ikonu genellikle dik durur, rotasyon animasyonu yok
+        baseRotation = 0;
+      } else {
+        // tank (default)
+        iconFile = 'tank-svgrepo-com.svg';
+        // Tank ikonları genellikle sağa bakar, ekstra rotasyon gerekmez
+        baseRotation = 0;
+      }
+
+      // Soldier için rotasyon mantıklı değil (kask ikon), sabit göster
+      var finalAngle = unitMode === 'soldier' ? 0 : (angleDeg + baseRotation);
+
+      // Büyük ikonlar için size'ı biraz artır (ikonlar küçük kalıyor)
+      var displaySize = unitMode === 'soldier' ? size : Math.round(size * 1.6);
+
+      var html =
+        '<div style="' +
+          'width:' + displaySize + 'px;' +
+          'height:' + displaySize + 'px;' +
+          'transform:rotate(' + finalAngle + 'deg);' +
+          'transform-origin:50% 50%;' +
+          'display:flex;align-items:center;justify-content:center;' +
+        '">' +
+        '<img src="' + iconBase + iconFile + '"' +
+          ' width="' + displaySize + '"' +
+          ' height="' + displaySize + '"' +
+          ' draggable="false"' +
+          ' style="' +
+            'display:block;' +
+            'pointer-events:none;' +
+            'filter:none;' +
+          '"' +
+        '/>' +
+        '</div>';
+
+      return L.divIcon({
+        className: 'irlex-unit-img-marker leaflet-arrow-head-marker',
+        html: html,
+        iconSize: [displaySize, displaySize],
+        iconAnchor: [displaySize / 2, displaySize / 2]
+      });
+    }
+
+    /** White arrow head at line end — polyline stays fixed; do not move marker each frame */
+    function IRLEX_addFlowArrowDecorator(map, polylineLayer, group) {
+      if (!map || !polylineLayer || !group) return null;
+      if (typeof L.polylineDecorator !== 'function') return null;
+      var Sym = L.Symbol && L.Symbol.arrowHead;
+      if (typeof Sym !== 'function') return null;
+      try {
+        var dec = L.polylineDecorator(polylineLayer, {
+          patterns: [
+            {
+              offset: '100%',
+              repeat: 0,
+              symbol: Sym({
+                pixelSize: 8,
+                pathOptions: {
+                  stroke: false,
+                  weight: 0,
+                  color: '#ffffff',
+                  fillColor: '#ffffff',
+                  fillOpacity: 1,
+                  opacity: 1,
+                  className: 'sim-flow-arrow-head'
+                }
+              })
+            }
+          ]
+        });
+        dec.addTo(group);
+        return dec;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function IRLEX_walkBriefingArrowMarkers(ly) {
+      if (!ly) return;
+      if (ly instanceof L.Marker && ly.__irlexBriefingArrow) {
+        var o = ly.__irlexBriefingArrow;
+        var m = ly._map;
+        if (m) {
+          var ic = IRLEX_buildArrowDivIcon(m, o.from, o.to, o.color, o.unitMode);
+          if (ic) ly.setIcon(ic);
+        }
+      }
+      if (ly.eachLayer) {
+        ly.eachLayer(function (child) {
+          IRLEX_walkBriefingArrowMarkers(child);
+        });
+      }
+    }
+
+    function IRLEX_installBriefingArrowZoom(map) {
+      if (!map || map._irlexBriefingArrowZoomInstalled) return;
+      map._irlexBriefingArrowZoomInstalled = true;
+      map.on('zoomend', function () {
+        map.eachLayer(function (top) {
+          IRLEX_walkBriefingArrowMarkers(top);
+        });
+      });
+    }
+
+    /** One arrow marker at line end only */
+    function IRLEX_createBriefingArrowMarker(map, from, to, color, unitMode) {
+      var icon = IRLEX_buildArrowDivIcon(map, from, to, color, unitMode);
+      if (!icon) return null;
+      var marker = L.marker([to[0], to[1]], {
+        icon: icon,
+        interactive: false,
+        keyboard: false,
+        zIndexOffset: 650
+      });
+      marker.__irlexBriefingArrow = { from: from, to: to, color: color, unitMode: unitMode };
+      return marker;
+    }
+
+    function IRLEX_simEsc(s) {
+      return String(s || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function IRLEX_sanitizePortraitSrc(src) {
+      var s = String(src || '').trim();
+      if (!s) return '';
+      if (/^https:\/\/upload\.wikimedia\.org\//i.test(s)) return s;
+      if (/^https:\/\/commons\.wikimedia\.org\/wiki\/Special:FilePath\//i.test(s)) return s;
+      if (/^https:\/\/[^\s"'<>]+\.(jpg|jpeg|png|webp)(\?|$)/i.test(s)) return s;
+      if (/^\.\//.test(s) || (s.charAt(0) === '/' && s.indexOf('//') !== 0)) return s;
+      return '';
+    }
+
+    function IRLEX_portraitImgOnError(img) {
+      try {
+        if (!img || !img.parentNode) return;
+        img.onerror = null;
+        var d = document.createElement('div');
+        d.className = 'irlex-portrait-placeholder';
+        d.setAttribute('aria-hidden', 'true');
+        img.parentNode.replaceChild(d, img);
+      } catch (e) {}
+    }
+    window.IRLEX_portraitImgOnError = IRLEX_portraitImgOnError;
+
+    function IRLEX_buildPortraitPinHtml(photoSrc, name, role) {
+      var src = IRLEX_sanitizePortraitSrc(photoSrc);
+      var nameH = IRLEX_simEsc(name);
+      var roleH = IRLEX_simEsc(role);
+      var ph = '<div class="irlex-portrait-placeholder" aria-hidden="true"></div>';
+      /* lazy yok: Leaflet marker icinde bazen hic yuklenmez */
+      var imgHtml = src
+        ? '<img class="irlex-portrait-img" src="' + src + '" alt="" draggable="false" decoding="async" referrerpolicy="no-referrer" onerror="window.IRLEX_portraitImgOnError&&window.IRLEX_portraitImgOnError(this)"/>'
+        : ph;
+      var crownSvg =
+        '<svg class="irlex-portrait-crown" viewBox="0 0 24 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+        '<path fill="#d4af37" d="M12 1.2l2.4 4.6L18.2 2.2 17 9.2H7L5.8 2.2 9.6 5.8 12 1.2zM5 10h14v1.8H5V10z"/></svg>';
+      return (
+        '<div class="irlex-portrait-pin">' +
+        '<div class="irlex-portrait-ring">' +
+        imgHtml +
+        '</div>' +
+        crownSvg +
+        '<div class="irlex-portrait-banner">' +
+        (roleH ? '<span class="irlex-portrait-role">' + roleH + '</span>' : '') +
+        '<span class="irlex-portrait-name">' + nameH + '</span>' +
+        '</div></div>'
+      );
+    }
+
+    function IRLEX_ensureSvgArrowDefs(map) {
+      if (!map || map._irlexArrowDefsDone) return;
+      try {
+        var pane = map.getPane && map.getPane('overlayPane');
+        if (!pane) return;
+        var svg = pane.querySelector('svg');
+        if (!svg) return;
+        var existingM = svg.querySelector('#irlex-arrowhead');
+        if (existingM) {
+          if (String(existingM.getAttribute('markerWidth')) === '3') {
+            map._irlexArrowDefsDone = true;
+            return;
+          }
+          try {
+            existingM.remove();
+          } catch (e) {}
+        }
+        var ns = 'http://www.w3.org/2000/svg';
+        var defs = document.createElementNS(ns, 'defs');
+        var marker = document.createElementNS(ns, 'marker');
+        marker.setAttribute('id', 'irlex-arrowhead');
+        marker.setAttribute('markerWidth', '3');
+        marker.setAttribute('markerHeight', '3');
+        marker.setAttribute('refX', '2.5');
+        marker.setAttribute('refY', '1.5');
+        marker.setAttribute('orient', 'auto');
+        var poly = document.createElementNS(ns, 'polygon');
+        poly.setAttribute('points', '0 0, 3 1.5, 0 3');
+        poly.setAttribute('fill', '#f8fafc');
+        marker.appendChild(poly);
+        defs.appendChild(marker);
+        svg.insertBefore(defs, svg.firstChild);
+        map._irlexArrowDefsDone = true;
+      } catch (e) {}
+    }
+
+    class MapController {
+      constructor() {
+        this._map = null;
+        this._layerGroups = {};
+        this._activeLayers = new Map();
+        this._worldGeoJson = null;
+      }
+      setMap(map) { this._map = map; }
+      setWorldGeoJson(gj) { this._worldGeoJson = gj; }
+      ensureLayerGroup(name) {
+        if (!this._layerGroups[name]) {
+          this._layerGroups[name] = L.layerGroup();
+          if (this._map) this._layerGroups[name].addTo(this._map);
+        }
+        return this._layerGroups[name];
+      }
+      clearAll() {
+        var self = this;
+        Object.keys(this._layerGroups).forEach(function(k) {
+          self._layerGroups[k].clearLayers();
+        });
+        this._activeLayers.clear();
+      }
+      clearGroup(name) {
+        if (this._layerGroups[name]) this._layerGroups[name].clearLayers();
+        var self = this;
+        this._activeLayers.forEach(function(v, k) {
+          if (k.startsWith(name + '_')) self._activeLayers.delete(k);
+        });
+      }
+
+      updateFlowLinesProgress(t) {
+        var self = this;
+        var easeInOut = window.IRLEX_Units && typeof window.IRLEX_Units.easeInOut === 'function'
+          ? window.IRLEX_Units.easeInOut
+          : function(x) { return x; };
+        this._activeLayers.forEach(function(val, key) {
+          if (String(key).indexOf('flows_') !== 0) return;
+          if (!Array.isArray(val)) return;
+          val.forEach(function(layer) {
+            if (!layer || !layer._irlexFlowEvt || !layer._path) return;
+            var evt = layer._irlexFlowEvt;
+            var span = evt.endTime - evt.startTime;
+            var uRaw = span <= 0 ? 1 : (t - evt.startTime) / span;
+            uRaw = Math.max(0, Math.min(1, uRaw));
+            var mode = layer._irlexFlowMode || 'tank';
+            var u = uRaw;
+            if (mode === 'plane') u = easeInOut(uRaw);
+            else if (mode === 'soldier') {
+              var d = 0.14;
+              u = uRaw <= d ? 0 : (uRaw - d) / (1 - d);
+            }
+            var path = layer._path;
+            var len = path.getTotalLength();
+            if (!len || !isFinite(len)) return;
+            path.style.strokeDasharray = String(len);
+            path.style.strokeDashoffset = String(len * (1 - u));
+          });
+        });
+      }
+
+      renderZone(evt, progress, worldGeoJson) {
+        var group = this.ensureLayerGroup('zones');
+        var gj = worldGeoJson || this._worldGeoJson;
+        if (!gj || !evt.data || !evt.data.countries) return;
+        var COUNTRY_COLORS = {
+          'EGY': { fill: '#22c55e', stroke: '#16a34a' },
+          'SYR': { fill: '#ef4444', stroke: '#dc2626' },
+          'ISR': { fill: '#3b82f6', stroke: '#2563eb' },
+          'JOR': { fill: '#d97706', stroke: '#b45309' }
+        };
+        var countries = evt.data.countries;
+        var zInt = typeof evt.data.zoneIntensity === 'number' ? evt.data.zoneIntensity : 1;
+        var opacity = Math.min(1, progress * 3) * zInt;
+        var features = gj.features || [];
+        var self = this;
+        features.forEach(function(f) {
+          if (!f || !f.properties || !f.geometry) return;
+          var a3 = f.properties['ISO3166-1-Alpha-3'] || f.properties.iso_a3 || f.properties.ISO_A3 || f.properties.adm0_a3 || '';
+          if (countries.indexOf(a3) === -1) return;
+          var cc = COUNTRY_COLORS[a3];
+          if (!cc) return;
+          var key = 'zones_' + evt.id + '_' + a3;
+          if (self._activeLayers.has(key)) return;
+          try {
+            var layer = L.geoJSON(f, {
+              style: function() {
+                return {
+                  color: cc.stroke, weight: 3,
+                  fillColor: cc.fill, fillOpacity: Math.min(0.45, 0.16 * opacity),
+                  lineCap: 'round', lineJoin: 'round',
+                  dashArray: null, className: 'sim-zone-pulse'
+                };
+              }
+            });
+            layer.addTo(group);
+            self._activeLayers.set(key, layer);
+          } catch(e) {}
+        });
+      }
+
+      renderFront(evt, progress) {
+        var group = this.ensureLayerGroup('fronts');
+        var key = 'fronts_' + evt.id;
+        if (this._activeLayers.has(key)) return;
+        if (!evt.data || !evt.data.points || evt.data.points.length < 2) return;
+        var coords = evt.data.points.map(function(p) { return [Number(p[0]), Number(p[1])]; });
+        var line = L.polyline(coords, {
+          color: evt.style.color || '#38bdf8',
+          weight: 2.5, opacity: Math.min(0.8, progress * 2),
+          dashArray: '10 5', className: 'front-line'
+        });
+        line.addTo(group);
+        this._activeLayers.set(key, line);
+
+        if (evt.data.label) {
+          var mid = coords[Math.floor(coords.length / 2)];
+          var lt = IRLEX_simEsc(evt.data.label || '');
+          var lbl = L.marker(mid, {
+            icon: L.divIcon({
+              className: 'irlex-front-label-wrap',
+              html: '<span class="irlex-map-label" style="border:1px solid rgba(56,189,248,0.35)">' + lt + '</span>',
+              iconSize: [0, 0], iconAnchor: [0, 12]
+            }), interactive: false
+          });
+          lbl.addTo(group);
+        }
+      }
+
+      renderFlow(evt, progress, effectSystem) {
+        var group = this.ensureLayerGroup('flows');
+        var key = 'flows_' + evt.id;
+        if (this._activeLayers.has(key)) return;
+        var d = evt.data;
+        if (!d || !d.from || !d.to) return;
+        var from = [Number(d.from[0]), Number(d.from[1])];
+        var to = [Number(d.to[0]), Number(d.to[1])];
+        var color = evt.style.color || '#f97316';
+        var layers = [];
+        var mapRef = this._map;
+        if (mapRef) IRLEX_ensureSvgArrowDefs(mapRef);
+
+        var um = IRLEX_flowUnitMode(d);
+        var plOpts = {
+          color: color,
+          interactive: false,
+          className: 'sim-flow-strike irlex-flow-main'
+        };
+        if (um === 'plane') {
+          plOpts.weight = 2.25;
+          plOpts.opacity = 0.95;
+          plOpts.className += ' irlex-flow-plane';
+        } else if (um === 'tank') {
+          plOpts.weight = 3.25;
+          plOpts.opacity = 0.92;
+          plOpts.dashArray = '12 7';
+          plOpts.className += ' irlex-flow-tank';
+        } else {
+          plOpts.weight = 2;
+          plOpts.opacity = 0.88;
+          plOpts.className += ' irlex-flow-soldier';
+        }
+
+        var line = L.polyline([from, to], plOpts);
+        line._irlexFlowEvt = evt;
+        line._irlexFlowMode = um;
+        line.on('add', function() {
+          if (line._path) {
+            line._path.classList.add('irlex-flow-path');
+            line._path.style.animation = 'none';
+            line._path.style.filter = 'none';
+          }
+        });
+        line.addTo(group);
+        if (effectSystem && typeof effectSystem.applyGlow === 'function') {
+          setTimeout(function() {
+            if (line._path) effectSystem.applyGlow(line, um);
+          }, 60);
+        }
+        layers.push(line);
+        // unitMode'u layers array'ine kaydet
+        layers._irlexUnitMode = um;
+
+        if (evt.meta && evt.meta.title) {
+          var midLat = (from[0] + to[0]) / 2;
+          var midLon = (from[1] + to[1]) / 2;
+          var titleTxt = IRLEX_simEsc(evt.meta.title);
+          var actorTxt = d && d.actor ? IRLEX_simEsc(String(d.actor)) : '';
+          var labelHtml =
+            '<span class="irlex-map-label">' +
+            (actorTxt ? '<span class="irlex-map-label-actor">' + actorTxt + '</span>' : '') +
+            '<span class="irlex-map-label-title">' + titleTxt + '</span></span>';
+          var lbl = L.marker([midLat, midLon], {
+            icon: L.divIcon({
+              className: 'irlex-flow-label-wrap',
+              html: labelHtml,
+              iconSize: [0, 0], iconAnchor: [0, 14]
+            }), interactive: false
+          });
+          lbl.addTo(group);
+          layers.push(lbl);
+        }
+
+        this._activeLayers.set(key, layers);
+        // unitMode'u da kaydet (dışarıdan erişim için)
+        this._activeLayers.set(key + '_mode', um);
+      }
+
+      renderPoint(evt, progress) {
+        var group = this.ensureLayerGroup('units');
+        var key = 'units_' + evt.id;
+        if (this._activeLayers.has(key)) return;
+        var d = evt.data;
+        if (!d) return;
+        var sz = d.size === 'large' ? 24 : (d.size === 'medium' ? 18 : 13);
+        var countryAttr = d.country || '';
+        var scaledSz = Math.round(sz * Math.min(1, progress * 2.5));
+        if (scaledSz < 6) return;
+        var icon = L.divIcon({
+          className: 'unit-marker',
+          html: '<div class="unit-marker" data-country="' + countryAttr + '" style="width:' + scaledSz + 'px;height:' + scaledSz + 'px;transition:width 0.4s,height 0.4s" title="' + (d.label || '') + '"></div>',
+          iconSize: [scaledSz, scaledSz],
+          iconAnchor: [scaledSz / 2, scaledSz / 2]
+        });
+        var m = L.marker([Number(d.lat), Number(d.lon)], { icon: icon });
+        m.bindTooltip(d.label || '', {
+          className: 'unit-tooltip', direction: 'top', offset: [0, -scaledSz / 2 - 4]
+        });
+        m.addTo(group);
+        this._activeLayers.set(key, m);
+      }
+
+      renderUnit(evt, progress, unitManager) {
+        var key = 'animated_' + evt.id;
+        if (this._activeLayers.has(key)) return;
+        // Aynı event için zaten flow polyline varsa animated unit EKLEME (çift çizim önlemi)
+        if (this._activeLayers.has('flows_' + evt.id)) return;
+        if (!evt.data || !evt.data.path || evt.data.path.length < 2) return;
+        if (!unitManager) return;
+        unitManager.addUnit(
+          this._map,
+          evt.data.unitType || 'soldier',
+          evt.data.path,
+          {
+            label: evt.data.label || '',
+            evtStart: evt.startTime,
+            evtEnd: evt.endTime,
+            debugPath: !!window.__DEBUG_UNIT_PATHS
+          }
+        );
+        this._activeLayers.set(key, true);
+      }
+
+      syncPhasePortraits(phase) {
+        this.clearGroup('portraits');
+        if (!this._map || !phase || !Array.isArray(phase.portraits)) return;
+        var group = this.ensureLayerGroup('portraits');
+        var self = this;
+        var pid = phase.id != null ? String(phase.id) : 'phase';
+        phase.portraits.forEach(function(p, idx) {
+          if (!p) return;
+          var la = Number(p.lat);
+          var lo = Number(p.lon);
+          if (!Number.isFinite(la) || !Number.isFinite(lo)) return;
+          var name = p.name || p.label || '';
+          var role = p.role || '';
+          var html = IRLEX_buildPortraitPinHtml(p.photo || p.photoUrl, name, role);
+          var icon = L.divIcon({
+            className: 'irlex-portrait-marker',
+            html: html,
+            iconSize: [76, 102],
+            iconAnchor: [38, 102]
+          });
+          var m = L.marker([la, lo], {
+            icon: icon,
+            interactive: true,
+            zIndexOffset: 900
+          });
+          var tip = name + (role ? ' — ' + role : '');
+          if (p.photoCredit) tip += ' · ' + p.photoCredit;
+          m.bindTooltip(tip, { direction: 'top', className: 'unit-tooltip', offset: [0, -96] });
+          m.addTo(group);
+          self._activeLayers.set('portraits_' + pid + '_' + idx, m);
+        });
+      }
+    }
+
+    class UIController {
+      constructor() {
+        this._sliderEl = null;
+        this._playBtn = null;
+        this._timeDisplay = null;
+        this._phaseIndicator = null;
+        this._speedBtns = [];
+        this._tooltipEl = null;
+        this._tooltipTitle = null;
+        this._tooltipDesc = null;
+      }
+      init() {
+        this._sliderEl = document.getElementById('simSlider');
+        this._playBtn = document.getElementById('simPlayBtn');
+        this._timeDisplay = document.getElementById('simTimeDisplay');
+        this._phaseIndicator = document.getElementById('simPhaseIndicator');
+        this._tooltipEl = document.getElementById('simTooltip');
+        this._tooltipTitle = document.getElementById('simTooltipTitle');
+        this._tooltipDesc = document.getElementById('simTooltipDesc');
+        this._speedBtns = Array.from(document.querySelectorAll('.sim-speed-btn'));
+      }
+      updateTime(current, total, formatFn) {
+        if (this._timeDisplay) {
+          this._timeDisplay.textContent = formatFn(current) + ' / ' + formatFn(total);
+        }
+        if (this._sliderEl && !this._sliderDragging) {
+          this._sliderEl.value = total > 0 ? Math.round((current / total) * 1000) : 0;
+          var pct = total > 0 ? (current / total) * 100 : 0;
+          this._sliderEl.style.setProperty('--sim-progress', pct + '%');
+        }
+      }
+      updatePhase(title) {
+        if (this._phaseIndicator) this._phaseIndicator.textContent = title || '';
+      }
+      setPlaying(isPlaying) {
+        if (this._playBtn) {
+          this._playBtn.innerHTML = isPlaying ? '&#10074;&#10074;' : '&#9654;';
+          this._playBtn.classList.toggle('playing', isPlaying);
+          this._playBtn.title = isPlaying ? 'Duraklat' : 'Oynat';
+        }
+      }
+      setSpeed(speed) {
+        this._speedBtns.forEach(function(btn) {
+          btn.classList.toggle('active', Number(btn.dataset.speed) === speed);
+        });
+      }
+      showTooltip(x, y, title, desc) {
+        if (!this._tooltipEl) return;
+        if (document.body.classList.contains('dragging') || this._sliderDragging) return;
+        this._tooltipTitle.textContent = title || '';
+        this._tooltipDesc.textContent = desc || '';
+        this._tooltipEl.style.left = (x + 14) + 'px';
+        this._tooltipEl.style.top = (y - 10) + 'px';
+        this._tooltipEl.classList.add('visible');
+      }
+      hideTooltip() {
+        if (this._tooltipEl) this._tooltipEl.classList.remove('visible');
+      }
+      bindEvents(timeline, mapEl) {
+        var self = this;
+        if (this._playBtn) {
+          this._playBtn.addEventListener('click', function() { timeline.toggle(); });
+        }
+        this._sliderDragging = false;
+        var endDrag = function() {
+          self._sliderDragging = false;
+          document.body.classList.remove('dragging');
+        };
+        var timelineBar = document.getElementById('simTimelineBar');
+        if (timelineBar) {
+          var onTimelinePointerDown = function() {
+            document.body.classList.add('dragging');
+          };
+          timelineBar.addEventListener('mousedown', onTimelinePointerDown, true);
+          timelineBar.addEventListener('touchstart', onTimelinePointerDown, { passive: true, capture: true });
+        }
+        window.addEventListener('mouseup', endDrag);
+        window.addEventListener('touchend', endDrag);
+        window.addEventListener('pointerup', endDrag);
+        window.addEventListener('pointercancel', endDrag);
+        if (this._sliderEl) {
+          this._sliderEl.addEventListener('mousedown', function() { self._sliderDragging = true; });
+          this._sliderEl.addEventListener('touchstart', function() { self._sliderDragging = true; });
+          this._sliderEl.addEventListener('pointerdown', function() { self._sliderDragging = true; });
+          this._sliderEl.addEventListener('input', function() {
+            timeline.pause();
+            self.hideTooltip();
+            var pct = Number(self._sliderEl.value) / 1000;
+            timeline.seek(pct * timeline.totalDuration);
+          });
+        }
+        this._speedBtns.forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            timeline.setSpeed(Number(btn.dataset.speed) || 1);
+          });
+        });
+        if (mapEl) {
+          mapEl.addEventListener('mousemove', function(e) {
+            if (document.body.classList.contains('dragging') || self._sliderDragging) {
+              self.hideTooltip();
+              return;
+            }
+            var target = e.target;
+            if (target && (target.classList.contains('unit-marker') || target.closest('.unit-marker'))) {
+              var el = target.classList.contains('unit-marker') ? target : target.closest('.unit-marker');
+              self.showTooltip(e.clientX, e.clientY, el.getAttribute('title'), el.getAttribute('data-country'));
+            } else if (target && target.closest('.leaflet-interactive')) {
+              var path = target.closest('.leaflet-interactive');
+              if (path._simMeta) {
+                self.showTooltip(e.clientX, e.clientY, path._simMeta.title, path._simMeta.desc);
+              } else {
+                self.hideTooltip();
+              }
+            } else {
+              self.hideTooltip();
+            }
+          });
+        }
+      }
+    }
+
+    class SimulationOrchestrator {
+      constructor() {
+        this.timeline = new TimelineController();
+        this.events = new EventManager();
+        this.camera = new CameraSystem(null);
+        this.effects = new EffectSystem();
+        this.mapCtrl = new MapController();
+        this.unitManager = new UnitManager();
+        this.ui = new UIController();
+        this._preset = null;
+        this._phases = [];
+        this._lastPhaseIdx = -1;
+        this._worldGeoJson = null;
+        this._selectPhaseFn = null;
+        this._initialized = false;
+      }
+
+      init(leafletMap, worldGeoJson, selectPhaseFn) {
+        this._worldGeoJson = worldGeoJson;
+        this._selectPhaseFn = selectPhaseFn;
+        this.camera.setMap(leafletMap);
+        this.mapCtrl.setMap(leafletMap);
+        this.mapCtrl.setWorldGeoJson(worldGeoJson);
+        this.mapCtrl.ensureLayerGroup('zones');
+        this.mapCtrl.ensureLayerGroup('fronts');
+        this.mapCtrl.ensureLayerGroup('flows');
+        this.mapCtrl.ensureLayerGroup('units');
+        this.mapCtrl.ensureLayerGroup('animated_units');
+        this.unitManager.setLayerGroup(this.mapCtrl.ensureLayerGroup('animated_units'));
+        this.ui.init();
+
+        var self = this;
+        this.timeline.bindOrchestrator(this);
+
+        this.timeline.on('play', function() {
+          self.ui.setPlaying(true);
+          if (self._onPlayStateChange) self._onPlayStateChange(true);
+        });
+        this.timeline.on('pause', function() {
+          self.ui.setPlaying(false);
+          if (self._onPlayStateChange) self._onPlayStateChange(false);
+        });
+        this.timeline.on('complete', function() {
+          self.ui.setPlaying(false);
+          if (self._onPlayStateChange) self._onPlayStateChange(false);
+          if (self._onComplete) self._onComplete();
+        });
+        this.timeline.on('speedchange', function(s) { self.ui.setSpeed(s); });
+        this.timeline.on('timeupdate', function(t) { self._onTimeUpdate(t); });
+        this.timeline.on('seek', function(t) { self._onSeek(t); });
+
+        this.ui.bindEvents(this.timeline, document.getElementById('map2dCanvas'));
+
+        this._initialized = true;
+      }
+
+      _updateBriefingPanel(dateStr, phase) {
+        var bd = document.getElementById('simBriefingDate');
+        var bt = document.getElementById('simBriefingTitle');
+        var bb = document.getElementById('simBriefingBody');
+        if (bd) bd.textContent = dateStr || '—';
+        if (bt) bt.textContent = (phase && phase.title) ? phase.title : '—';
+        if (bb) {
+          bb.textContent =
+            phase && (phase.summary || phase.dateRange)
+              ? String(phase.summary || phase.dateRange)
+              : 'Advance the timeline to display phase orders of battle.';
+        }
+      }
+
+      loadPreset(preset) {
+        this._preset = preset;
+        this._phases = (preset && preset.mapPhases) || [];
+        this.events.phaseDuration = 10000;
+        if (window.IRLEX_WarEngine && window.IRLEX_WarEngine.trackWarProgress && window.IRLEX_WarEngine.trackWarProgress.reset) {
+          window.IRLEX_WarEngine.trackWarProgress.reset();
+        }
+        this.events.loadFromPreset(preset);
+        var phaseMs = this.events.phaseDuration;
+        this.timeline.totalDuration = Math.max(phaseMs, this._phases.length * phaseMs);
+        this.timeline.currentTime = 0;
+        this._lastPhaseIdx = -1;
+        this.mapCtrl.clearAll();
+        this.unitManager.clearAll();
+        this.effects.clearAll();
+        this._onSeek(0);
+      }
+
+      play() { this.timeline.play(); }
+      pause() { this.timeline.pause(); }
+      toggle() { this.timeline.toggle(); }
+      seekToPhase(idx) {
+        var t = idx * this.events.phaseDuration;
+        this.timeline.seek(t);
+      }
+      isPlaying() { return this.timeline.playing; }
+
+      _onTimeUpdate(t) {
+        var td = this.timeline.totalDuration;
+        var prog = td > 0 ? t / td : 0;
+        var sim = window.__simulationState;
+        sim.progress = prog;
+        sim.duration = td;
+        sim.isPlaying = this.timeline.playing;
+
+        var dateStr = warDateFromProgress(prog, this._preset);
+        var ge = document.getElementById('globeDate');
+        if (ge) ge.value = dateStr;
+        var sw = document.getElementById('simWarDate');
+        if (sw) sw.textContent = dateStr;
+        if (window.IRLEX_WarEngine && window.IRLEX_WarEngine.syncSimulationMirror) {
+          window.IRLEX_WarEngine.syncSimulationMirror(prog, td, this.timeline.playing);
+        }
+
+        this.ui.updateTime(t, td, this.timeline.formatTime);
+        var phaseIdx = this.timeline.getPhaseIndex(this.events.phaseDuration);
+        phaseIdx = Math.max(0, Math.min(phaseIdx, this._phases.length - 1));
+
+        var phaseProgress = this.timeline.getPhaseProgress(this.events.phaseDuration);
+        var phase = this._phases[phaseIdx];
+        this.ui.updatePhase(phase ? (phase.title + ' (' + Math.round(phaseProgress * 100) + '%)') : '');
+        this._updateBriefingPanel(dateStr, phase);
+
+        if (phaseIdx !== this._lastPhaseIdx) {
+          this._lastPhaseIdx = phaseIdx;
+          this.mapCtrl.clearAll();
+          this.unitManager.clearAll();
+          this.effects.clearAll();
+          this.camera.focusPhase(phase);
+          if (this._selectPhaseFn) {
+            this._selectPhaseFn(phaseIdx, { fetchEvents: true, fromEngine: true });
+          }
+        }
+      }
+
+      _onSeek(t) {
+        this.mapCtrl.clearAll();
+        this.unitManager.clearAll();
+        this.effects.clearAll();
+        this._lastPhaseIdx = -1;
+        this._onTimeUpdate(t);
+        this._renderFrame();
+      }
+
+      _renderFrame() {
+        var t = this.timeline.currentTime;
+        var activeEvts = this.events.getActiveEvents(t);
+        var self = this;
+
+        activeEvts.forEach(function(evt) {
+          var localProgress = 0;
+          var elapsed = t - evt.startTime;
+          var fadeIn = (evt.style && evt.style.fadeIn) || 500;
+          localProgress = Math.min(1, elapsed / fadeIn);
+
+          switch (evt.type) {
+            case 'zone':
+              self.mapCtrl.renderZone(evt, localProgress, self._worldGeoJson);
+              break;
+            case 'front':
+              self.mapCtrl.renderFront(evt, localProgress);
+              break;
+            case 'flow':
+              self.mapCtrl.renderFlow(evt, localProgress, self.effects);
+              break;
+            case 'point':
+              self.mapCtrl.renderPoint(evt, localProgress);
+              break;
+            case 'unit':
+              self.mapCtrl.renderUnit(evt, localProgress, self.unitManager);
+              break;
+          }
+        });
+
+        self.mapCtrl.updateFlowLinesProgress(t);
+        var pIdx = self.timeline.getPhaseIndex(self.events.phaseDuration);
+        pIdx = Math.max(0, Math.min(pIdx, self._phases.length - 1));
+        self.mapCtrl.syncPhasePortraits(self._phases[pIdx]);
+        self.unitManager.syncAll(t);
+      }
+    }
+
+    window.__SimEngine = SimulationOrchestrator;
+
     let initialized = false;
     let initInProgress = false;
     let state = { selected: null }; // {lat, lon, region}
@@ -2291,6 +3914,7 @@ loadData();
       const coordsPill = document.getElementById('globeCoordsPill');
       const coordsText = document.getElementById('globeCoordsText');
       const dateInput = document.getElementById('globeDate');
+      const simWarDateEl = document.getElementById('simWarDate');
       const sideModeHistory = document.getElementById('sideModeHistory');
       const historyPreset = document.getElementById('historyPreset');
       const historyPhaseTabsEl = document.getElementById('historyPhaseTabs');
@@ -2315,6 +3939,7 @@ loadData();
       let historySimTimer = null;
       let historySimRunning = false;
       let historyFetchToken = 0;
+      let simEngine = null;
       if(!canvas2d){
         initInProgress = false;
         return;
@@ -2353,12 +3978,13 @@ loadData();
           date: '1973-10-06',
           lat: 30.7,
           lon: 33.8,
+          panelSubtitle: '6 Ekim 1973 — Tarihsel simülasyon',
           query: 'yom kippur war OR arab israel war 1973 OR sinai front',
           summary:
             'Misir ve Suriye, 6 Ekim 1973te Israile surpriz saldiri baslatti. ' +
             'Savasta Sinay ve Golan cepheleri one cikti; sonraki donemde ateskes ve diplomatik surec hizlandi.',
           phases: [
-            { t: 'Neden', d: '1967 sonrasi toprak kayiplari ve statu-koyu degistirme hedefi.' },
+            { t: 'Neden', d: '1967 sonrasi toprak kayiplari, BM 242 cikmazi, Hartum "Uc Hayir" karari, SSCB-ABD vekalet rekabeti ve Sadat\'in savas karari.' },
             { t: 'Baslangic', d: '6 Ekim 1973te eszamanli saldiri ile cephelerde hizli ilerleme.' },
             { t: 'Askeri Kirilma', d: 'Karsi taarruz ve super guc dengeleri savasin seyrini degistirdi.' },
             { t: 'Diplomatik Sonuc', d: 'BM ateskes kararlari ve Camp David surecine giden yol acildi.' }
@@ -2368,26 +3994,53 @@ loadData();
               id: 'neden',
               title: 'Neden',
               dateRange: '1967-1973',
-              summary: '1967 Alti Gun Savasi sonrasi Misir ve Suriye kaybettikleri topraklari geri almak icin askeri hazirlik baslatti.',
-              eventWindow: { start: '1973-09-01', end: '1973-10-05' },
-              queryHint: 'egypt syria military buildup OR post-1967 tensions OR suez front mobilization',
-              focus: { bounds: [[29.50, 31.00], [34.00, 36.80]], altitude: 1.75 },
+              summary: '1967 Alti Gun Savasi\'nda Israil, Misir\'dan Sina Yarimadasi\'ni, Suriye\'den Golan Tepeleri\'ni, Urdun\'den Bati Seria\'yi aldi. ' +
+                'BM 242 sayili karar (toprak karsiligi baris) uygulanmadi. 1967 Hartum Zirvesi\'nde Arap devletleri "Uc Hayir" (taninma yok, muzakere yok, baris yok) ilan etti. ' +
+                'SSCB, Misir ve Suriye\'ye buyuk capli silah yardimi yapti; ABD ise Israil\'in askeri ustunlugunu korudu. ' +
+                'Sadat, diplomasi cikmaza girince savasi tek cikis yolu olarak gordu ve gizli Misir-Suriye koordinasyonu basladi.',
+              eventWindow: { start: '1967-06-11', end: '1973-10-05' },
+              queryHint: 'post-1967 diplomacy OR UN resolution 242 OR khartoum three nos OR soviet arms egypt syria OR war of attrition',
+              focus: { bounds: [[25.00, -10.00], [58.00, 55.00]], altitude: 2.8 },
               countries: ['EGY','SYR','ISR'],
               terms: [
                 { en: 'Status Quo', tr: 'Mevcut Durum', cat: 'Diplomasi' },
                 { en: 'Territorial Dispute', tr: 'Toprak Anlaşmazlığı', cat: 'Diplomasi' },
+                { en: 'UN Resolution 242', tr: 'BM 242 Sayılı Karar', cat: 'Diplomasi' },
+                { en: 'Khartoum Resolution', tr: 'Hartum Kararları (Üç Hayır)', cat: 'Diplomasi' },
+                { en: 'Proxy War', tr: 'Vekalet Savaşı', cat: 'Diplomasi' },
+                { en: 'Arms Race', tr: 'Silahlanma Yarışı', cat: 'Güvenlik' },
+                { en: 'Cold War Bipolarity', tr: 'Soğuk Savaş İki Kutupluluğu', cat: 'Diplomasi' },
                 { en: 'Military Buildup', tr: 'Askeri Yığınak', cat: 'Güvenlik' },
-                { en: 'Deterrence', tr: 'Caydırıcılık', cat: 'Güvenlik' }
+                { en: 'Deterrence', tr: 'Caydırıcılık', cat: 'Güvenlik' },
+                { en: 'War of Attrition', tr: 'Yıpratma Savaşı', cat: 'Güvenlik' },
+                { en: 'Alliance', tr: 'İttifak', cat: 'Diplomasi' },
+                { en: 'National Interest', tr: 'Ulusal Çıkar', cat: 'Diplomasi' }
               ],
               image: { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/1973_Arab-Israeli_War_-_Oct_6.svg/400px-1973_Arab-Israeli_War_-_Oct_6.svg.png', caption: 'Yom Kippur Savasi baslangic durumu', source: 'Wikimedia Commons' },
+              portraits: [
+                { lat: 30.04, lon: 31.23, name: 'Enver Sedat', role: 'Misir CB', photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Anwar_Sadat_cropped.jpg?width=220', photoCredit: 'Wikimedia Commons' },
+                { lat: 33.51, lon: 36.28, name: 'Hafiz Esad', role: 'Suriye CB', photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Hafez_al-Assad.jpg?width=220', photoCredit: 'Wikimedia Commons' },
+                { lat: 31.77, lon: 35.22, name: 'Golda Meir', role: 'Israil Basbakan', photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Golda_Meir_03265u.jpg?width=220', photoCredit: 'Wikimedia Commons' },
+                { lat: 55.75, lon: 37.62, name: 'Leonid Brejnev', role: 'SSCB GK Bsk.', photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Leonid_Brezhnev_%281972%29.jpg?width=220', photoCredit: 'Wikimedia Commons' },
+                { lat: 38.92, lon: -77.12, name: 'Henry Kissinger', role: 'ABD Disisleri', photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Henry_Kissinger.jpg?width=220', photoCredit: 'Wikimedia Commons' }
+              ],
               units: [
-                { lat: 30.10, lon: 31.50, country: 'EGY', label: 'Misir 2. Ordu', size: 'large' },
-                { lat: 29.80, lon: 31.80, country: 'EGY', label: 'Misir 3. Ordu', size: 'large' },
+                { lat: 30.04, lon: 31.23, country: 'EGY', label: 'Kahire - Sadat Yonetimi', size: 'large' },
+                { lat: 30.10, lon: 31.50, country: 'EGY', label: 'Misir 2. Ordu', size: 'medium' },
+                { lat: 29.80, lon: 31.80, country: 'EGY', label: 'Misir 3. Ordu', size: 'medium' },
+                { lat: 33.51, lon: 36.28, country: 'SYR', label: 'Sam - Esad Yonetimi', size: 'large' },
                 { lat: 33.50, lon: 36.30, country: 'SYR', label: 'Suriye Zirhli Tugay', size: 'medium' },
+                { lat: 31.77, lon: 35.22, country: 'ISR', label: 'Kudus - Israil Hukumeti', size: 'large' },
                 { lat: 31.00, lon: 34.40, country: 'ISR', label: 'IDF Guney Komutanligi', size: 'medium' },
-                { lat: 33.00, lon: 35.60, country: 'ISR', label: 'IDF Kuzey Komutanligi', size: 'medium' }
+                { lat: 33.00, lon: 35.60, country: 'ISR', label: 'IDF Kuzey Komutanligi', size: 'medium' },
+                { lat: 55.75, lon: 37.62, country: 'UN', label: 'Moskova - SSCB (silah tedarikci)', size: 'large' },
+                { lat: 38.90, lon: -77.04, country: 'UN', label: 'Washington - ABD (Israil destekci)', size: 'large' }
               ],
               operations: [
+                { from: [55.75, 37.62], to: [30.04, 31.23], label: 'SSCB -> Misir: Silah ve askeri danisman', actor: 'USSR', intensity: 0.7 },
+                { from: [55.75, 37.62], to: [33.51, 36.28], label: 'SSCB -> Suriye: Tank, ucak ve fuze', actor: 'USSR', intensity: 0.65 },
+                { from: [38.90, -77.04], to: [31.77, 35.22], label: 'ABD -> Israil: Phantom jetleri ve istihbarat', actor: 'US', intensity: 0.7 },
+                { from: [30.04, 31.23], to: [33.51, 36.28], label: 'Misir-Suriye gizli koordinasyon', actor: 'Egypt', intensity: 0.5 },
                 { from: [30.15, 31.25], to: [30.78, 33.05], label: 'Misir 2. ve 3. Ordu yiginagi', actor: 'Egypt', intensity: 0.45 },
                 { from: [33.55, 36.35], to: [33.12, 35.84], label: 'Suriye zirhli birlik hazirligi', actor: 'Syria', intensity: 0.45 }
               ],
@@ -2396,8 +4049,16 @@ loadData();
                 { label: 'Golan temas hatti', points: [[33.30, 35.73], [33.18, 35.86], [33.06, 36.00], [32.94, 36.15]] }
               ],
               markers: [
-                { lat: 30.70, lon: 33.80, label: 'Sinai' },
-                { lat: 33.10, lon: 35.80, label: 'Golan' }
+                { lat: 30.70, lon: 33.80, label: 'Sina Yarimadasi (isgal altinda)' },
+                { lat: 33.10, lon: 35.80, label: 'Golan Tepeleri (isgal altinda)' },
+                { lat: 40.72, lon: -74.00, label: 'BM Genel Merkezi - Karar 242' }
+              ],
+              animatedUnits: [
+                { type: 'plane', path: [[55.75,37.62],[45.00,35.00],[36.00,33.50],[30.04,31.23]], label: 'SSCB Nakliye (Moskova-Kahire)', speed: 5000 },
+                { type: 'plane', path: [[55.75,37.62],[42.00,36.50],[36.50,36.00],[33.51,36.28]], label: 'SSCB Nakliye (Moskova-Sam)', speed: 5500 },
+                { type: 'plane', path: [[38.90,-77.04],[38.50,-40.00],[36.00,-5.00],[33.00,25.00],[31.77,35.22]], label: 'ABD Nakliye (Washington-Tel Aviv)', speed: 6000 },
+                { type: 'tank', path: [[30.10,31.50],[30.30,31.80],[30.50,32.20],[30.78,33.05]], label: 'Misir Zirhli Yiginak', speed: 9000 },
+                { type: 'tank', path: [[33.50,36.30],[33.40,36.15],[33.25,36.00],[33.12,35.84]], label: 'Suriye Zirhli Yiginak', speed: 9000 }
               ]
             },
             {
@@ -2416,6 +4077,12 @@ loadData();
                 { en: 'Crossing Operation', tr: 'Geçiş Harekâtı', cat: 'Güvenlik' }
               ],
               image: { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Yom_Kippur_War_map.svg/400px-Yom_Kippur_War_map.svg.png', caption: 'Ilk taarruz ve cephe hatlari', source: 'Wikimedia Commons' },
+              portraits: [
+                { lat: 30.04, lon: 31.23, name: 'Enver Sedat', role: 'Misir CB', photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Anwar_Sadat_cropped.jpg?width=220', photoCredit: 'Wikimedia Commons' },
+                { lat: 33.51, lon: 36.28, name: 'Hafiz Esad', role: 'Suriye CB', photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Hafez_al-Assad.jpg?width=220', photoCredit: 'Wikimedia Commons' },
+                { lat: 31.77, lon: 35.22, name: 'Golda Meir', role: 'Israil Basbakan', photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Golda_Meir_03265u.jpg?width=220', photoCredit: 'Wikimedia Commons' },
+                { lat: 32.09, lon: 34.78, name: 'Moshe Dayan', role: 'Israil Savunma', photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Moshe_Dayan.jpg?width=220', photoCredit: 'Wikimedia Commons' }
+              ],
               units: [
                 { lat: 30.50, lon: 32.30, country: 'EGY', label: 'Misir Suez Gecis Birlikleri', size: 'large' },
                 { lat: 30.00, lon: 32.50, country: 'EGY', label: 'Misir 3. Ordu (ilerliyor)', size: 'large' },
@@ -2435,6 +4102,14 @@ loadData();
               markers: [
                 { lat: 30.00, lon: 32.55, label: 'Suez Kanali', side: 'egypt' },
                 { lat: 33.00, lon: 35.70, label: 'Golan Tepeleri', side: 'syria' }
+              ],
+              animatedUnits: [
+                { type: 'plane', path: [[30.02,32.00],[30.20,32.40],[30.50,32.80],[30.72,33.03]], label: 'Misir Hava Kuvvetleri (Suez gecisi)', speed: 3000 },
+                { type: 'plane', path: [[33.42,36.50],[33.30,36.20],[33.10,35.90],[33.00,35.72]], label: 'Suriye Hava Kuvvetleri (Golan)', speed: 3200 },
+                { type: 'tank', path: [[30.02,32.20],[30.25,32.45],[30.50,32.75],[30.72,33.03]], label: 'Misir Zirhli Birlik (Suez)', speed: 7000 },
+                { type: 'tank', path: [[33.42,36.23],[33.30,36.10],[33.15,35.90],[33.00,35.72]], label: 'Suriye 1. Zirhli Tumen', speed: 7500 },
+                { type: 'soldier', path: [[30.50,32.30],[30.55,32.45],[30.60,32.55],[30.65,32.70]], label: 'Misir Piyade Ilerlemesi', speed: 9000 },
+                { type: 'soldier', path: [[33.10,35.70],[33.08,35.65],[33.05,35.58],[33.00,35.50]], label: 'Suriye Piyade Birlikleri', speed: 9500 }
               ]
             },
             {
@@ -2450,9 +4125,18 @@ loadData();
                 { en: 'Counteroffensive', tr: 'Karşı Taarruz', cat: 'Güvenlik' },
                 { en: 'Operation Gazelle', tr: 'Gazelle Harekâtı', cat: 'Güvenlik' },
                 { en: 'Encirclement', tr: 'Kuşatma', cat: 'Güvenlik' },
-                { en: 'Superpower Rivalry', tr: 'Süper Güç Rekabeti', cat: 'Diplomasi' }
+                { en: 'Superpower Rivalry', tr: 'Süper Güç Rekabeti', cat: 'Diplomasi' },
+                { en: 'Operation Nickel Grass', tr: 'Nickel Grass Hava Köprüsü', cat: 'Güvenlik' },
+                { en: 'Arms Supply', tr: 'Silah İkmali', cat: 'Güvenlik' },
+                { en: 'Nuclear Alert', tr: 'Nükleer Alarm (DEFCON 3)', cat: 'Güvenlik' }
               ],
               image: { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/1973_sinai_war_maps2.jpg/400px-1973_sinai_war_maps2.jpg', caption: 'Karsi taarruz ve cephe degisimi', source: 'Wikimedia Commons' },
+              portraits: [
+                { lat: 31.77, lon: 35.22, name: 'Golda Meir', role: 'Israil Basbakan', photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Golda_Meir_03265u.jpg?width=220', photoCredit: 'Wikimedia Commons' },
+                { lat: 32.09, lon: 34.78, name: 'Moshe Dayan', role: 'Israil Savunma', photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Moshe_Dayan.jpg?width=220', photoCredit: 'Wikimedia Commons' },
+                { lat: 30.04, lon: 31.23, name: 'Enver Sedat', role: 'Misir CB', photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Anwar_Sadat_cropped.jpg?width=220', photoCredit: 'Wikimedia Commons' },
+                { lat: 38.90, lon: -77.04, name: 'Henry Kissinger', role: 'ABD Disisleri', photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Henry_Kissinger.jpg?width=220', photoCredit: 'Wikimedia Commons' }
+              ],
               units: [
                 { lat: 30.40, lon: 32.40, country: 'ISR', label: 'IDF Sharon Tugayi (Kanal gecisi)', size: 'large' },
                 { lat: 31.00, lon: 33.20, country: 'ISR', label: 'IDF Sinai Karsi Taarruz', size: 'large' },
@@ -2462,7 +4146,10 @@ loadData();
               ],
               operations: [
                 { from: [31.02, 33.08], to: [30.34, 32.45], label: 'Sinai karsi taarruz - Kanal batiya gecis', actor: 'Israel', intensity: 0.9 },
-                { from: [33.00, 35.72], to: [33.32, 36.14], label: 'Golan geri itis ve dengeleme', actor: 'Israel', intensity: 0.84 }
+                { from: [33.00, 35.72], to: [33.32, 36.14], label: 'Golan geri itis ve dengeleme', actor: 'Israel', intensity: 0.84 },
+                { from: [38.90, -77.04], to: [31.77, 35.22], label: 'ABD Nickel Grass hava koprusi (acil silah)', actor: 'US', intensity: 0.85 },
+                { from: [55.75, 37.62], to: [30.04, 31.23], label: 'SSCB Misir\'a acil silah ikmali', actor: 'USSR', intensity: 0.75 },
+                { from: [55.75, 37.62], to: [33.51, 36.28], label: 'SSCB Suriye\'ye acil destek', actor: 'USSR', intensity: 0.7 }
               ],
               fronts: [
                 { label: 'Sinai degisen temas hatti', points: [[31.04, 32.52], [30.82, 32.62], [30.62, 32.75], [30.45, 32.95]] },
@@ -2470,7 +4157,17 @@ loadData();
               ],
               markers: [
                 { lat: 30.40, lon: 32.55, label: 'Bitter Lake hatti', side: 'israel' },
-                { lat: 33.30, lon: 36.10, label: 'Suriye cephesi', side: 'israel' }
+                { lat: 33.30, lon: 36.10, label: 'Suriye cephesi', side: 'israel' },
+                { lat: 38.90, lon: -77.04, label: 'Washington (Nickel Grass)', side: 'us' },
+                { lat: 55.75, lon: 37.62, label: 'Moskova (Silah ikmali)', side: 'ussr' }
+              ],
+              animatedUnits: [
+                { type: 'plane', path: [[38.90,-77.04],[38.50,-40.00],[36.00,-5.00],[33.00,25.00],[31.77,35.22]], label: 'ABD Nickel Grass Hava Koprusi', speed: 4500 },
+                { type: 'plane', path: [[31.00,34.80],[30.80,33.50],[30.50,32.80],[30.34,32.45]], label: 'IDF Hava Destegi (Sinai)', speed: 2800 },
+                { type: 'plane', path: [[32.80,35.20],[33.00,35.60],[33.15,35.90],[33.32,36.14]], label: 'IDF Hava Destegi (Golan)', speed: 3000 },
+                { type: 'tank', path: [[31.02,33.08],[30.80,32.80],[30.55,32.60],[30.34,32.45]], label: 'IDF Sharon Tugayi (Kanal gecisi)', speed: 7000 },
+                { type: 'tank', path: [[33.00,35.72],[33.10,35.85],[33.20,36.00],[33.32,36.14]], label: 'IDF Golan Karsi Taarruz', speed: 7500 },
+                { type: 'soldier', path: [[30.60,32.70],[30.50,32.55],[30.40,32.45],[30.34,32.40]], label: 'IDF Piyade Ilerlemesi', speed: 8500 }
               ]
             },
             {
@@ -2484,27 +4181,266 @@ loadData();
               countries: ['EGY','SYR','ISR'],
               terms: [
                 { en: 'Ceasefire', tr: 'Ateşkes', cat: 'Diplomasi' },
-                { en: 'UNSC Resolution', tr: 'BM Güvenlik Konseyi Kararı', cat: 'Diplomasi' },
+                { en: 'UNSC Resolution 338', tr: 'BM Güvenlik Konseyi Kararı 338', cat: 'Diplomasi' },
                 { en: 'Shuttle Diplomacy', tr: 'Mekik Diplomasisi', cat: 'Diplomasi' },
                 { en: 'Camp David Accords', tr: 'Camp David Anlaşmaları', cat: 'Diplomasi' },
-                { en: 'Balance of Power', tr: 'Güç Dengesi', cat: 'Diplomasi' }
+                { en: 'Balance of Power', tr: 'Güç Dengesi', cat: 'Diplomasi' },
+                { en: 'Disengagement Agreement', tr: 'Kuvvet Ayırma Anlaşması', cat: 'Diplomasi' },
+                { en: 'Oil Embargo', tr: 'Petrol Ambargosu (OPEC)', cat: 'Ekonomi' },
+                { en: 'Detente', tr: 'Yumuşama (Détente)', cat: 'Diplomasi' }
               ],
               image: { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Camp_David%2C_Menachem_Begin%2C_Anwar_El_Sadat%2C_1978.jpg/400px-Camp_David%2C_Menachem_Begin%2C_Anwar_El_Sadat%2C_1978.jpg', caption: 'Camp David sureci (1978)', source: 'Wikimedia Commons' },
+              portraits: [
+                { lat: 38.90, lon: -77.04, name: 'Henry Kissinger', role: 'Mekik diplomasisi', photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Henry_Kissinger.jpg?width=220', photoCredit: 'Wikimedia Commons' },
+                { lat: 38.88, lon: -76.95, name: 'Richard Nixon', role: 'ABD Baskani', photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Richard_Nixon_presidential_portrait_%281%29.jpg?width=220', photoCredit: 'Wikimedia Commons' },
+                { lat: 30.04, lon: 31.23, name: 'Enver Sedat', role: 'Misir CB', photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Anwar_Sadat_cropped.jpg?width=220', photoCredit: 'Wikimedia Commons' },
+                { lat: 31.77, lon: 35.22, name: 'Golda Meir', role: 'Israil Basbakan', photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Golda_Meir_03265u.jpg?width=220', photoCredit: 'Wikimedia Commons' }
+              ],
               units: [
-                { lat: 30.04, lon: 31.23, country: 'EGY', label: 'Kahire - Diplomatik merkez', size: 'small' },
-                { lat: 31.77, lon: 35.22, country: 'ISR', label: 'Kudus - Diplomatik merkez', size: 'small' },
-                { lat: 33.51, lon: 36.28, country: 'SYR', label: 'Sam - Diplomatik merkez', size: 'small' }
+                { lat: 30.04, lon: 31.23, country: 'EGY', label: 'Kahire - Sadat', size: 'large' },
+                { lat: 31.77, lon: 35.22, country: 'ISR', label: 'Kudus - Meir/Rabin', size: 'large' },
+                { lat: 33.51, lon: 36.28, country: 'SYR', label: 'Sam - Esad', size: 'medium' },
+                { lat: 38.90, lon: -77.04, country: 'UN', label: 'Washington - Kissinger', size: 'large' },
+                { lat: 40.72, lon: -74.00, country: 'UN', label: 'BM Genel Merkezi - BMGK 338', size: 'medium' }
               ],
               operations: [
-                { from: [30.04, 31.23], to: [31.77, 35.22], label: 'Misir-Israil ateskes muzakereleri', actor: 'UN', intensity: 0.78 },
-                { from: [31.77, 35.22], to: [33.51, 36.28], label: 'Israil-Suriye ayrilma gorusmeleri', actor: 'UN', intensity: 0.70 }
+                { from: [40.72, -74.00], to: [30.04, 31.23], label: 'BMGK 338 Karari: Ateskes cagrisi', actor: 'UN', intensity: 0.85 },
+                { from: [40.72, -74.00], to: [31.77, 35.22], label: 'BMGK 338: Israil\'e ateskes baski', actor: 'UN', intensity: 0.8 },
+                { from: [38.90, -77.04], to: [30.04, 31.23], label: 'Kissinger mekik diplomasisi: Washington-Kahire', actor: 'US', intensity: 0.9 },
+                { from: [38.90, -77.04], to: [31.77, 35.22], label: 'Kissinger mekik diplomasisi: Washington-Kudus', actor: 'US', intensity: 0.88 },
+                { from: [30.04, 31.23], to: [31.77, 35.22], label: 'Misir-Israil ateskes muzakereleri', actor: 'Egypt', intensity: 0.78 },
+                { from: [31.77, 35.22], to: [33.51, 36.28], label: 'Israil-Suriye ayrilma gorusmeleri', actor: 'Israel', intensity: 0.70 }
               ],
               fronts: [
                 { label: 'Sinai ateskes hatti', points: [[31.08, 32.48], [30.84, 32.67], [30.62, 32.86], [30.40, 33.04]] }
               ],
               markers: [
                 { lat: 30.04, lon: 31.23, label: 'Kahire', side: 'diplomacy' },
-                { lat: 31.77, lon: 35.22, label: 'Kudus', side: 'diplomacy' }
+                { lat: 31.77, lon: 35.22, label: 'Kudus', side: 'diplomacy' },
+                { lat: 38.90, lon: -77.04, label: 'Washington (Kissinger)', side: 'diplomacy' },
+                { lat: 40.72, lon: -74.00, label: 'BM Genel Merkezi (BMGK)', side: 'diplomacy' }
+              ],
+              animatedUnits: [
+                { type: 'plane', path: [[38.90,-77.04],[36.00,10.00],[33.00,28.00],[30.04,31.23]], label: 'Kissinger Mekik Diplomasisi (Kahire)', speed: 4000 },
+                { type: 'plane', path: [[30.04,31.23],[31.00,33.00],[31.77,35.22]], label: 'Kissinger Mekik (Kahire-Kudus)', speed: 3000 },
+                { type: 'plane', path: [[31.77,35.22],[32.50,35.80],[33.51,36.28]], label: 'Kissinger Mekik (Kudus-Sam)', speed: 3500 },
+                { type: 'plane', path: [[40.72,-74.00],[38.00,-20.00],[35.00,15.00],[31.00,32.00]], label: 'BM Gozlemci Ucuslari', speed: 5000 }
+              ]
+            }
+          ]
+        },
+        'arab-israeli-wars': {
+          title: 'Arap-Israil Savaslari (1948-1973)',
+          date: '1948-05-14',
+          lat: 31.5,
+          lon: 35.2,
+          panelSubtitle: '1948–1973 — Çoklu savaş zaman çizelgesi',
+          query: '1948 arab israeli war OR suez crisis 1956 OR six day war 1967 OR yom kippur war 1973',
+          summary:
+            'Bagimsizlik savasindan (1948) Yom Kippur\'a (1973) Arap-Israil catismalarinin ozet harita zaman çizelgesi. ' +
+            'Birim animasyonlari irlex-map-sim/js/wars.js verisinden uretilir.',
+          arabIsraeliWarTimeline: true,
+          phases: [
+            { t: '1948', d: 'Bagimsizlik savasi ve ateşkes hatlari.' },
+            { t: '1956', d: 'Suez Krizi ve Sinai harekati.' },
+            { t: '1967', d: 'Alti Gun Savasi — hizli cephe degisimi.' },
+            { t: '1973', d: 'Yom Kippur — Sinay ve Golan taarruzlari.' }
+          ],
+          mapPhases: [
+            {
+              id: 'w1948',
+              title: '1948',
+              dateRange: '1948-1949',
+              summary: 'Israil\'in bagimsizligi ve cevre Arap devletleriyle catisma; ateşkes hatlari.',
+              eventWindow: { start: '1948-05-14', end: '1949-03-10' },
+              queryHint: '1948 arab israeli war OR war of independence israel',
+              focus: { bounds: [[29.5, 32.5], [33.5, 36.5]], altitude: 2 },
+              countries: ['EGY', 'SYR', 'ISR', 'JOR', 'LBN'],
+              fronts: [
+                { label: '1948 cepheleri (sembolik)', points: [[31.8, 34.9], [31.5, 35.1], [31.2, 35.0]] }
+              ],
+              operations: [],
+              units: [
+                { lat: 31.77, lon: 35.22, country: 'ISR', label: 'Kudus', size: 'large' },
+                { lat: 31.2, lon: 34.75, country: 'ISR', label: 'Negev hatti', size: 'medium' }
+              ]
+            },
+            {
+              id: 'w1956',
+              title: '1956 Suez',
+              dateRange: 'Ekim-Kasim 1956',
+              summary: 'Suez Krizi — Sinai ve uluslararasi baski.',
+              eventWindow: { start: '1956-10-29', end: '1956-11-07' },
+              queryHint: 'suez crisis 1956 OR sinai campaign',
+              focus: { bounds: [[27.5, 31.0], [33.5, 36.0]], altitude: 2 },
+              countries: ['EGY', 'ISR', 'GBR', 'FRA'],
+              fronts: [
+                { label: 'Sinai yonu', points: [[31.0, 34.2], [30.2, 33.5], [29.5, 32.8]] }
+              ],
+              operations: [],
+              units: [
+                { lat: 30.04, lon: 31.23, country: 'EGY', label: 'Kahire', size: 'large' },
+                { lat: 29.97, lon: 32.55, country: 'EGY', label: 'Suez', size: 'medium' }
+              ]
+            },
+            {
+              id: 'w1967',
+              title: '1967',
+              dateRange: '5-10 Haziran 1967',
+              summary: 'Alti Gun Savasi — hizli taarruzlar.',
+              eventWindow: { start: '1967-06-05', end: '1967-06-10' },
+              queryHint: 'six day war 1967',
+              focus: { bounds: [[29.5, 32.0], [33.8, 36.5]], altitude: 1.8 },
+              countries: ['EGY', 'SYR', 'ISR', 'JOR'],
+              fronts: [
+                { label: 'Guney cephe', points: [[31.3, 34.4], [31.6, 34.9], [31.9, 35.3]] }
+              ],
+              operations: [],
+              units: [
+                { lat: 31.77, lon: 35.22, country: 'ISR', label: 'IDF', size: 'large' },
+                { lat: 30.5, lon: 32.3, country: 'EGY', label: 'Misir birlikleri', size: 'medium' }
+              ]
+            },
+            {
+              id: 'w1973',
+              title: '1973',
+              dateRange: '6-24 Ekim 1973',
+              summary: 'Yom Kippur — Sinay ve Golan.',
+              eventWindow: { start: '1973-10-06', end: '1973-10-24' },
+              queryHint: 'yom kippur war OR october war 1973',
+              focus: { bounds: [[29.5, 31.5], [34.0, 36.8]], altitude: 1.6 },
+              countries: ['EGY', 'SYR', 'ISR'],
+              fronts: [
+                { label: 'Suez / Sinay', points: [[31.15, 32.45], [30.85, 32.75], [30.5, 33.05]] },
+                { label: 'Golan', points: [[33.25, 35.78], [33.05, 36.05], [32.95, 36.2]] }
+              ],
+              operations: [
+                { from: [30.02, 32.2], to: [30.72, 33.03], label: 'Suez gecisi', actor: 'Egypt', intensity: 0.9 }
+              ],
+              units: [
+                { lat: 30.5, lon: 32.4, country: 'EGY', label: 'Misir birlikleri', size: 'large' },
+                { lat: 33.2, lon: 35.85, country: 'SYR', label: 'Suriye birlikleri', size: 'large' },
+                { lat: 31.0, lon: 34.4, country: 'ISR', label: 'IDF', size: 'large' }
+              ]
+            }
+          ]
+        },
+        'six-day-war-1967': {
+          title: 'Alti Gun Savasi (1967)',
+          date: '1967-06-05',
+          lat: 31.77,
+          lon: 35.22,
+          simDateRange: { start: '1967-06-05', end: '1967-06-10' },
+          panelSubtitle: '5-10 Haziran 1967 — Operation Focus ve kara harekati',
+          query: 'six day war 1967 OR operation focus israel OR june war 1967',
+          summary:
+            'Israil Hava Kuvvetleri Operation Focus ile Misir, Suriye ve Urdun hava guclerini bastan savusturdu; ' +
+            'ardindan Sinay, Bati Seria ve Golan Tepeleri\'nde hizli kara taarruzlari gerceklesti.',
+          phases: [
+            { t: 'Gun 1', d: 'Operation Focus: eszamanli hava saldirilari, dusman havaalanlari.' },
+            { t: 'Gun 2-3', d: 'Sinay ve Bati Seria\'da zirhli ve piyade ilerleyisi.' },
+            { t: 'Gun 4-6', d: 'Golan ve Kudus cevresinde toprak kontrolu.' }
+          ],
+          mapPhases: [
+            {
+              id: '1967-day1-focus',
+              title: 'Gun 1 · Operation Focus',
+              dateRange: '5 Haziran 1967',
+              summary: 'IDF/AF havaalanlarina yogun saldiri — Misir ve Suriye ucaklari yerde imha.',
+              eventWindow: { start: '1967-06-05', end: '1967-06-05' },
+              queryHint: 'operation focus 1967 OR israeli air strike june 5',
+              focus: { bounds: [[29.2, 32.0], [34.2, 37.2]], altitude: 1.65 },
+              countries: ['EGY', 'SYR', 'ISR'],
+              zoneIntensity: 1.15,
+              fronts: [
+                { label: 'Hava saldiri eksenleri (sembolik)', points: [[32.5, 35.0], [31.5, 34.0], [30.8, 33.0]] }
+              ],
+              operations: [
+                { from: [32.61, 35.19], to: [30.59, 32.30], label: 'Ramat David -> Misir havaalanlari', actor: 'Israel', intensity: 0.98, unitType: 'plane' },
+                { from: [31.84, 34.82], to: [30.35, 32.20], label: 'Tel Nof -> Sinay hava ustleri', actor: 'Israel', intensity: 0.95, unitType: 'plane' },
+                { from: [31.24, 34.67], to: [30.05, 31.40], label: 'Negev -> Kahire yonu', actor: 'Israel', intensity: 0.92, unitType: 'plane' },
+                { from: [32.61, 35.19], to: [33.51, 36.28], label: 'Kuzey -> Sam / Mezze', actor: 'Israel', intensity: 0.96, unitType: 'plane' },
+                { from: [31.84, 34.82], to: [33.20, 36.05], label: 'Merkez -> Golan on hatti', actor: 'Israel', intensity: 0.9, unitType: 'plane' },
+                { from: [32.40, 34.90], to: [31.20, 33.50], label: 'Ikinci dalga - Sinay', actor: 'Israel', intensity: 0.88, unitType: 'plane' }
+              ],
+              units: [
+                { lat: 32.61, lon: 35.19, country: 'ISR', label: 'Ramat David AB', size: 'large' },
+                { lat: 31.84, lon: 34.82, country: 'ISR', label: 'Tel Nof AB', size: 'large' },
+                { lat: 30.59, lon: 32.30, country: 'EGY', label: 'Abu Suwayr (hedef)', size: 'medium' },
+                { lat: 33.51, lon: 36.28, country: 'SYR', label: 'Sam / Mezze', size: 'medium' }
+              ],
+              animatedUnits: [
+                { type: 'plane', path: [[32.61, 35.19], [31.9, 34.4], [31.0, 33.4], [30.55, 32.35]], label: 'Kuzey filo dalgasi', endFrac: 0.42, startOffsetMs: 350 },
+                { type: 'plane', path: [[31.84, 34.82], [31.2, 33.8], [30.6, 32.9], [30.2, 32.0]], label: 'Guney filo - Sinay', endFrac: 0.45, startOffsetMs: 420 },
+                { type: 'plane', path: [[31.24, 34.67], [30.9, 33.5], [30.4, 32.5], [30.05, 31.45]], label: 'Negev cikisi', endFrac: 0.48, startOffsetMs: 500 },
+                { type: 'plane', path: [[32.61, 35.19], [32.3, 35.6], [32.9, 36.0], [33.45, 36.22]], label: 'Suriye yonu 1', endFrac: 0.4, startOffsetMs: 380 },
+                { type: 'plane', path: [[31.84, 34.82], [32.4, 35.3], [33.0, 35.85], [33.48, 36.26]], label: 'Suriye yonu 2', endFrac: 0.44, startOffsetMs: 460 },
+                { type: 'plane', path: [[32.5, 35.05], [31.8, 34.0], [31.0, 33.0], [30.5, 32.0]], label: 'Orta hat baskisi', endFrac: 0.46, startOffsetMs: 540 },
+                { type: 'plane', path: [[31.5, 34.75], [31.0, 33.6], [30.55, 32.6], [30.15, 31.6]], label: 'Ikinci dalga', endFrac: 0.5, startOffsetMs: 620 },
+                { type: 'plane', path: [[32.4, 35.1], [32.0, 35.5], [32.6, 36.0], [33.2, 36.15]], label: 'Kuzey Suriye', endFrac: 0.38, startOffsetMs: 700 }
+              ]
+            },
+            {
+              id: '1967-day2-3-ground',
+              title: 'Gun 2-3 · Kara taarruz',
+              dateRange: '6-7 Haziran',
+              summary: 'IDF Sinay\'da ve Bati Seria\'da hizli ilerleyerek Misir ve Urdun hatlarini yardi.',
+              eventWindow: { start: '1967-06-06', end: '1967-06-07' },
+              queryHint: 'sinai campaign 1967 OR west bank june war',
+              focus: { bounds: [[29.0, 32.5], [33.5, 36.5]], altitude: 1.55 },
+              countries: ['EGY', 'SYR', 'ISR', 'JOR'],
+              zoneIntensity: 1.35,
+              fronts: [
+                { label: 'Sinay ilerleyisi', points: [[31.0, 34.2], [30.5, 33.5], [30.0, 32.8], [29.7, 32.2]] },
+                { label: 'Bati Seria', points: [[32.2, 34.95], [31.9, 35.15], [31.75, 35.25]] }
+              ],
+              operations: [
+                { from: [30.9, 34.25], to: [30.2, 32.9], label: 'Zirhli ilerleyis - Sinay', actor: 'Israel', intensity: 0.94, unitType: 'tank' },
+                { from: [31.77, 35.22], to: [31.85, 35.35], label: 'Kudus cevresi', actor: 'Israel', intensity: 0.88, unitType: 'tank' },
+                { from: [31.5, 34.6], to: [31.2, 35.0], label: 'Latrun - Ramallah ekseni', actor: 'Israel', intensity: 0.85, unitType: 'soldier' }
+              ],
+              units: [
+                { lat: 30.6, lon: 32.8, country: 'ISR', label: 'IDF Zirhli - Sinay', size: 'large' },
+                { lat: 31.78, lon: 35.22, country: 'ISR', label: 'IDF Dogu Kudus', size: 'large' },
+                { lat: 31.9, lon: 35.15, country: 'JOR', label: 'Urdun savunma', size: 'medium' }
+              ],
+              animatedUnits: [
+                { type: 'tank', path: [[30.95, 34.2], [30.6, 33.6], [30.25, 33.0], [29.95, 32.45]], label: 'Zirhli tun - Sinay', endFrac: 0.92 },
+                { type: 'tank', path: [[31.2, 34.5], [30.9, 33.9], [30.55, 33.2], [30.2, 32.6]], label: 'Ikinci zirhli kol', endFrac: 0.9 },
+                { type: 'tank', path: [[31.77, 35.18], [31.82, 35.28], [31.86, 35.34], [31.9, 35.38]], label: 'Kudus yonu', endFrac: 0.88 },
+                { type: 'soldier', path: [[31.55, 34.7], [31.45, 34.85], [31.35, 34.95], [31.28, 35.05]], label: 'Piyade grubu - Seria', pathJitter: true, endFrac: 0.95 },
+                { type: 'soldier', path: [[30.85, 33.9], [30.75, 33.7], [30.65, 33.5], [30.55, 33.35]], label: 'Piyade - Sinay', pathJitter: true, endFrac: 0.93 },
+                { type: 'plane', path: [[31.6, 34.9], [31.2, 34.2], [30.8, 33.5], [30.45, 32.9]], label: 'Yakin hava destegi', endFrac: 0.52, startOffsetMs: 800 }
+              ]
+            },
+            {
+              id: '1967-day4-6-capture',
+              title: 'Gun 4-6 · Golan ve tampon',
+              dateRange: '8-10 Haziran',
+              summary: 'Golan Tepeleri\'nin alinmasi ve ateskes hatlarinin belirmesi.',
+              eventWindow: { start: '1967-06-08', end: '1967-06-10' },
+              queryHint: 'golan heights 1967 OR israel syria ceasefire june',
+              focus: { bounds: [[29.5, 34.0], [33.8, 36.6]], altitude: 1.5 },
+              countries: ['EGY', 'SYR', 'ISR'],
+              zoneIntensity: 2.05,
+              fronts: [
+                { label: 'Golan taarruzu', points: [[33.28, 35.72], [33.12, 35.92], [33.02, 36.08], [32.92, 36.22]] },
+                { label: 'Sinay tampon', points: [[30.8, 32.6], [30.4, 33.0], [30.0, 33.4]] }
+              ],
+              operations: [
+                { from: [33.05, 35.75], to: [33.25, 36.12], label: 'Golan cikis hatti', actor: 'Israel', intensity: 0.93, unitType: 'tank' },
+                { from: [30.5, 32.8], to: [29.9, 32.5], label: 'Sinay derinlik', actor: 'Israel', intensity: 0.82, unitType: 'tank' }
+              ],
+              units: [
+                { lat: 33.15, lon: 35.95, country: 'ISR', label: 'IDF Golan', size: 'large' },
+                { lat: 33.4, lon: 36.2, country: 'SYR', label: 'Suriye geri cekilme', size: 'medium' },
+                { lat: 30.2, lon: 33.0, country: 'EGY', label: 'Sinay IDF konumu', size: 'medium' }
+              ],
+              animatedUnits: [
+                { type: 'tank', path: [[33.08, 35.78], [33.12, 35.92], [33.18, 36.05], [33.26, 36.14]], label: 'Golan zirhli', endFrac: 0.85 },
+                { type: 'tank', path: [[33.0, 35.72], [33.05, 35.88], [33.1, 36.02], [33.18, 36.1]], label: 'Ikinci tug', endFrac: 0.87 },
+                { type: 'soldier', path: [[33.12, 35.85], [33.14, 35.95], [33.16, 36.05], [33.2, 36.12]], label: 'Piyade - Golan', pathJitter: true, endFrac: 0.9 },
+                { type: 'plane', path: [[31.2, 34.8], [32.0, 35.4], [32.8, 35.9], [33.15, 36.05]], label: 'Keşif / CAS', endFrac: 0.48, startOffsetMs: 400 }
               ]
             }
           ]
@@ -2599,8 +4535,7 @@ loadData();
       function getDefaultHistoryPhaseIdx(preset, presetKey = ''){
         const phases = getPresetPhases(preset);
         if(!phases.length) return 0;
-        // Yom Kippur icin ilk acilista "Neden" yerine dogrudan operasyon fazini goster.
-        if(String(presetKey) === 'yom-kippur') return Math.min(1, phases.length - 1);
+        // Timeline ve anlatim ayni fazdan baslasin (Neden = zaman 0)
         return 0;
       }
 
@@ -2704,6 +4639,7 @@ loadData();
         const shouldSyncDate = opts.syncDate !== false;
         if(shouldSyncDate && win && isIsoDateString(win.end) && dateInput){
           dateInput.value = win.end;
+          if (simWarDateEl) simWarDateEl.textContent = win.end;
           updateEventsBtn();
         }
         if(Array.isArray(focus.bounds) && focus.bounds.length === 2){
@@ -2752,6 +4688,7 @@ loadData();
           `<span style="display:inline-flex;align-items:center;gap:6px"><i style="display:inline-block;width:14px;height:2px;background:#f97316"></i> Operasyon oklari</span>` +
           `<span style="display:inline-flex;align-items:center;gap:6px"><i style="display:inline-block;width:14px;height:0;border-top:2px dashed ${escapeHtml(style.frontColor)}"></i> Temas hatti</span>` +
           `<span style="display:inline-flex;align-items:center;gap:6px"><i style="display:inline-block;width:8px;height:8px;border-radius:999px;background:#facc15"></i> Kritik noktalar</span>` +
+          `<span style="display:inline-flex;align-items:center;gap:6px"><i style="display:inline-block;width:10px;height:10px;border-radius:50%;border:2px solid #2c1810;background:#b91c1c"></i> Lider portresi</span>` +
           `</div>` +
           `<div style="margin-top:6px;color:#dbe7f8;line-height:1.45">${hint}</div>`;
       }
@@ -2762,9 +4699,16 @@ loadData();
           if(!btn) return;
           const idx = Number(btn.getAttribute('data-phase-idx'));
           if(!Number.isFinite(idx)) return;
-          stopHistorySimulation();
-          if(historySimPlayBtn) historySimPlayBtn.textContent = 'Oynat';
-          selectHistoryPhase(idx, { fetchEvents: true });
+          if (simEngine && simEngine._initialized) {
+            simEngine.pause();
+            simEngine.seekToPhase(idx);
+            historySimRunning = false;
+            if(historySimPlayBtn) historySimPlayBtn.textContent = 'Oynat';
+          } else {
+            stopHistorySimulation();
+            if(historySimPlayBtn) historySimPlayBtn.textContent = 'Oynat';
+            selectHistoryPhase(idx, { fetchEvents: true });
+          }
         });
       }
 
@@ -2774,6 +4718,9 @@ loadData();
           historySimTimer = null;
         }
         historySimRunning = false;
+        if (simEngine && simEngine._initialized) {
+          simEngine.pause();
+        }
         renderHistoryPhaseMapLayers();
       }
 
@@ -2790,9 +4737,11 @@ loadData();
         const phase = phases[currentHistoryPhaseIdx];
         renderHistoryPhaseTabs(currentHistoryPreset);
         renderHistoryStory(currentHistoryPreset);
-        clearHistoryPhaseMapLayers();
-        renderHistoryPhaseMapLayers();
-        focusHistoryPhase(phase, opts);
+        if (!(opts && opts.fromEngine)) {
+          clearHistoryPhaseMapLayers();
+          renderHistoryPhaseMapLayers();
+          focusHistoryPhase(phase, opts);
+        }
 
         if(opts.fetchEvents && currentHistoryPreset){
           const ctx = getHistoryFetchContext(currentHistoryPreset);
@@ -2948,10 +4897,13 @@ loadData();
 
         leafletRegionLayer = L.geoJSON(regionGeojson, {
           style: () => ({
-            color: '#ff3b3b',
-            weight: 1,
-            fillColor: '#ff3b3b',
-            fillOpacity: 0.35
+            color: '#f87171',
+            weight: 2.25,
+            opacity: 0.95,
+            fillColor: '#f87171',
+            fillOpacity: 0.14,
+            lineCap: 'round',
+            lineJoin: 'round'
           })
         }).addTo(leafletMap);
       }
@@ -2961,9 +4913,23 @@ loadData();
         if(typeof L === 'undefined') return;
 
         leafletMap = L.map('map2dCanvas', { worldCopyJump: true }).setView([20, 0], 2);
+        (function attachMapToneOverlay() {
+          try {
+            var c = leafletMap.getContainer();
+            if (!c || c.querySelector('.map-overlay')) return;
+            var ov = document.createElement('div');
+            ov.className = 'map-overlay';
+            ov.setAttribute('aria-hidden', 'true');
+            c.appendChild(ov);
+          } catch (e) {}
+        })();
+        if (typeof IRLEX_installBriefingArrowZoom === 'function') {
+          IRLEX_installBriefingArrowZoom(leafletMap);
+        }
 
         function themeToUrl(theme){
           switch(String(theme||'').toLowerCase()){
+            case 'military':
             case 'dark':
               return 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
             case 'gray':
@@ -2984,26 +4950,27 @@ loadData();
             attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
           }).addTo(leafletMap);
 
-          // Tema ile uyumlu arka plan (tile boşluklarında siyah görünmesin)
           const mapEl = document.getElementById('map2dCanvas');
-          if(mapEl){
-            const t = String(theme || '').toLowerCase();
-            if(t === 'dark'){
-              mapEl.style.background = '#0a0e1a';
+          const t = String(theme || '').toLowerCase();
+          if (mapEl) {
+            if(t === 'dark' || t === 'military'){
+              mapEl.style.background = '#121610';
             } else if(t === 'gray'){
               mapEl.style.background = '#e5e7eb';
             } else if(t === 'voyager'){
               mapEl.style.background = '#dbeafe';
             } else {
-              // light default
               mapEl.style.background = '#f3f4f6';
             }
+          }
+          if (leafletMap && leafletMap.getContainer) {
+            var c = leafletMap.getContainer();
+            c.classList.toggle('leaflet-tone-military', t === 'military' || t === 'dark');
           }
         }
 
         const themeSelect = document.getElementById('leafletTheme');
-        // Varsayılan: light (daha temiz/görünür)
-        const savedTheme = localStorage.getItem('IRL_leafletTheme') || 'light';
+        const savedTheme = localStorage.getItem('IRL_leafletTheme') || 'military';
         if(themeSelect) themeSelect.value = savedTheme;
         applyLeafletTheme(savedTheme);
 
@@ -3031,9 +4998,12 @@ loadData();
           if(worldGeojsonCache){
             leafletWorldLayer = L.geoJSON(worldGeojsonCache, {
               style: () => ({
-                color: 'rgba(160,190,255,0.35)',
-                weight: 0.6,
-                fillOpacity: 0
+                color: 'rgba(210,220,240,0.95)',
+                weight: 1.35,
+                opacity: 0.9,
+                fillOpacity: 0,
+                lineCap: 'round',
+                lineJoin: 'round'
               })
             }).addTo(leafletMap);
           }
@@ -3196,7 +5166,7 @@ loadData();
         if(activePhase && Array.isArray(activePhase.operations) && activePhase.operations.length > 0){
           html += '<div class="phase-panel-section"><h6>Askeri Harekatlar</h6>';
           activePhase.operations.forEach(function(op){
-            var actorColor = {'Egypt':'#22c55e','Syria':'#ef4444','Israel':'#3b82f6','UN':'#818cf8','US':'#f59e0b'}[op.actor] || '#f97316';
+            var actorColor = {'Egypt':'#22c55e','Syria':'#ef4444','Israel':'#3b82f6','UN':'#818cf8','US':'#f59e0b','USSR':'#dc2626'}[op.actor] || '#f97316';
             html += '<div style="display:flex;align-items:center;gap:6px;margin:4px 0;font-size:12px;color:#cddcf1">';
             html += '<span style="color:'+actorColor+';font-weight:700;min-width:8px">&#x2192;</span> ';
             html += escapeHtml(op.label || 'Harekat');
@@ -3257,6 +5227,9 @@ loadData();
             to: [Number(op.to[0]), Number(op.to[1])],
             label: op.label || '',
             actor: op.actor || '',
+            intensity: typeof op.intensity === 'number' ? op.intensity : 0.85,
+            lineKind: op.lineKind || null,
+            unitType: op.unitType || null,
             color: '#f97316'
           };
         });
@@ -3300,30 +5273,35 @@ loadData();
           ];
         }
 
-        return { polylines2d: polylines2d, areaPolygon2d: areaPolygon2d };
-      }
+        var portraitsOut = [];
+        if (phase && Array.isArray(phase.portraits)) {
+          phase.portraits.forEach(function(p) {
+            if (!p) return;
+            var la = Number(p.lat);
+            var lo = Number(p.lon);
+            if (!Number.isFinite(la) || !Number.isFinite(lo)) return;
+            portraitsOut.push({
+              lat: la,
+              lon: lo,
+              name: p.name || p.label || '',
+              role: p.role || '',
+              photo: p.photo || p.photoUrl || '',
+              photoCredit: p.photoCredit || ''
+            });
+          });
+        }
 
-      function buildLeafletArrowHead(from, to){
-        const dLat = to[0] - from[0];
-        const dLon = to[1] - from[1];
-        const len = Math.hypot(dLat, dLon);
-        if(!Number.isFinite(len) || len < 0.08) return null;
-        const ux = dLat / len;
-        const uy = dLon / len;
-        const headLen = Math.max(0.16, Math.min(0.85, len * 0.18));
-        const headWidth = Math.max(0.10, Math.min(0.52, len * 0.10));
-        const baseLat = to[0] - (ux * headLen);
-        const baseLon = to[1] - (uy * headLen);
-        const px = -uy;
-        const py = ux;
-        return [
-          [to[0], to[1]],
-          [baseLat + (px * headWidth), baseLon + (py * headWidth)],
-          [baseLat - (px * headWidth), baseLon - (py * headWidth)]
-        ];
+        return { polylines2d: polylines2d, areaPolygon2d: areaPolygon2d, portraits: portraitsOut };
       }
 
       function renderHistoryPhaseMapLayers(){
+        if (!simEngine || !simEngine._initialized) {
+          _renderHistoryPhaseMapLayersFallback();
+          return;
+        }
+      }
+
+      function _renderHistoryPhaseMapLayersFallback(){
         const phase = getActiveHistoryPhase();
         const visual = buildHistoryPhaseVisualData(phase);
 
@@ -3335,40 +5313,40 @@ loadData();
 
         const ACTOR_COLORS = {
           'Egypt': '#22c55e', 'Syria': '#ef4444', 'Israel': '#3b82f6',
-          'UN': '#818cf8', 'US': '#f59e0b'
+          'UN': '#818cf8', 'US': '#f59e0b', 'USSR': '#dc2626'
         };
         const COUNTRY_COLORS = {
-          'EGY': { fill: '#22c55e', stroke: '#16a34a' },
-          'SYR': { fill: '#ef4444', stroke: '#dc2626' },
-          'ISR': { fill: '#3b82f6', stroke: '#2563eb' }
+          'EGY': { fill: '#22c55e', stroke: '#15803d' },
+          'SYR': { fill: '#ef4444', stroke: '#b91c1c' },
+          'ISR': { fill: '#3b82f6', stroke: '#1d4ed8' },
+          'JOR': { fill: '#a78bfa', stroke: '#6d28d9' },
+          'LBN': { fill: '#f472b6', stroke: '#be185d' },
+          'TUR': { fill: '#fb923c', stroke: '#c2410c' },
+          'PSE': { fill: '#94a3b8', stroke: '#475569' }
         };
 
-        // Country borders highlight from world GeoJSON
         const activeCountries = phase && Array.isArray(phase.countries) ? phase.countries : [];
         if(worldGeojsonCache && activeCountries.length > 0){
-          const features = worldGeojsonCache.features || [];
+          var features = worldGeojsonCache.features || [];
           features.forEach(function(f){
             if(!f || !f.properties || !f.geometry) return;
-            const a3 = f.properties['ISO3166-1-Alpha-3'] || f.properties.iso_a3 || f.properties.ISO_A3 || f.properties.adm0_a3 || '';
-            if(!activeCountries.includes(a3)) return;
-            const cc = COUNTRY_COLORS[a3];
+            var a3 = f.properties['ISO3166-1-Alpha-3'] || f.properties.iso_a3 || f.properties.ISO_A3 || f.properties.adm0_a3 || '';
+            if(activeCountries.indexOf(a3) === -1) return;
+            var cc = COUNTRY_COLORS[a3];
             if(!cc) return;
             try {
               L.geoJSON(f, {
                 style: function(){ return {
-                  color: cc.stroke,
-                  weight: 2.5,
-                  fillColor: cc.fill,
-                  fillOpacity: 0.12,
-                  dashArray: null
+                  color: cc.stroke, weight: 3.2,
+                  fillColor: cc.fill, fillOpacity: 0.2,
+                  lineCap: 'round', lineJoin: 'round'
                 }; }
               }).addTo(leafletHistoryLayer);
             } catch(e){}
           });
         }
 
-        // Area mask
-        const area = Array.isArray(visual.areaPolygon2d) ? visual.areaPolygon2d : [];
+        var area = Array.isArray(visual.areaPolygon2d) ? visual.areaPolygon2d : [];
         if(area.length >= 3){
           var outer = [[85, -180], [85, 180], [-85, 180], [-85, -180]];
           L.polygon([outer, area], {
@@ -3377,7 +5355,6 @@ loadData();
           }).addTo(leafletHistoryLayer);
         }
 
-        // Front lines (dashed)
         var fronts = phase && Array.isArray(phase.fronts) ? phase.fronts : [];
         fronts.forEach(function(fr){
           if(!fr.points || fr.points.length < 2) return;
@@ -3396,51 +5373,91 @@ loadData();
           }).addTo(leafletHistoryLayer);
         });
 
-        // Operation arrows with actor colors
         visual.polylines2d.forEach(function(l){
           var a = l.from, b = l.to;
           var color = ACTOR_COLORS[l.actor] || '#f97316';
-          L.polyline([a, b], {
-            color: color, weight: 2.5, opacity: 0.92,
-            className: 'history-arrow-line'
-          }).addTo(leafletHistoryLayer);
-
-          var arrowHead = buildLeafletArrowHead(a, b);
-          if(arrowHead){
-            L.polygon(arrowHead, {
-              color: color, weight: 1, opacity: 0.95,
-              fillColor: color, fillOpacity: 0.9,
-              className: 'history-arrow-head'
-            }).addTo(leafletHistoryLayer);
+          var umH = IRLEX_flowUnitMode(l);
+          // Tip bazlı çizgi stilleri
+          var wHist = umH === 'plane' ? 2 : umH === 'soldier' ? 1.35 : 3.85;
+          var opHist = umH === 'soldier' ? 0.72 : umH === 'plane' ? 0.92 : 0.94;
+          // Uçak: kesintisiz ince çizgi; asker: noktalı; tank: kesik çizgi
+          var dArr = umH === 'plane' ? null : umH === 'soldier' ? '2 5' : '8 5';
+          var lineClass = 'history-arrow-line sim-flow-strike';
+          if (umH === 'plane') lineClass += ' irlex-flow-plane';
+          var histLine = L.polyline([a, b], {
+            color: color,
+            weight: wHist,
+            opacity: opHist,
+            dashArray: dArr,
+            className: lineClass
+          });
+          histLine.addTo(leafletHistoryLayer);
+          histLine.on('add', function() {
+            if (histLine._path) {
+              histLine._path.style.filter = 'none';
+              histLine._path.style.animation = 'none';
+            }
+          });
+          var histGuide = L.polyline([a, b], {
+            opacity: 0,
+            weight: 2,
+            interactive: false,
+            className: 'sim-flow-arrow-guide sim-flow-arrow-poly'
+          });
+          histGuide.addTo(leafletHistoryLayer);
+          var decHist = IRLEX_addFlowArrowDecorator(leafletMap, histGuide, leafletHistoryLayer);
+          if (!decHist) {
+            // Kendi SVG ikonlarını kullan (IRLEX_buildArrowDivIcon artık icons/ klasörünü kullanıyor)
+            var arrowM = IRLEX_createBriefingArrowMarker(leafletMap, a, b, color, umH);
+            if (arrowM) arrowM.addTo(leafletHistoryLayer);
           }
-
           if(l.label){
             var midLat = (a[0]+b[0])/2, midLon = (a[1]+b[1])/2;
+            var actEsc = l.actor ? escapeHtml(String(l.actor)) : '';
+            var labEsc = escapeHtml(l.label);
+            var innerHist =
+              '<span class="irlex-map-label" style="border-color:' + color + '66">' +
+              (actEsc ? '<span class="irlex-map-label-actor" style="color:' + color + '">' + actEsc + '</span>' : '') +
+              '<span class="irlex-map-label-title">' + labEsc + '</span></span>';
             L.marker([midLat, midLon], {
               icon: L.divIcon({
                 className: 'history-label',
-                html: '<span style="background:rgba(10,14,26,0.88);color:'+color+';padding:2px 8px;border-radius:4px;font-size:11px;font-family:monospace;white-space:nowrap;border:1px solid '+color+'40">' + l.label + '</span>',
+                html: innerHist,
                 iconSize: [0,0], iconAnchor: [0,16]
               }), interactive: false
             }).addTo(leafletHistoryLayer);
           }
         });
 
-        // Military unit markers
         var units = phase && Array.isArray(phase.units) ? phase.units : [];
         units.forEach(function(u){
           var sz = u.size === 'large' ? 22 : (u.size === 'medium' ? 16 : 12);
           var icon = L.divIcon({
             className: 'unit-marker',
             html: '<div class="unit-marker" data-country="'+(u.country||'')+'" style="width:'+sz+'px;height:'+sz+'px" title="'+escapeHtml(u.label||'')+'"></div>',
-            iconSize: [sz, sz],
-            iconAnchor: [sz/2, sz/2]
+            iconSize: [sz, sz], iconAnchor: [sz/2, sz/2]
           });
           var m = L.marker([Number(u.lat), Number(u.lon)], { icon: icon });
           m.bindTooltip(escapeHtml(u.label||''), {
             className: 'unit-tooltip', direction: 'top', offset: [0, -sz/2-4]
           });
           m.addTo(leafletHistoryLayer);
+        });
+
+        var portraitsV = Array.isArray(visual.portraits) ? visual.portraits : [];
+        portraitsV.forEach(function(p) {
+          var html = IRLEX_buildPortraitPinHtml(p.photo, p.name, p.role);
+          var icon = L.divIcon({
+            className: 'irlex-portrait-marker',
+            html: html,
+            iconSize: [76, 102],
+            iconAnchor: [38, 102]
+          });
+          var pm = L.marker([p.lat, p.lon], { icon: icon, interactive: true, zIndexOffset: 900 });
+          var tip = (p.name || '') + (p.role ? ' — ' + p.role : '');
+          if (p.photoCredit) tip += ' · ' + p.photoCredit;
+          pm.bindTooltip(tip, { direction: 'top', className: 'unit-tooltip', offset: [0, -96] });
+          pm.addTo(leafletHistoryLayer);
         });
       }
 
@@ -3530,17 +5547,34 @@ loadData();
         stopHistorySimulation();
         currentHistoryPreset = preset;
         currentHistoryPhaseIdx = getDefaultHistoryPhaseIdx(preset, key);
+        var titleEl = document.getElementById('historyPresetTitle');
+        var subEl = document.getElementById('historyPresetSubtitle');
+        if (titleEl && preset.title) titleEl.textContent = preset.title;
+        if (subEl) {
+          subEl.textContent = preset.panelSubtitle || (preset.date ? preset.date + ' — Tarihsel simülasyon' : '');
+        }
         if(activeRegionKey !== 'mideast') setActiveRegion('mideast');
         dateInput.value = preset.date;
         setSelection(preset.lat, preset.lon);
         updateEventsBtn();
         await ensureLeafletMap();
+        if (simEngine && simEngine._initialized) {
+          simEngine.pause();
+          simEngine.loadPreset(preset);
+          simEngine.seekToPhase(currentHistoryPhaseIdx);
+        }
         selectHistoryPhase(currentHistoryPhaseIdx, { fetchEvents: true, syncDate: false });
+      }
+
+      if (historyPreset) {
+        historyPreset.addEventListener('change', function () {
+          applyHistoryPreset();
+        });
       }
 
       if(eventsBtn) eventsBtn.addEventListener('click', fetchRecentMiddleEastEvents);
 
-      // Yom Kippur otomatik yukle
+      // Yom Kippur otomatik yukle + cinematic engine init
       (async function autoLoadYomKippur(){
         if(!historyPreset) return;
         historyPreset.value = 'yom-kippur';
@@ -3552,12 +5586,66 @@ loadData();
         dateInput.value = preset.date;
         setSelection(preset.lat, preset.lon);
         await ensureLeafletMap();
+
+        try {
+          if (typeof window.__SimEngine === 'function' && leafletMap) {
+            simEngine = new window.__SimEngine();
+            simEngine.init(leafletMap, worldGeojsonCache, function(idx, opts) {
+              if (opts && opts.fromEngine) {
+                currentHistoryPhaseIdx = idx;
+                renderHistoryPhaseTabs(currentHistoryPreset);
+                renderHistoryStory(currentHistoryPreset);
+                var phase = getActiveHistoryPhase();
+                var win = phase && phase.eventWindow ? phase.eventWindow : null;
+                if(win && isIsoDateString(win.end) && dateInput){
+                  dateInput.value = win.end;
+                  updateEventsBtn();
+                }
+                if(historySimNote){
+                  var phases = getPresetPhases(currentHistoryPreset);
+                  var phaseName = phase ? phase.title : ('Faz ' + (idx+1));
+                  historySimNote.textContent = phaseName + ' (' + (idx+1) + '/' + phases.length + ')';
+                }
+                if(opts.fetchEvents && currentHistoryPreset){
+                  var ctx = getHistoryFetchContext(currentHistoryPreset);
+                  fetchRecentMiddleEastEvents({
+                    preset: currentHistoryPreset,
+                    phase: ctx.phase,
+                    query: ctx.query || currentHistoryPreset.query,
+                    startDate: ctx.startDate,
+                    endDate: ctx.endDate || currentHistoryPreset.date,
+                    lookbackDays: ctx.lookbackDays,
+                    noteEl: historyNote
+                  });
+                }
+              }
+            });
+            simEngine._onPlayStateChange = function(isPlaying) {
+              historySimRunning = isPlaying;
+              if (historySimPlayBtn) historySimPlayBtn.textContent = isPlaying ? 'Duraklat' : 'Oynat';
+            };
+            simEngine._onComplete = function() {
+              historySimRunning = false;
+              if (historySimPlayBtn) historySimPlayBtn.textContent = 'Oynat';
+              if (historySimNote) historySimNote.textContent = 'Similasyon tamamlandi.';
+            };
+            simEngine.loadPreset(preset);
+            simEngine.seekToPhase(currentHistoryPhaseIdx);
+          }
+        } catch(engineErr) {
+          console.warn('SimEngine init failed, using fallback:', engineErr);
+        }
+
         selectHistoryPhase(currentHistoryPhaseIdx, { fetchEvents: true, syncDate: false });
       })();
 
-      // Oynat / Duraklat toggle
+      // Oynat/Duraklat: delegates to engine if available, fallback to old setInterval
       if(historySimPlayBtn){
         historySimPlayBtn.addEventListener('click', () => {
+          if (simEngine && simEngine._initialized) {
+            simEngine.toggle();
+            return;
+          }
           if(historySimRunning){
             stopHistorySimulation();
             historySimPlayBtn.textContent = 'Oynat';
@@ -3576,16 +5664,10 @@ loadData();
           historySimPlayBtn.textContent = 'Duraklat';
           const firstIdx = (currentHistoryPhaseIdx + 1) % phases.length;
           selectHistoryPhase(firstIdx, { fetchEvents: true });
-          if(historySimNote){
-            historySimNote.textContent = `Similasyon: ${currentHistoryPhaseIdx + 1} / ${phases.length}`;
-          }
           historySimTimer = setInterval(() => {
             const p = getPresetPhases(currentHistoryPreset);
             const nextIdx = (currentHistoryPhaseIdx + 1) % p.length;
             selectHistoryPhase(nextIdx, { fetchEvents: true });
-            if(historySimNote){
-              historySimNote.textContent = `Similasyon: ${nextIdx + 1} / ${p.length}`;
-            }
             if(nextIdx === p.length - 1){
               stopHistorySimulation();
               historySimPlayBtn.textContent = 'Oynat';
