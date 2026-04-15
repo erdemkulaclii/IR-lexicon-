@@ -2,10 +2,17 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>IR Lexicon — Uluslararası İlişkiler Kelime Ezber</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --irlex-break-mobile:768px;
+  --irlex-safe-top:env(safe-area-inset-top,0px);
+  --irlex-safe-right:env(safe-area-inset-right,0px);
+  --irlex-safe-bottom:env(safe-area-inset-bottom,0px);
+  --irlex-safe-left:env(safe-area-inset-left,0px);
+}
 body{background:#0a0e1a;color:#e8e4d9;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;}
 .app{max-width:880px;margin:0 auto;padding:0 16px 60px;}
 header{display:flex;align-items:center;justify-content:space-between;padding:24px 0 26px;border-bottom:1px solid #1e2d47;margin-bottom:26px;flex-wrap:wrap;gap:12px;}
@@ -22,8 +29,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:24p
 .panel.active{display:block;animation:fadeIn .25s ease;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .card{background:#111827;border:1px solid #1e2d47;border-radius:14px;padding:26px 24px;margin-bottom:18px;}
-.home-map body{}
-/* Globe as fullscreen home */
+/* Globe as fullscreen home (masaüstü); mobil düzen aşağıdaki @media ile */
 body.globe-home{overflow:hidden;}
 body.globe-home .app{max-width:none;margin:0;padding:0;}
 body.globe-home header{position:fixed;left:0;right:0;top:0;z-index:5000;margin:0;padding:14px 16px;background:rgba(10,14,26,0.70);backdrop-filter:blur(6px);border-bottom:1px solid rgba(30,45,71,0.7);}
@@ -117,6 +123,14 @@ input::placeholder{color:#6b7a96;}
 .word-list::-webkit-scrollbar-thumb{background:#1e2d47;border-radius:2px;}
 .word-item{background:#111827;border:1px solid #1e2d47;border-radius:10px;padding:11px 14px;display:flex;align-items:flex-start;gap:10px;transition:border-color .2s;}
 .word-item:hover{border-color:#c8a96e;}
+.word-item.best-match{border-color:rgba(200,169,110,.85);box-shadow:0 0 0 1px rgba(200,169,110,.35);}
+.search-hit{background:rgba(200,169,110,.28);color:#f5f0e6;border-radius:3px;padding:0 3px;}
+.search-best-label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-family:monospace;color:#c8a96e;margin-bottom:6px;}
+.did-you-mean{padding:12px 14px;margin-bottom:12px;background:#111827;border:1px solid #1e2d47;border-radius:10px;font-size:12px;color:#9bb9df;line-height:1.5;}
+.did-you-mean strong{color:#c8a96e;font-weight:600;}
+.did-you-mean .dym-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.did-you-mean button{padding:6px 12px;font-size:11px;font-family:monospace;border-radius:6px;border:1px solid #2d3f5c;background:#0a0e1a;color:#c8a96e;cursor:pointer;}
+.did-you-mean button:hover{border-color:#c8a96e;}
 .mastery-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:6px;}
 .m0{background:#6b7a96}.m1{background:#f87171}.m2{background:#fbbf24}.m3{background:#4ade80}
 .word-main{flex:1;min-width:0;}
@@ -128,6 +142,10 @@ input::placeholder{color:#6b7a96;}
 .word-example .ex-tr::before{content:"↳ ";color:#4a9eff;font-size:10px;}
 .word-example .ex-en .hl{color:#4a9eff;font-weight:700;font-style:normal;}
 .word-example .ex-tr .hl{color:#c8a96e;font-weight:700;}
+.word-desc{margin-top:10px;padding:10px 12px;background:rgba(10,14,26,.55);border:1px solid #243352;border-radius:8px;font-size:12px;line-height:1.55;}
+.word-desc .word-desc-label{font-size:9px;letter-spacing:1.2px;text-transform:uppercase;font-family:monospace;color:#6b7a96;margin-bottom:6px;}
+.word-desc .word-desc-en{color:#c8d8e8;}
+.word-desc .word-desc-tr{color:#9a8b6e;font-size:11px;margin-top:6px;padding-top:6px;border-top:1px solid rgba(30,45,71,.6);}
 .ex-generate-btn{margin-top:7px;background:none;border:1px dashed #2a3f5f;border-radius:6px;color:#4a6a8a;font-size:11px;font-family:monospace;padding:5px 10px;cursor:pointer;transition:all .2s;width:100%;}
 .ex-generate-btn:hover{border-color:#4a9eff;color:#4a9eff;background:rgba(74,158,255,.05);}
 .ex-loading{margin-top:7px;font-size:11px;color:#4a6a8a;font-family:monospace;padding:5px 0;display:flex;align-items:center;gap:8px;}
@@ -351,6 +369,23 @@ input::placeholder{color:#6b7a96;}
   border-radius:50%;
   background:linear-gradient(145deg,#2a2435,#1a1520);
 }
+/* Pulse ring — katliam/yüksek yoğunluklu olay noktaları */
+.irlex-pulse-marker{background:none!important;border:none!important;pointer-events:none!important;}
+.irlex-pulse-ring{
+  position:absolute;
+  left:0;top:0;
+  width:36px;height:36px;
+  border-radius:50%;
+  border:2.5px solid #ef4444;
+  box-shadow:0 0 10px rgba(239,68,68,0.5);
+  animation:irlexPulseRing 1.6s ease-out infinite;
+  opacity:0.85;
+}
+@keyframes irlexPulseRing{
+  0%{transform:scale(0.6);opacity:0.9;}
+  60%{transform:scale(1.8);opacity:0.25;}
+  100%{transform:scale(2.4);opacity:0;}
+}
 .irlex-portrait-crown{
   position:absolute;
   top:-2px;
@@ -441,22 +476,95 @@ input::placeholder{color:#6b7a96;}
   line-height:1.6;
 }
 
-@media(max-width:600px){
+/* Mobil / tablet dar: 768px ve altı — PC için varsayılan stiller yukarıda kalır */
+@media (max-width:768px){
+  .app{
+    padding-left:max(12px,var(--irlex-safe-left));
+    padding-right:max(12px,var(--irlex-safe-right));
+    padding-bottom:max(48px,var(--irlex-safe-bottom));
+  }
+  body.globe-home .app{padding-left:0;padding-right:0;padding-bottom:0;}
+  .logo-main{font-size:22px;}
+  .logo-sub{letter-spacing:2px;font-size:9px;}
+  .stats-bar{justify-content:center;width:100%;gap:16px;}
+  .stat-num{font-size:18px;}
+  .tabs{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    flex-wrap:nowrap;
+    gap:6px;
+    scrollbar-width:none;
+  }
+  .tabs::-webkit-scrollbar{display:none;height:0;}
+  .tab{
+    flex:0 0 auto;
+    padding:10px 12px;
+    min-height:44px;
+    font-size:10px;
+  }
+  .card{padding:18px 16px;}
+  .card-title{font-size:16px;}
+  .quiz-card{padding:28px 16px;}
   .quiz-word{font-size:26px;}
+  .results-score{font-size:52px;}
+  .results-row{flex-direction:column;gap:16px;align-items:center;}
   .mode-row{flex-direction:column;}
-  .ai-en{flex:0 0 140px;}
-  header{flex-direction:column;text-align:center;}
+  .ai-en{flex:1 1 100%;}
+  .ai-item{flex-wrap:wrap;}
+  .list-controls{flex-direction:column;}
+  .list-controls input{min-width:0;width:100%;}
+  .word-list{max-height:min(480px,50vh);}
+  .notif{
+    left:max(12px,var(--irlex-safe-left));
+    right:max(12px,var(--irlex-safe-right));
+    bottom:max(16px,var(--irlex-safe-bottom));
+    max-width:none;
+  }
+  header{
+    flex-direction:column;
+    text-align:center;
+    padding-top:max(12px,var(--irlex-safe-top));
+    padding-left:max(12px,var(--irlex-safe-left));
+    padding-right:max(12px,var(--irlex-safe-right));
+  }
+  body.globe-home header{
+    padding-left:max(12px,var(--irlex-safe-left));
+    padding-right:max(12px,var(--irlex-safe-right));
+    padding-top:max(10px,var(--irlex-safe-top));
+  }
+  body.globe-home .tabs{
+    left:max(12px,var(--irlex-safe-left));
+    right:max(12px,var(--irlex-safe-right));
+  }
   .globe-layout{grid-template-columns:1fr;}
-  .map-stack{height:520px;}
+  .map-stack{height:min(520px,58vh);}
   #map2dCanvas{min-height:240px;}
   body.globe-home .globe-side{
-    left:10px;
-    right:10px;
+    left:max(8px,var(--irlex-safe-left));
+    right:max(8px,var(--irlex-safe-right));
     width:auto;
     top:auto;
-    bottom:10px;
-    max-height:48vh;
+    bottom:max(8px,var(--irlex-safe-bottom));
+    max-height:min(48vh,360px);
+    border-radius:12px 12px 0 0;
   }
+  body.globe-home .sim-timeline-bar.timeline-container,
+  body.globe-home .sim-timeline-bar{
+    left:max(10px,var(--irlex-safe-left));
+    right:max(10px,var(--irlex-safe-right));
+    bottom:calc(max(10px,var(--irlex-safe-bottom)) + min(48vh,360px) + 8px);
+    flex-wrap:wrap;
+    gap:8px;
+    padding:8px 10px;
+  }
+  .sim-play-btn{width:44px;height:44px;font-size:18px;}
+  .sim-slider::-webkit-slider-thumb{width:18px;height:18px;}
+  .sim-slider::-moz-range-thumb{width:18px;height:18px;}
+  .region-tab{padding:10px 12px;}
+  .history-phase-btn{padding:8px 12px;min-height:40px;}
+  .irlex-portrait-pin{width:64px;}
+  .irlex-portrait-ring{width:48px;height:48px;}
+  .irlex-portrait-crown{width:18px;height:11px;margin-left:-9px;}
 }
 
 /* Region tabs (Orta Dogu, Asya...) */
@@ -540,19 +648,22 @@ input::placeholder{color:#6b7a96;}
 }
 .history-phase-tabs{
   display:flex;
-  gap:6px;
+  gap:4px;
   flex-wrap:wrap;
   margin-top:10px;
+  overflow-x:auto;
 }
 .history-phase-btn{
   border:1px solid #2a3f5f;
   background:#0a0e1a;
   color:#9bb9df;
   border-radius:999px;
-  padding:6px 10px;
+  padding:5px 9px;
   font-family:monospace;
-  font-size:11px;
+  font-size:10px;
   cursor:pointer;
+  white-space:nowrap;
+  flex-shrink:0;
 }
 .history-phase-btn.active{
   border-color:rgba(74,158,255,0.65);
@@ -590,6 +701,7 @@ input::placeholder{color:#6b7a96;}
 .unit-marker[data-country="SYR"]{background:rgba(200,50,50,0.85);border-color:#ef4444;}
 .unit-marker[data-country="ISR"]{background:rgba(0,100,200,0.85);border-color:#3b82f6;}
 .unit-marker[data-country="UN"]{background:rgba(100,100,200,0.85);border-color:#818cf8;}
+.unit-marker[data-country="TUR"]{background:rgba(220,30,30,0.88);border-color:#e11d48;}
 .unit-tooltip{
   background:rgba(10,14,26,0.92);color:#e8e4d9;
   padding:6px 10px;border-radius:6px;font-size:11px;font-family:monospace;
@@ -598,6 +710,12 @@ input::placeholder{color:#6b7a96;}
 .phase-panel{
   background:#111827;border:1px solid #1e2d47;border-radius:10px;
   padding:12px;margin-top:8px;
+  max-height:none;
+  overflow:visible;
+}
+.history-story{
+  overflow-y:auto;
+  max-height:none;
 }
 .phase-panel h5{color:#c8a96e;font-family:Georgia,serif;font-size:14px;margin:0 0 8px 0;}
 .phase-panel-section{margin-top:10px;padding-top:8px;border-top:1px solid #1e2d47;}
@@ -638,7 +756,7 @@ body.dragging .info-panel{
   pointer-events:none;
 }
 
-/* Globe-home: sidebar is fixed z-index 6000 over the map; lift timeline into map band */
+/* Masaüstü: timeline harita bandında (yan panelin sağında). Mobil: yukarıdaki @media (768px) */
 body.globe-home .sim-timeline-bar.timeline-container,
 body.globe-home .sim-timeline-bar{
   position:fixed;
@@ -647,12 +765,20 @@ body.globe-home .sim-timeline-bar{
   bottom:16px;
   z-index:10000;
 }
-@media(max-width:600px){
+@media (min-width:769px){
+  body.globe-home header{
+    padding-left:max(16px,var(--irlex-safe-left));
+    padding-right:max(16px,var(--irlex-safe-right));
+    padding-top:max(14px,var(--irlex-safe-top));
+  }
+  body.globe-home .tabs{
+    left:max(16px,var(--irlex-safe-left));
+    right:max(16px,var(--irlex-safe-right));
+  }
   body.globe-home .sim-timeline-bar.timeline-container,
   body.globe-home .sim-timeline-bar{
-    left:10px;
-    right:10px;
-    bottom:calc(18px + 48vh);
+    right:max(16px,var(--irlex-safe-right));
+    bottom:max(16px,var(--irlex-safe-bottom));
   }
 }
 .sim-play-btn{
@@ -845,7 +971,7 @@ body.dragging .sim-tooltip{opacity:0!important;visibility:hidden!important;}
   <!-- LIST -->
   <div class="panel" id="tab-list">
     <div class="list-controls">
-      <input type="text" id="searchInput" placeholder="Kelime ara..." oninput="renderList()">
+      <input type="text" id="searchInput" placeholder="Cümle veya anahtar kelime ara..." oninput="renderList()">
       <select id="catFilter" onchange="renderList()">
         <option value="">Tüm Kategoriler</option>
         <option>Temel Kavramlar</option><option>Diplomasi</option><option>Güvenlik</option>
@@ -975,6 +1101,7 @@ body.dragging .sim-tooltip{opacity:0!important;visibility:hidden!important;}
             <option value="yom-kippur" selected>Yom Kippur (1973)</option>
             <option value="six-day-war-1967">Altı Gün Savaşı (1967)</option>
             <option value="arab-israeli-wars">Arap-İsrail zaman çizelgesi (1948–1973)</option>
+            <option value="turkey-left-right">🇹🇷 Türkiye Sağ-Sol Çatışması (1960–1980)</option>
           </select>
           <div class="sim-briefing-panel" id="simBriefingPanel">
             <div class="sim-briefing-kicker">Operational picture</div>
@@ -1035,6 +1162,7 @@ body.dragging .sim-tooltip{opacity:0!important;visibility:hidden!important;}
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
 <script>
 // ─── DATA ────────────────────────────────────────────────────────────────────
 const DEFAULT = [
@@ -1067,6 +1195,7 @@ const DEFAULT = [
   {en:"Nation-state",tr:"Ulus-Devlet",cat:"Temel Kavramlar"},
   {en:"Nationalism",tr:"Milliyetçilik",cat:"Temel Kavramlar"},
   {en:"Globalization",tr:"Küreselleşme",cat:"Ekonomi"},
+  {en:"International Political Economy",tr:"Uluslararası Politik Ekonomi (IPE)",cat:"Ekonomi",tags:["ipe","global economy","international trade","states and economy","economic relations","politics economy","uluslararası politik ekonomi"]},
   {en:"Interdependence",tr:"Karşılıklı Bağımlılık",cat:"Ekonomi"},
   {en:"Collective Security",tr:"Kolektif Güvenlik",cat:"Güvenlik"},
   {en:"Human Rights",tr:"İnsan Hakları",cat:"Uluslararası Hukuk"},
@@ -1677,44 +1806,162 @@ const DIPLOMACY_POOL = [
 // ─── STORAGE ─────────────────────────────────────────────────────────────────
 const STORAGE_KEY = 'ir_lexicon_v1';
 
-function loadData() {
-  try {
-    const s = localStorage.getItem(STORAGE_KEY);
-    if (s) {
-      const parsed = JSON.parse(s);
-      // Güvenlik: geçerli bir dizi mi kontrol et
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        words = parsed;
-      } else {
-        words = DEFAULT.map(w=>({...w,mastery:0,attempts:0,correct:0}));
-        saveData();
-      }
-    } else {
-      // İlk kez açılıyor — eski key'den migrate et
-      const legacy = localStorage.getItem('ir_words_v3');
-      if (legacy) {
-        try {
-          const old = JSON.parse(legacy);
-          if (Array.isArray(old) && old.length > 0) {
-            words = old;
-            saveData(); // Yeni key'e kaydet
-            notify('Kelimeleriniz yeni sisteme aktarıldı ✓','success');
-          } else {
-            words = DEFAULT.map(w=>({...w,mastery:0,attempts:0,correct:0}));
-            saveData();
-          }
-        } catch {
-          words = DEFAULT.map(w=>({...w,mastery:0,attempts:0,correct:0}));
-          saveData();
-        }
-      } else {
-        words = DEFAULT.map(w=>({...w,mastery:0,attempts:0,correct:0}));
-        saveData();
-      }
-    }
-  } catch {
-    words = DEFAULT.map(w=>({...w,mastery:0,attempts:0,correct:0}));
+function normEnKey(en) {
+  return String(en || '').trim().toLowerCase();
+}
+
+/** lexicon.json satırını uygulama kelime nesnesine çevirir (cat = topic). */
+function lexiconRowToWord(row) {
+  const topic = String(row.topic || 'Genel IR').trim() || 'Genel IR';
+  return {
+    en: String(row.en || '').trim(),
+    tr: String(row.tr || '').trim(),
+    cat: topic,
+    topic,
+    sub_topic: String(row.sub_topic || '').trim(),
+    desc_tr: String(row.desc_tr || '').trim(),
+    desc_en: String(row.desc_en || '').trim(),
+  };
+}
+
+function defaultEmbedToWord(w) {
+  return {
+    ...w,
+    topic: w.topic || w.cat || '',
+    sub_topic: w.sub_topic || '',
+    desc_tr: w.desc_tr || '',
+    desc_en: w.desc_en || '',
+  };
+}
+
+async function fetchLexiconJson() {
+  if (typeof location !== 'undefined' && location && location.protocol === 'file:') {
+    return null;
   }
+  try {
+    const r = await fetch('lexicon.json', { cache: 'no-store' });
+    if (!r.ok) throw new Error(String(r.status));
+    const data = await r.json();
+    return Array.isArray(data) ? data : null;
+  } catch (e) {
+    console.warn('lexicon.json yüklenemedi (HTTP sunucusu gerekli olabilir), gömülü liste kullanılıyor:', e);
+    return null;
+  }
+}
+
+function buildBaseWordListFromLexiconOrDefault(lexRows) {
+  if (lexRows && lexRows.length) {
+    return lexRows.map(lexiconRowToWord).filter(w => w.en);
+  }
+  return DEFAULT.map(defaultEmbedToWord);
+}
+
+/** Önce lexicon tabanı; localStorage ile en üzerinden birleşir, eski/ek kelimeler korunur. */
+function mergeWordsWithStorage(baseList, storedRaw) {
+  const withProgress = (b, s) => ({
+    ...b,
+    mastery: s.mastery || 0,
+    attempts: s.attempts || 0,
+    correct: s.correct || 0,
+  });
+  let saved = [];
+  try {
+    if (storedRaw) {
+      const parsed = JSON.parse(storedRaw);
+      if (Array.isArray(parsed) && parsed.length) saved = parsed;
+    }
+  } catch (_) {}
+  const byEn = new Map(saved.map(w => [normEnKey(w.en), w]));
+  const baseKeys = new Set(baseList.map(w => normEnKey(w.en)));
+  const merged = baseList.map(b => {
+    const s = byEn.get(normEnKey(b.en));
+    return s ? withProgress(b, s) : { ...b, mastery: 0, attempts: 0, correct: 0 };
+  });
+  for (const s of saved) {
+    if (!baseKeys.has(normEnKey(s.en))) merged.push(s);
+  }
+  return merged;
+}
+
+const TOPIC_QUERY_ALIASES = {
+  upe: 'UPE',
+  ipe: 'UPE',
+  'international political economy': 'UPE',
+  'uluslararasi politik ekonomi': 'UPE',
+  'uluslararası politik ekonomi': 'UPE',
+  'political economy': 'UPE',
+};
+
+function getDistinctTopicsFromWords() {
+  return [...new Set(words.map(w => w.cat || w.topic).filter(Boolean))];
+}
+
+/** Sorgu yalnızca bir konu adı/alias ise ilgili topic anahtarını döndürür. */
+function resolveTopicOnlyQuery(rawQuery) {
+  const q = (rawQuery || '').trim();
+  if (!q) return null;
+  const n = normalize(q);
+  if (n.split(/\s+/).length > 6) return null;
+  if (TOPIC_QUERY_ALIASES[n]) return TOPIC_QUERY_ALIASES[n];
+  const topics = getDistinctTopicsFromWords();
+  for (const t of topics) {
+    if (normalize(t) === n) return t;
+  }
+  return null;
+}
+
+function populateTopicFilter() {
+  const sel = document.getElementById('catFilter');
+  if (!sel) return;
+  const cur = sel.value;
+  sel.textContent = '';
+  const opt0 = document.createElement('option');
+  opt0.value = '';
+  opt0.textContent = 'Tüm Kategoriler';
+  sel.appendChild(opt0);
+  const topics = getDistinctTopicsFromWords().sort((a, b) => a.localeCompare(b, 'tr'));
+  topics.forEach(t => {
+    const o = document.createElement('option');
+    o.value = t;
+    o.textContent = t;
+    sel.appendChild(o);
+  });
+  if ([...sel.options].some(o => o.value === cur)) sel.value = cur;
+}
+
+async function loadData() {
+  const lexRows = await fetchLexiconJson();
+  const baseList = buildBaseWordListFromLexiconOrDefault(lexRows);
+  let stored = null;
+  try {
+    stored = localStorage.getItem(STORAGE_KEY);
+  } catch (_) {}
+  if (!stored) {
+    const legacy = localStorage.getItem('ir_words_v3');
+    if (legacy) {
+      try {
+        const old = JSON.parse(legacy);
+        if (Array.isArray(old) && old.length > 0) {
+          stored = legacy;
+          try {
+            localStorage.setItem(STORAGE_KEY, legacy);
+            notify('Kelimeleriniz yeni sisteme aktarıldı ✓', 'success');
+          } catch (_) {}
+        }
+      } catch (_) {}
+    }
+  }
+  words = mergeWordsWithStorage(baseList, stored);
+  if (!words.length) {
+    words = DEFAULT.map(w => ({ ...defaultEmbedToWord(w), mastery: 0, attempts: 0, correct: 0 }));
+    saveData();
+  } else {
+    try {
+      saveData();
+    } catch (_) {}
+  }
+  invalidateIrlexSearchCache();
+  populateTopicFilter();
   updateStats();
   startQuiz();
   renderList();
@@ -1726,9 +1973,208 @@ function saveData() {
   } catch(e) {
     console.warn('Kayıt hatası:', e);
   }
+  invalidateIrlexSearchCache();
 }
 
+// ─── SMART SEARCH (cümle + anlam; tamamen istemci tarafı) ─────────────────────
+let irlexFuseCache = null;
+function invalidateIrlexSearchCache() { irlexFuseCache = null; }
 
+function irlexEscapeHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function irlexEscapeRe(s) { return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+function stripMarkdownLight(s) { return String(s||'').replace(/\*\*/g,'').trim(); }
+
+function normalize(text) {
+  return String(text||'')
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s]/gu,' ')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+function tokenize(text) {
+  return normalize(text).split(' ').filter(w => w.length > 2);
+}
+const SEARCH_SYNONYMS = {
+  economy:['economic','trade','finance','ekonomi'],
+  ekonomi:['economic','economy','trade'],
+  politics:['government','state','political','siyaset'],
+  political:['politics','government'],
+  siyaset:['politics','political'],
+  global:['international','world','küresel','uluslararası'],
+  küresel:['global','international','world'],
+  uluslararası:['international','global','world'],
+  war:['conflict','battle','savaş','warfare'],
+  savaş:['war','conflict'],
+  relations:['relationship','diplomatic','ilişki'],
+  ilişki:['relations','relationship'],
+  state:['government','states','devlet'],
+  states:['state','government'],
+  devlet:['state','government'],
+  trade:['commerce','ticaret','economic'],
+  ticaret:['trade','commerce'],
+  international:['global','world','uluslararası'],
+  world:['global','international'],
+};
+function expandWords(wordsArr) {
+  let expanded = [...wordsArr];
+  wordsArr.forEach(w => {
+    const t = normalize(w).split(/\s+/).filter(Boolean)[0];
+    if (t && SEARCH_SYNONYMS[t]) expanded.push(...SEARCH_SYNONYMS[t]);
+  });
+  return [...new Set(expanded.map(x => normalize(String(x)).trim()).filter(Boolean))];
+}
+function wordToSearchItem(w) {
+  const title = w.en || '';
+  const tags = Array.isArray(w.tags) ? w.tags : [];
+  const ex = stripMarkdownLight(w.example||'');
+  const exTr = stripMarkdownLight(w.example_tr||'');
+  const descTr = String(w.desc_tr || '').trim();
+  const descEn = String(w.desc_en || '').trim();
+  const sub = String(w.sub_topic || '').trim();
+  const top = String(w.topic || w.cat || '').trim();
+  const content = [w.tr||'', tags.join(' '), ex, exTr, descTr, descEn, top, sub, w.cat||''].filter(Boolean).join(' ');
+  const kw = new Set();
+  tags.forEach(t => kw.add(String(t)));
+  if (w.tr) {
+    kw.add(w.tr);
+    normalize(w.tr).split(/\s+/).forEach(p => { if (p.length > 2) kw.add(p); });
+  }
+  kw.add(title);
+  normalize(title).split(/\s+/).forEach(p => { if (p.length > 2) kw.add(p); });
+  if (w.cat) kw.add(w.cat);
+  if (top) {
+    kw.add(top);
+    normalize(top).split(/\s+/).forEach(p => { if (p.length > 2) kw.add(p); });
+  }
+  if (sub) {
+    kw.add(sub);
+    normalize(sub).split(/\s+/).forEach(p => { if (p.length > 2) kw.add(p); });
+  }
+  if (descTr) {
+    kw.add(descTr);
+    normalize(descTr).split(/\s+/).forEach(p => { if (p.length > 2) kw.add(p); });
+  }
+  if (descEn) {
+    kw.add(descEn);
+    normalize(descEn).split(/\s+/).forEach(p => { if (p.length > 2) kw.add(p); });
+  }
+  const item = { title, keywords:[...kw], content };
+  [...item.keywords].forEach(k => {
+    normalize(String(k)).split(/\s+/).forEach(part => {
+      if (part.length > 2) item.keywords.push(part);
+    });
+  });
+  item.keywords = [...new Set(item.keywords)];
+  return item;
+}
+function getScore(item, queryWords, fullQuery, singleUserWord) {
+  let score = 0;
+  const nt = normalize(item.title);
+  const nc = normalize(item.content);
+  if (nt === fullQuery) score += 100;
+  const oneTok = (singleUserWord && singleUserWord.length > 2) ? singleUserWord : (queryWords.length === 1 && queryWords[0] && queryWords[0].length > 2 ? queryWords[0] : null);
+  if (oneTok) {
+    if (nt.includes(oneTok)) score += 40;
+    if (item.keywords.some(k => normalize(k).includes(oneTok))) score += 30;
+  }
+  queryWords.forEach(word => {
+    if (word.length < 2) return;
+    if (nt.includes(word)) score += 15;
+    if (item.keywords.some(k => normalize(k).includes(word))) score += 10;
+    if (nc.includes(word)) score += 4;
+  });
+  if (fullQuery.length >= 3 && nt.includes(fullQuery)) score += 80;
+  if (fullQuery.length >= 4 && nc.includes(fullQuery)) score += 25;
+  return score;
+}
+function getIrlexFuse() {
+  if (typeof Fuse === 'undefined' || !words.length) return null;
+  if (!irlexFuseCache || irlexFuseCache.len !== words.length) {
+    const docs = words.map(w => {
+      const d = wordToSearchItem(w);
+      return { title:d.title, keywords:d.keywords, content:d.content, _en:w.en };
+    });
+    irlexFuseCache = {
+      fuse: new Fuse(docs, { keys:['title','keywords','content'], threshold:0.35, ignoreLocation:true, includeScore:true }),
+      len: words.length
+    };
+  }
+  return irlexFuseCache.fuse;
+}
+function highlightSearchText(raw, terms) {
+  const sorted = [...new Set((terms||[]).map(t => normalize(String(t))).filter(t => t.length > 1))].sort((a,b) => b.length - a.length);
+  if (!sorted.length) return irlexEscapeHtml(raw);
+  let s = irlexEscapeHtml(String(raw||''));
+  for (const t of sorted) {
+    const re = new RegExp('('+irlexEscapeRe(t)+')', 'gi');
+    s = s.replace(re, '<mark class="search-hit">$1</mark>');
+  }
+  return s;
+}
+function lexiconSearchQuery(rawQuery, catFilter) {
+  const q = (rawQuery||'').trim();
+  const cat = catFilter||'';
+  const pool = !cat ? words.slice() : words.filter(w => w.cat === cat);
+  if (!q) {
+    return { items:pool, highlightTerms:[], bestEn:null, didYouMean:[] };
+  }
+  const topicOnly = resolveTopicOnlyQuery(q);
+  if (topicOnly) {
+    const items = pool.filter(w => (w.cat === topicOnly) || (w.topic === topicOnly));
+    return { items, highlightTerms: [], bestEn: items.length ? items[0].en : null, didYouMean: [] };
+  }
+  const fullQuery = normalize(q);
+  const rawParts = normalize(q).split(/\s+/).filter(Boolean);
+  const singleUserWord = rawParts.length === 1 && rawParts[0].length > 2 ? rawParts[0] : null;
+  let qw = tokenize(q);
+  qw = expandWords(qw);
+  if (!qw.length && fullQuery.length >= 2) qw = [fullQuery];
+  if (singleUserWord) qw = [...new Set([singleUserWord, ...qw])];
+  const rows = pool.map(w => {
+    const item = wordToSearchItem(w);
+    return { w, score: getScore(item, qw, fullQuery, singleUserWord) };
+  });
+  let picked = rows.filter(r => r.score > 5).sort((a,b) => b.score - a.score);
+  if (!picked.length) {
+    const fuse = getIrlexFuse();
+    if (fuse) {
+      const res = fuse.search(q, { limit:16 });
+      const seen = new Set();
+      for (const r of res) {
+        if (r.score != null && r.score > 0.48) continue;
+        const en = r.item && r.item._en;
+        if (!en || seen.has(en)) continue;
+        const w = words.find(x => x.en === en);
+        if (!w || (cat && w.cat !== cat)) continue;
+        seen.add(en);
+        picked.push({ w, score: Math.max(1, 200 - (r.score||0) * 400) });
+        if (picked.length >= 14) break;
+      }
+    }
+  }
+  if (!picked.length && rows.length) {
+    picked = rows.slice().sort((a,b) => b.score - a.score).slice(0, 10);
+  }
+  const items = picked.map(p => p.w);
+  const highlightTerms = [...new Set([...tokenize(q), ...expandWords(tokenize(q)), ...qw])].filter(t => t.length > 1);
+  let didYouMean = [];
+  if (!items.length) {
+    const fuse = getIrlexFuse();
+    if (fuse) {
+      didYouMean = fuse.search(q, { limit:6 })
+        .map(r => r.item && r.item._en ? { title:r.item.title, w:words.find(x => x.en === r.item._en) } : null)
+        .filter(x => x && x.w);
+    }
+  }
+  return { items, highlightTerms, bestEn: items.length ? items[0].en : null, didYouMean };
+}
+function pickDidYouMean(en) {
+  const el = document.getElementById('searchInput');
+  if (el) el.value = en;
+  renderList();
+}
 
 // ─── TABS ─────────────────────────────────────────────────────────────────────
 function showTab(name) {
@@ -1871,28 +2317,53 @@ async function generateExample(en, tr) {
 }
 
 // ─── LIST ─────────────────────────────────────────────────────────────────────
+function renderWordSecondaryContent(w, ht, showHl) {
+  if (w.example) return renderExample(w, 'word-example');
+  const dEn = w.desc_en || '';
+  const dTr = w.desc_tr || '';
+  if (!dEn && !dTr) return '';
+  const enH = showHl ? highlightSearchText(dEn, ht) : irlexEscapeHtml(dEn);
+  const trH = showHl ? highlightSearchText(dTr, ht) : irlexEscapeHtml(dTr);
+  return `<div class="word-desc"><div class="word-desc-label">Kısa açıklama</div><div class="word-desc-en">${enH}</div><div class="word-desc-tr">${trH}</div></div>`;
+}
+
 let selectMode = false;
 let selectedWords = new Set();
 function renderList() {
-  const s=(document.getElementById('searchInput').value||'').toLowerCase();
+  const s=(document.getElementById('searchInput').value||'').trim();
   const cat=document.getElementById('catFilter').value;
-  const filtered=words.filter(w=>(!s||w.en.toLowerCase().includes(s)||w.tr.toLowerCase().includes(s))&&(!cat||w.cat===cat));
+  const { items:filtered, highlightTerms:ht, bestEn, didYouMean } = lexiconSearchQuery(s, cat);
   const ul=document.getElementById('wordList');
-  if(!filtered.length){ul.innerHTML='<div class="empty">Kelime bulunamadı</div>';return;}
+  let dymHtml='';
+  if (s && !filtered.length && didYouMean.length) {
+    dymHtml='<div class="did-you-mean"><strong>Şunu mu demek istediniz?</strong><div class="dym-actions">'+
+      didYouMean.map(d=>`<button type="button" class="dym-pick" onclick="pickDidYouMean(${JSON.stringify(d.w.en)})">${irlexEscapeHtml(d.title)}</button>`).join('')+
+      '</div></div>';
+  }
+  if(!filtered.length){
+    ul.innerHTML=(dymHtml||'')+'<div class="empty">Kelime bulunamadı</div>';
+    return;
+  }
   const mc=['m0','m1','m2','m3'];
-  ul.innerHTML=filtered.map(w=>{
+  const showHl = !!s;
+  ul.innerHTML=(dymHtml||'')+filtered.map(w=>{
     const isSel=selectedWords.has(w.en);
     const wid='wi_'+w.en.replace(/[^a-zA-Z0-9]/g,'_');
-    return `<div class="word-item${isSel?' selected-word':''}" data-en="${w.en.replace(/"/g,'&quot;')}" id="${wid}">
+    const isBest = showHl && bestEn === w.en;
+    const enH = showHl ? highlightSearchText(w.en, ht) : irlexEscapeHtml(w.en);
+    const trH = showHl ? highlightSearchText(w.tr, ht) : irlexEscapeHtml(w.tr);
+    const catLabel = w.sub_topic ? `${w.cat} · ${w.sub_topic}` : w.cat;
+    return `<div class="word-item${isSel?' selected-word':''}${isBest?' best-match':''}" data-en="${w.en.replace(/"/g,'&quot;')}" id="${wid}">
       ${selectMode?`<div class="word-checkbox${isSel?' checked':''}">${isSel?'✓':''}</div>`:''}
       <div class="mastery-dot ${mc[w.mastery||0]}" title="Ustalık: ${w.mastery||0}/3"></div>
       <div class="word-main">
+        ${isBest?'<div class="search-best-label">En iyi eşleşme</div>':''}
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-          <div class="word-en">${w.en}</div>
-          <div class="word-tr">${w.tr}</div>
-          <div class="word-cat">${w.cat}</div>
+          <div class="word-en">${enH}</div>
+          <div class="word-tr">${trH}</div>
+          <div class="word-cat">${irlexEscapeHtml(catLabel)}</div>
         </div>
-        ${w.example ? renderExample(w,'word-example') : ''}
+        ${renderWordSecondaryContent(w, ht, showHl)}
       </div>
       ${selectMode?'':'<button class="word-del" data-del="1">✕</button>'}
     </div>`;
@@ -1916,7 +2387,7 @@ function renderList() {
 function deleteWord(en) {
   if(!confirm(`"${en}" silinsin mi?`))return;
   words=words.filter(w=>w.en!==en);
-  saveData(); updateStats(); renderList();
+  saveData(); populateTopicFilter(); updateStats(); renderList();
   notify('Kelime silindi','info');
 }
 
@@ -1938,10 +2409,9 @@ function toggleWordSelect(en) {
 }
 
 function selectAllVisible() {
-  const s=(document.getElementById('searchInput').value||'').toLowerCase();
+  const s=(document.getElementById('searchInput').value||'').trim();
   const cat=document.getElementById('catFilter').value;
-  words.filter(w=>(!s||w.en.toLowerCase().includes(s)||w.tr.toLowerCase().includes(s))&&(!cat||w.cat===cat))
-    .forEach(w=>selectedWords.add(w.en));
+  lexiconSearchQuery(s, cat).items.forEach(w=>selectedWords.add(w.en));
   renderList();
 }
 
@@ -1960,7 +2430,7 @@ function deleteSelected() {
   if(!confirm(`${selectedWords.size} kelime silinsin mi?`))return;
   words = words.filter(w=>!selectedWords.has(w.en));
   selectedWords.clear();
-  saveData(); updateStats();
+  saveData(); populateTopicFilter(); updateStats();
   toggleSelectMode();
   notify(`Kelimeler silindi`,'info');
 }
@@ -1972,8 +2442,8 @@ function addWord() {
   const cat=document.getElementById('addCat').value;
   if(!en||!tr){notify('İngilizce ve Türkçe alanları doldurun!','error');return;}
   if(words.some(w=>w.en.toLowerCase()===en.toLowerCase())){notify('Bu kelime zaten var!','error');return;}
-  words.push({en,tr,cat,mastery:0,attempts:0,correct:0});
-  saveData(); updateStats();
+  words.push({en,tr,cat,topic:cat,sub_topic:'',desc_tr:'',desc_en:'',mastery:0,attempts:0,correct:0});
+  saveData(); populateTopicFilter(); updateStats();
   document.getElementById('addEn').value='';
   document.getElementById('addTr').value='';
   notify(`"${en}" eklendi!`,'success');
@@ -2299,7 +2769,7 @@ function addSelected(){
     const w=aiWords[i];
     if(!ex.has(w.en.toLowerCase())){words.push({...w,mastery:0,attempts:0,correct:0});added++;}
   });
-  saveData(); updateStats(); selectedAI=new Set(); renderAI();
+  saveData(); populateTopicFilter(); updateStats(); selectedAI=new Set(); renderAI();
   notify(`${added} kelime eklendi!`,'success');
 }
 
@@ -2321,7 +2791,7 @@ function notify(msg,type='info'){
 }
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
-loadData();
+loadData().catch(function (e) { console.error(e); });
 </script>
 
 <script>
@@ -2514,10 +2984,17 @@ loadData();
                 endTime: endT,
                 data: {
                   unitType: au.type,
-                  path: au.path,
+                  path: (
+                    String(phase.id || '').indexOf('tr-phase') === 0 &&
+                    Array.isArray(au.path) &&
+                    au.path.length > 2
+                  )
+                    ? [au.path[0], au.path[au.path.length - 1]]
+                    : au.path,
                   label: au.label,
                   speed: au.speed || 6000,
-                  pathJitter: !!au.pathJitter
+                  pathJitter: !!au.pathJitter,
+                  side: au.side || ''
                 },
                 style: { fadeIn: 300 },
                 meta: { title: au.label }
@@ -2769,7 +3246,7 @@ loadData();
     }
 
     /** DivIcon — uses custom SVG icons from ./icons/ folder with correct rotation */
-    function IRLEX_buildArrowDivIcon(map, from, to, color, unitMode) {
+    function IRLEX_buildArrowDivIcon(map, from, to, color, unitMode, side) {
       if (!map || !from || !to) return null;
       var distM = IRLEX_haversineM(from, to);
       if (!Number.isFinite(distM) || distM < 400) return null;
@@ -2788,7 +3265,9 @@ loadData();
         // Harita rotasyonu sağa (+X) istediğinden +90° ekliyoruz
         baseRotation = 90;
       } else if (unitMode === 'soldier') {
-        iconFile = 'helmet-soldier-svgrepo-com.svg';
+        iconFile = side === 'left'
+          ? 'sol.svg'
+          : (side === 'right' ? 'sağ.svg' : 'helmet-soldier-svgrepo-com.svg');
         // Kask ikonu genellikle dik durur, rotasyon animasyonu yok
         baseRotation = 0;
       } else {
@@ -2801,9 +3280,16 @@ loadData();
       // Soldier için rotasyon mantıklı değil (kask ikon), sabit göster
       var finalAngle = unitMode === 'soldier' ? 0 : (angleDeg + baseRotation);
 
-      // Büyük ikonlar için size'ı biraz artır (ikonlar küçük kalıyor)
-      var displaySize = unitMode === 'soldier' ? size : Math.round(size * 1.6);
+      // Sadece left/right asker ikonlarını büyük göster (sol.svg / sağ.svg)
+      var sideNorm = String(side || '').toLowerCase();
+      var isLeftRightSoldier = unitMode === 'soldier' && (sideNorm === 'left' || sideNorm === 'right');
+      var displaySize = isLeftRightSoldier
+        ? Math.max(46, Math.round(size * 3.6))
+        : (unitMode === 'soldier' ? Math.round(size * 1.45) : Math.round(size * 1.6));
 
+      var shellStyle = isLeftRightSoldier
+        ? 'background:rgba(6,10,22,0.66);border:1px solid rgba(148,163,184,0.34);border-radius:999px;box-shadow:0 0 0 2px rgba(3,7,18,0.45),0 6px 14px rgba(2,6,23,0.35);'
+        : '';
       var html =
         '<div style="' +
           'width:' + displaySize + 'px;' +
@@ -2811,6 +3297,7 @@ loadData();
           'transform:rotate(' + finalAngle + 'deg);' +
           'transform-origin:50% 50%;' +
           'display:flex;align-items:center;justify-content:center;' +
+          shellStyle +
         '">' +
         '<img src="' + iconBase + iconFile + '"' +
           ' width="' + displaySize + '"' +
@@ -2866,13 +3353,77 @@ loadData();
       }
     }
 
+    function IRLEX_labelNudge(seed, latStep, lonStep) {
+      var s = String(seed == null ? '' : seed);
+      var h = 0;
+      for (var i = 0; i < s.length; i++) {
+        h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+      }
+      var buckets = [
+        [0, 0],
+        [1, -1],
+        [-1, 1],
+        [1, 1],
+        [-1, -1],
+        [0, 1],
+        [0, -1]
+      ];
+      var pick = buckets[Math.abs(h) % buckets.length];
+      return [pick[0] * (latStep || 0), pick[1] * (lonStep || 0)];
+    }
+
+    function IRLEX_spreadGeoPoint(lat, lon, idx, latStep, lonStep) {
+      var i = Number.isFinite(Number(idx)) ? Number(idx) : 0;
+      var ring = 1 + Math.floor(i / 6);
+      var angle = (i % 6) * (Math.PI / 3);
+      return [
+        lat + Math.sin(angle) * (latStep || 0) * ring,
+        lon + Math.cos(angle) * (lonStep || 0) * ring
+      ];
+    }
+
+    function IRLEX_eventIndexFromId(evtId, segment) {
+      var id = String(evtId || '');
+      var re = new RegExp('_' + String(segment || '') + '_(\\d+)$');
+      var m = id.match(re);
+      return m ? Number(m[1]) : -1;
+    }
+
+    function IRLEX_actorToSide(actor) {
+      var a = String(actor || '').toLowerCase();
+      if (a === 'ulkucu') return 'right';
+      if (a === 'sol') return 'left';
+      if (a === 'ordu') return 'army';
+      return '';
+    }
+
+    function IRLEX_pushAwayFromPoints(lat, lon, points, latStep, lonStep, threshold) {
+      if (!Array.isArray(points) || !points.length) return [lat, lon];
+      var out = [Number(lat), Number(lon)];
+      var th = Number.isFinite(Number(threshold)) ? Number(threshold) : 0.75;
+      var yStep = Number.isFinite(Number(latStep)) ? Number(latStep) : 0.1;
+      var xStep = Number.isFinite(Number(lonStep)) ? Number(lonStep) : 0.14;
+      points.forEach(function(p) {
+        if (!Array.isArray(p) || p.length < 2) return;
+        var py = Number(p[0]), px = Number(p[1]);
+        if (!Number.isFinite(py) || !Number.isFinite(px)) return;
+        var dy = out[0] - py;
+        var dx = out[1] - px;
+        if (Math.abs(dy) <= th && Math.abs(dx) <= th) {
+          out[0] += dy >= 0 ? yStep : -yStep;
+          out[1] += dx >= 0 ? xStep : -xStep;
+        }
+      });
+      return out;
+    }
+
     function IRLEX_walkBriefingArrowMarkers(ly) {
       if (!ly) return;
       if (ly instanceof L.Marker && ly.__irlexBriefingArrow) {
         var o = ly.__irlexBriefingArrow;
         var m = ly._map;
         if (m) {
-          var ic = IRLEX_buildArrowDivIcon(m, o.from, o.to, o.color, o.unitMode);
+          var ic = IRLEX_buildArrowDivIcon(m, o.from, o.to, o.color, o.unitMode, o.side);
           if (ic) ly.setIcon(ic);
         }
       }
@@ -2894,8 +3445,8 @@ loadData();
     }
 
     /** One arrow marker at line end only */
-    function IRLEX_createBriefingArrowMarker(map, from, to, color, unitMode) {
-      var icon = IRLEX_buildArrowDivIcon(map, from, to, color, unitMode);
+    function IRLEX_createBriefingArrowMarker(map, from, to, color, unitMode, side) {
+      var icon = IRLEX_buildArrowDivIcon(map, from, to, color, unitMode, side);
       if (!icon) return null;
       var marker = L.marker([to[0], to[1]], {
         icon: icon,
@@ -2903,7 +3454,7 @@ loadData();
         keyboard: false,
         zIndexOffset: 650
       });
-      marker.__irlexBriefingArrow = { from: from, to: to, color: color, unitMode: unitMode };
+      marker.__irlexBriefingArrow = { from: from, to: to, color: color, unitMode: unitMode, side: side || '' };
       return marker;
     }
 
@@ -2940,10 +3491,12 @@ loadData();
       var src = IRLEX_sanitizePortraitSrc(photoSrc);
       var nameH = IRLEX_simEsc(name);
       var roleH = IRLEX_simEsc(role);
-      var ph = '<div class="irlex-portrait-placeholder" aria-hidden="true"></div>';
+      /* Initials fallback: portrenin yüklenmediği durumlarda baş harfler görünür */
+      var initials = (name || '').split(' ').map(function(w){ return w.charAt(0).toUpperCase(); }).slice(0,2).join('');
+      var ph = '<div class="irlex-portrait-placeholder" aria-hidden="true" style="display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#c8a96e;font-family:Georgia,serif;letter-spacing:1px">' + initials + '</div>';
       /* lazy yok: Leaflet marker icinde bazen hic yuklenmez */
       var imgHtml = src
-        ? '<img class="irlex-portrait-img" src="' + src + '" alt="" draggable="false" decoding="async" referrerpolicy="no-referrer" onerror="window.IRLEX_portraitImgOnError&&window.IRLEX_portraitImgOnError(this)"/>'
+        ? '<img class="irlex-portrait-img" src="' + src + '" alt="" draggable="false" decoding="async" referrerpolicy="no-referrer" crossorigin="anonymous" onerror="window.IRLEX_portraitImgOnError&&window.IRLEX_portraitImgOnError(this)"/>'
         : ph;
       var crownSvg =
         '<svg class="irlex-portrait-crown" viewBox="0 0 24 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
@@ -3003,8 +3556,18 @@ loadData();
         this._layerGroups = {};
         this._activeLayers = new Map();
         this._worldGeoJson = null;
+        this._turkeyPortraitCoords = [];
+        this._turkeyFrontLabelCoords = [];
+        this._turkeyFlowLabelCoords = [];
       }
-      setMap(map) { this._map = map; }
+      setMap(map) {
+        this._map = map;
+        var self = this;
+        if (this._map && !this._map._irlexTurkeyLabelZoomBound) {
+          this._map._irlexTurkeyLabelZoomBound = true;
+          this._map.on('zoomend', function() { self._refreshTurkeySecondaryLabels(); });
+        }
+      }
       setWorldGeoJson(gj) { this._worldGeoJson = gj; }
       ensureLayerGroup(name) {
         if (!this._layerGroups[name]) {
@@ -3019,12 +3582,37 @@ loadData();
           self._layerGroups[k].clearLayers();
         });
         this._activeLayers.clear();
+        this._turkeyPortraitCoords = [];
+        this._turkeyFrontLabelCoords = [];
+        this._turkeyFlowLabelCoords = [];
       }
       clearGroup(name) {
         if (this._layerGroups[name]) this._layerGroups[name].clearLayers();
         var self = this;
         this._activeLayers.forEach(function(v, k) {
           if (k.startsWith(name + '_')) self._activeLayers.delete(k);
+        });
+        if (name === 'portraits') this._turkeyPortraitCoords = [];
+        if (name === 'fronts') this._turkeyFrontLabelCoords = [];
+        if (name === 'flows') this._turkeyFlowLabelCoords = [];
+      }
+
+      _refreshTurkeySecondaryLabels() {
+        if (!this._map) return;
+        var showSecondary = this._map.getZoom() >= 6.3;
+        var showPrimaryFront = this._map.getZoom() >= 5.3;
+        this._activeLayers.forEach(function(v) {
+          var arr = Array.isArray(v) ? v : [v];
+          arr.forEach(function(layer) {
+            if (!layer || !layer._icon) return;
+            if (layer._irlexTurkeySecondaryLabel) {
+              layer._icon.style.display = showSecondary ? '' : 'none';
+              return;
+            }
+            if (layer._irlexTurkeyPrimaryFrontLabel) {
+              layer._icon.style.display = showPrimaryFront ? '' : 'none';
+            }
+          });
         });
       }
 
@@ -3066,7 +3654,8 @@ loadData();
           'EGY': { fill: '#22c55e', stroke: '#16a34a' },
           'SYR': { fill: '#ef4444', stroke: '#dc2626' },
           'ISR': { fill: '#3b82f6', stroke: '#2563eb' },
-          'JOR': { fill: '#d97706', stroke: '#b45309' }
+          'JOR': { fill: '#d97706', stroke: '#b45309' },
+          'TUR': { fill: '#e11d48', stroke: '#be123c' }
         };
         var countries = evt.data.countries;
         var zInt = typeof evt.data.zoneIntensity === 'number' ? evt.data.zoneIntensity : 1;
@@ -3104,6 +3693,10 @@ loadData();
         if (this._activeLayers.has(key)) return;
         if (!evt.data || !evt.data.points || evt.data.points.length < 2) return;
         var coords = evt.data.points.map(function(p) { return [Number(p[0]), Number(p[1])]; });
+        var isTurkeyFront = String(evt.id || '').indexOf('tr-phase') === 0;
+        if (isTurkeyFront && coords.length > 2) {
+          coords = [coords[0], coords[coords.length - 1]];
+        }
         var line = L.polyline(coords, {
           color: evt.style.color || '#38bdf8',
           weight: 2.5, opacity: Math.min(0.8, progress * 2),
@@ -3114,15 +3707,32 @@ loadData();
 
         if (evt.data.label) {
           var mid = coords[Math.floor(coords.length / 2)];
+          var frontIdx = IRLEX_eventIndexFromId(evt.id, 'front');
+          var mapZoom = this._map && typeof this._map.getZoom === 'function' ? this._map.getZoom() : 6;
+          if (!isTurkeyFront) {
+            if (frontIdx > 0) return;
+            if (mapZoom < 4.7) return;
+          }
+          var isSecondaryFront = isTurkeyFront && frontIdx > 0;
+          var frontNudge = isTurkeyFront ? IRLEX_labelNudge(evt.id, 0.08, 0.1) : [0, 0];
           var lt = IRLEX_simEsc(evt.data.label || '');
-          var lbl = L.marker(mid, {
+          var lbl = L.marker([mid[0] + frontNudge[0], mid[1] + frontNudge[1]], {
             icon: L.divIcon({
               className: 'irlex-front-label-wrap',
               html: '<span class="irlex-map-label" style="border:1px solid rgba(56,189,248,0.35)">' + lt + '</span>',
-              iconSize: [0, 0], iconAnchor: [0, 12]
+              iconSize: [0, 0], iconAnchor: [0, 14]
             }), interactive: false
           });
           lbl.addTo(group);
+          if (isTurkeyFront) this._turkeyFrontLabelCoords.push([mid[0] + frontNudge[0], mid[1] + frontNudge[1]]);
+          if (isTurkeyFront && frontIdx === 0) {
+            lbl._irlexTurkeyPrimaryFrontLabel = true;
+            if (this._map && this._map.getZoom() < 5.3 && lbl._icon) lbl._icon.style.display = 'none';
+          }
+          if (isSecondaryFront) {
+            lbl._irlexTurkeySecondaryLabel = true;
+            if (this._map && this._map.getZoom() < 6.3 && lbl._icon) lbl._icon.style.display = 'none';
+          }
         }
       }
 
@@ -3171,7 +3781,8 @@ loadData();
           }
         });
         line.addTo(group);
-        if (effectSystem && typeof effectSystem.applyGlow === 'function') {
+        var curZoom = this._map && typeof this._map.getZoom === 'function' ? this._map.getZoom() : 6;
+        if (curZoom >= 5.1 && effectSystem && typeof effectSystem.applyGlow === 'function') {
           setTimeout(function() {
             if (line._path) effectSystem.applyGlow(line, um);
           }, 60);
@@ -3181,22 +3792,61 @@ loadData();
         layers._irlexUnitMode = um;
 
         if (evt.meta && evt.meta.title) {
+          var flowIdx = IRLEX_eventIndexFromId(evt.id, 'flow');
+          var isTurkeyFlowLabel = String(evt.id || '').indexOf('tr-phase') === 0;
+          if (!isTurkeyFlowLabel) {
+            if (flowIdx > 2) {
+              this._activeLayers.set(key, layers);
+              this._activeLayers.set(key + '_mode', um);
+              return;
+            }
+            if (curZoom < 4.9 && flowIdx > 0) {
+              this._activeLayers.set(key, layers);
+              this._activeLayers.set(key + '_mode', um);
+              return;
+            }
+          }
+          if (isTurkeyFlowLabel && flowIdx > 2) {
+            this._activeLayers.set(key, layers);
+            this._activeLayers.set(key + '_mode', um);
+            return;
+          }
           var midLat = (from[0] + to[0]) / 2;
           var midLon = (from[1] + to[1]) / 2;
+          var isSecondaryFlow = isTurkeyFlowLabel && flowIdx > 0;
+          var flowNudge = isTurkeyFlowLabel ? IRLEX_labelNudge(evt.id, 0.12, 0.16) : [0, 0];
+          var turkeyAvoidPoints = isTurkeyFlowLabel
+            ? this._turkeyPortraitCoords
+                .concat(this._turkeyFrontLabelCoords || [])
+                .concat(this._turkeyFlowLabelCoords || [])
+            : [];
+          var adj = IRLEX_pushAwayFromPoints(
+            midLat + flowNudge[0],
+            midLon + flowNudge[1],
+            turkeyAvoidPoints,
+            isTurkeyFlowLabel ? 0.16 : 0.12,
+            isTurkeyFlowLabel ? 0.24 : 0.18,
+            isTurkeyFlowLabel ? 1.05 : 0.72
+          );
           var titleTxt = IRLEX_simEsc(evt.meta.title);
           var actorTxt = d && d.actor ? IRLEX_simEsc(String(d.actor)) : '';
           var labelHtml =
             '<span class="irlex-map-label">' +
             (actorTxt ? '<span class="irlex-map-label-actor">' + actorTxt + '</span>' : '') +
             '<span class="irlex-map-label-title">' + titleTxt + '</span></span>';
-          var lbl = L.marker([midLat, midLon], {
+          var lbl = L.marker([adj[0], adj[1]], {
             icon: L.divIcon({
               className: 'irlex-flow-label-wrap',
               html: labelHtml,
-              iconSize: [0, 0], iconAnchor: [0, 14]
+              iconSize: [0, 0], iconAnchor: [0, 18]
             }), interactive: false
           });
           lbl.addTo(group);
+          if (isTurkeyFlowLabel) this._turkeyFlowLabelCoords.push([adj[0], adj[1]]);
+          if (isSecondaryFlow) {
+            lbl._irlexTurkeySecondaryLabel = true;
+            if (this._map && this._map.getZoom() < 6.3 && lbl._icon) lbl._icon.style.display = 'none';
+          }
           layers.push(lbl);
         }
 
@@ -3244,6 +3894,7 @@ loadData();
             label: evt.data.label || '',
             evtStart: evt.startTime,
             evtEnd: evt.endTime,
+            side: evt.data.side || '',
             debugPath: !!window.__DEBUG_UNIT_PATHS
           }
         );
@@ -3256,11 +3907,14 @@ loadData();
         var group = this.ensureLayerGroup('portraits');
         var self = this;
         var pid = phase.id != null ? String(phase.id) : 'phase';
+        this._turkeyPortraitCoords = [];
         phase.portraits.forEach(function(p, idx) {
           if (!p) return;
           var la = Number(p.lat);
           var lo = Number(p.lon);
           if (!Number.isFinite(la) || !Number.isFinite(lo)) return;
+          var isTurkeyPortrait = pid.indexOf('tr-phase') === 0;
+          var shifted = isTurkeyPortrait ? IRLEX_spreadGeoPoint(la, lo, idx, 0.14, 0.2) : [la, lo];
           var name = p.name || p.label || '';
           var role = p.role || '';
           var html = IRLEX_buildPortraitPinHtml(p.photo || p.photoUrl, name, role);
@@ -3270,7 +3924,7 @@ loadData();
             iconSize: [76, 102],
             iconAnchor: [38, 102]
           });
-          var m = L.marker([la, lo], {
+          var m = L.marker([shifted[0], shifted[1]], {
             icon: icon,
             interactive: true,
             zIndexOffset: 900
@@ -3279,6 +3933,7 @@ loadData();
           if (p.photoCredit) tip += ' · ' + p.photoCredit;
           m.bindTooltip(tip, { direction: 'top', className: 'unit-tooltip', offset: [0, -96] });
           m.addTo(group);
+          if (isTurkeyPortrait) self._turkeyPortraitCoords.push([shifted[0], shifted[1]]);
           self._activeLayers.set('portraits_' + pid + '_' + idx, m);
         });
       }
@@ -3417,6 +4072,7 @@ loadData();
         this._preset = null;
         this._phases = [];
         this._lastPhaseIdx = -1;
+        this._lastPortraitPhaseIdx = -1;
         this._worldGeoJson = null;
         this._selectPhaseFn = null;
         this._initialized = false;
@@ -3478,7 +4134,8 @@ loadData();
       loadPreset(preset) {
         this._preset = preset;
         this._phases = (preset && preset.mapPhases) || [];
-        this.events.phaseDuration = 10000;
+        var presetPhaseMs = Number(preset && preset.phaseDurationMs);
+        this.events.phaseDuration = Number.isFinite(presetPhaseMs) && presetPhaseMs >= 6000 ? presetPhaseMs : 10000;
         if (window.IRLEX_WarEngine && window.IRLEX_WarEngine.trackWarProgress && window.IRLEX_WarEngine.trackWarProgress.reset) {
           window.IRLEX_WarEngine.trackWarProgress.reset();
         }
@@ -3487,6 +4144,7 @@ loadData();
         this.timeline.totalDuration = Math.max(phaseMs, this._phases.length * phaseMs);
         this.timeline.currentTime = 0;
         this._lastPhaseIdx = -1;
+        this._lastPortraitPhaseIdx = -1;
         this.mapCtrl.clearAll();
         this.unitManager.clearAll();
         this.effects.clearAll();
@@ -3545,6 +4203,7 @@ loadData();
         this.unitManager.clearAll();
         this.effects.clearAll();
         this._lastPhaseIdx = -1;
+        this._lastPortraitPhaseIdx = -1;
         this._onTimeUpdate(t);
         this._renderFrame();
       }
@@ -3553,6 +4212,7 @@ loadData();
         var t = this.timeline.currentTime;
         var activeEvts = this.events.getActiveEvents(t);
         var self = this;
+        var hasFlowEvent = false;
 
         activeEvts.forEach(function(evt) {
           var localProgress = 0;
@@ -3568,6 +4228,7 @@ loadData();
               self.mapCtrl.renderFront(evt, localProgress);
               break;
             case 'flow':
+              hasFlowEvent = true;
               self.mapCtrl.renderFlow(evt, localProgress, self.effects);
               break;
             case 'point':
@@ -3579,10 +4240,13 @@ loadData();
           }
         });
 
-        self.mapCtrl.updateFlowLinesProgress(t);
+        if (hasFlowEvent) self.mapCtrl.updateFlowLinesProgress(t);
         var pIdx = self.timeline.getPhaseIndex(self.events.phaseDuration);
         pIdx = Math.max(0, Math.min(pIdx, self._phases.length - 1));
-        self.mapCtrl.syncPhasePortraits(self._phases[pIdx]);
+        if (pIdx !== self._lastPortraitPhaseIdx) {
+          self._lastPortraitPhaseIdx = pIdx;
+          self.mapCtrl.syncPhasePortraits(self._phases[pIdx]);
+        }
         self.unitManager.syncAll(t);
       }
     }
@@ -3955,14 +4619,17 @@ loadData();
         if(tabGlobe) tabGlobe.style.paddingTop = top + 'px';
         if(sideModeHistory){
           const sideEl = document.querySelector('#tab-globe .globe-side');
-          if(sideEl && window.innerWidth > 600){
+          if(sideEl && !window.matchMedia('(max-width: 768px)').matches){
             sideEl.style.top = top + 'px';
           } else if(sideEl){
             sideEl.style.top = '';
           }
         }
 
-        const h = Math.max(260, window.innerHeight - top - 16);
+        const mobile = window.matchMedia('(max-width: 768px)').matches;
+        const safeB = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--irlex-safe-bottom')) || 0;
+        const pad = 16 + (mobile ? safeB : 0);
+        const h = Math.max(260, window.innerHeight - top - pad);
         if(canvas2d) canvas2d.style.height = h + 'px';
 
         if(leafletMap) leafletMap.invalidateSize();
@@ -4524,6 +5191,233 @@ loadData();
             { t: 'Askeri/Insani Kirilma', d: 'Yuksek sivil maliyet, zorunlu yerinden edilme, insani kriz.' },
             { t: 'Diplomatik Sonuc', d: 'Ateskes girisimleri, esir takasi ve arabuluculuk diplomasisi.' }
           ]
+        },
+        'turkey-left-right': {
+          title: 'Türkiye Sağ-Sol Çatışması',
+          date: '1960-05-27',
+          lat: 39.0,
+          lon: 35.0,
+          panelSubtitle: '1960–1980 — İç siyasi şiddet ve 12 Eylül darbesi',
+          query: 'turkey political violence 1970s OR grey wolves turkey OR turkish left right conflict',
+          summary:
+            '1960 darbesiyle başlayan ideolojik kutuplaşma, 1970lerde sistematik şiddet dalgasına dönüştü. ' +
+            'Solcu Dev-Sol, THKP-C, THKO ile sağcı Ülkücü/Bozkurt grupları arasındaki çatışmalar; ' +
+            'Kanlı Pazar (1969), 12 Mart muhtırası, 1972 idamları (Deniz Gezmiş, Yusuf Aslan, Hüseyin İnan), Bahçelievler katliamı (1977), Maraş katliamı (1978) ve Çorum olaylarıyla (1980) tırmandı. ' +
+            '12 Eylül 1980 askeri darbesiyle son buldu. Toplam ~5.000 kişi bu dönemde siyasi şiddetten hayatını kaybetti.',
+          phases: [
+            { t: 'Kutuplaşma', d: '1960 darbesi sonrası ideolojik kamplaşma ve öğrenci hareketleri (1960–1968).' },
+            { t: 'Kanlı Pazar', d: 'Sokak çatışmaları, 1971 muhtırası ve 1972 idamlarıyla sertleşen dönem (1969–1975).' },
+            { t: 'Katliamlar', d: 'Bahçelievler (1977) ve Maraş (1978): örgütlü katliam dönemi.' },
+            { t: '12 Eylül', d: 'Suikastlar, Çorum olayları ve Kenan Evren\'in askeri müdahalesi (1979–1980).' }
+          ],
+          phaseDurationMs: 14000,
+          mapPhases: [
+            {
+              id: 'tr-phase1-polarization',
+              title: 'Kutuplaşma (1960–1968)',
+              dateRange: '1960–1968',
+              summary: '27 Mayıs 1960 darbesi sonrası milliyetçi sağ (MHP/CKMP) ve Marksist sol (TİP, Dev-Genç) ağları üniversite, sendika ve şehir merkezlerinde hızla genişledi; karşıt mitingler, öğrenci boykotları ve sokak mobilizasyonu ideolojik kutuplaşmayı kurumsallaştırdı.',
+              eventWindow: { start: '1960-05-27', end: '1968-12-31' },
+              queryHint: 'turkey 1960 coup OR MHP founding turkey OR turkish student movements 1968',
+              focus: { bounds: [[36.5, 26.0], [42.5, 45.0]], altitude: 3.0 },
+              countries: ['TUR'],
+              legendHint: 'Turuncu ok = sağ örgütlenme, kırmızı ok = sol örgütlenme.',
+              style: { frontColor: '#f97316', ringColor: 'rgba(249,115,22,0.45)' },
+              fronts: [
+                { label: 'İstanbul–Ankara temas ekseni', points: [[41.01, 28.98], [40.2, 31.0], [39.93, 32.86]] },
+                { label: 'Ege öğrenci hattı', points: [[41.01, 28.98], [39.6, 28.5], [38.42, 27.13]] }
+              ],
+              operations: [
+                { from: [39.93, 32.86], to: [41.01, 28.98], label: 'CKMP örgütlenmesi', actor: 'Ulkucu', intensity: 0.62, unitType: 'soldier' },
+                { from: [41.01, 28.98], to: [38.42, 27.13], label: 'Dev-Genç ağ genişlemesi', actor: 'Sol', intensity: 0.56, unitType: 'soldier' },
+                { from: [38.42, 27.13], to: [37.87, 32.49], label: 'İç Anadolu öğrenci hattı', actor: 'Sol', intensity: 0.44, unitType: 'soldier' },
+                { from: [39.93, 32.86], to: [37.87, 32.49], label: 'Ankara merkezli kadro transferi', actor: 'Ulkucu', intensity: 0.4, unitType: 'soldier' }
+              ],
+              units: [
+                { lat: 39.93, lon: 32.86, country: 'TUR', label: 'Ankara', size: 'large' },
+                { lat: 41.01, lon: 28.98, country: 'TUR', label: 'İstanbul', size: 'large' },
+                { lat: 38.42, lon: 27.13, country: 'TUR', label: 'İzmir', size: 'medium' },
+                { lat: 37.87, lon: 32.49, country: 'TUR', label: 'Konya', size: 'small' }
+              ],
+              markers: [
+                { lat: 39.93, lon: 32.86, label: '1961 Anayasası sonrası siyasi çoğullaşma', side: 'politics' },
+                { lat: 41.03, lon: 28.97, label: 'Üniversite ve sendika merkezli mobilizasyon', side: 'left' },
+                { lat: 38.42, lon: 27.14, label: 'Ege hattında öğrenci ağları', side: 'left' }
+              ],
+              portraits: [
+                { lat: 40.85, lon: 31.7, name: 'Alparslan Türkeş', role: 'CKMP/MHP çizgisi', photo: './assets/portraits/turkey-left-right/alparslan-turkes.jpg', photoCredit: 'Yerel dosya' },
+                { lat: 38.55, lon: 33.9, name: 'Bülent Ecevit', role: 'Sol siyasetin yükselişi', photo: './assets/portraits/turkey-left-right/bulent-ecevit.jpg', photoCredit: 'Yerel dosya' }
+              ],
+              animatedUnits: [
+                { type: 'soldier', side: 'right', path: [[39.93, 32.86], [40.35, 31.5], [40.8, 30.2], [41.01, 28.98]], label: 'Sağ: Ankara → İstanbul', endFrac: 0.9 },
+                { type: 'soldier', side: 'left', path: [[41.01, 28.98], [40.2, 28.5], [39.3, 27.8], [38.42, 27.13]], label: 'Sol: İstanbul → İzmir', endFrac: 0.92, startOffsetMs: 600 },
+                { type: 'soldier', side: 'left', path: [[38.42, 27.13], [38.15, 28.5], [37.95, 30.2], [37.87, 32.49]], label: 'Öğrenci hattı: Ege → İç Anadolu', endFrac: 0.86, startOffsetMs: 1300 },
+                { type: 'soldier', side: 'right', path: [[39.93, 32.86], [39.5, 32.7], [38.8, 32.6], [37.87, 32.49]], label: 'Sağ kadro transferi', endFrac: 0.82, startOffsetMs: 1800 }
+              ],
+              terms: [
+                { en: 'Polarization', tr: 'Kutuplaşma', cat: 'Teori' },
+                { en: 'Ideological Camps', tr: 'İdeolojik Kamplar', cat: 'Teori' },
+                { en: 'Street Mobilization', tr: 'Sokak Mobilizasyonu', cat: 'Güvenlik' },
+                { en: 'Cadre Formation', tr: 'Kadrolaşma', cat: 'Kurumlar' },
+                { en: 'Campus Politics', tr: 'Kampüs Siyaseti', cat: 'Siyaset' },
+                { en: 'Collective Action', tr: 'Kolektif Eylem', cat: 'Teori' }
+              ]
+            },
+            {
+              id: 'tr-phase2-bloody-sunday',
+              title: 'Kanlı Pazar ve Muhtıra (1969–1975)',
+              dateRange: '1969–1975',
+              summary: 'Kanlı Pazar (1969), 15-16 Haziran işçi eylemleri (1970), 12 Mart muhtırası ve idamlar sonrası şehirlerde paramiliter ağlar daha görünür hale geldi; kampüs-sokak hattı düzenli çatışma döngüsüne girdi.',
+              eventWindow: { start: '1969-02-16', end: '1975-12-31' },
+              queryHint: 'kanlı pazar 1969 OR 12 mart muhtırası OR deniz gezmis idam 1972 OR dev-genc',
+              focus: { bounds: [[38.2, 26.9], [42.2, 34.6]], altitude: 1.9 },
+              countries: ['TUR'],
+              legendHint: 'Mavi = Ülkücü saldırı, kırmızı = Sol eylem.',
+              style: { frontColor: '#ef4444', ringColor: 'rgba(239,68,68,0.5)', operationWeight2d: 4.1 },
+              fronts: [
+                { label: 'Marmara–Ankara temas hattı', points: [[41.01, 28.98], [40.35, 30.4], [39.93, 32.86]] },
+                { label: 'Karadeniz geçiş hattı', points: [[41.01, 28.98], [41.15, 31.2], [40.98, 34.0]] }
+              ],
+              operations: [
+                { from: [40.99, 29.02], to: [41.04, 28.98], label: 'Kanlı Pazar (1969)', actor: 'Ulkucu', intensity: 0.94, unitType: 'soldier' },
+                { from: [39.93, 32.86], to: [41.01, 28.98], label: 'Dev-Genç sevki', actor: 'Sol', intensity: 0.8, unitType: 'soldier' },
+                { from: [41.01, 28.98], to: [39.65, 27.89], label: 'Batı hattı gerilimi', actor: 'Ulkucu', intensity: 0.61, unitType: 'soldier' },
+                { from: [39.93, 32.86], to: [40.74, 30.39], label: 'Muhtıra sonrası güvenlik baskısı', actor: 'Ordu', intensity: 0.58, unitType: 'tank' }
+              ],
+              units: [
+                { lat: 41.04, lon: 28.98, country: 'TUR', label: 'Taksim', size: 'large' },
+                { lat: 39.93, lon: 32.86, country: 'TUR', label: 'Ankara (ODTÜ)', size: 'large' },
+                { lat: 39.65, lon: 27.89, country: 'TUR', label: 'Balıkesir hattı', size: 'small' }
+              ],
+              markers: [
+                { lat: 41.04, lon: 28.98, label: 'Kanlı Pazar (1969)', side: 'right' },
+                { lat: 39.93, lon: 32.86, label: 'Deniz Gezmiş, Yusuf Aslan, Hüseyin İnan idamları (1972)', side: 'army' },
+                { lat: 40.74, lon: 30.39, label: '12 Mart sonrası baskı dalgası', side: 'army' },
+                { lat: 39.93, lon: 32.86, label: 'Üniversite merkezli karşı mobilizasyon', side: 'left' }
+              ],
+              portraits: [
+                { lat: 40.65, lon: 31.3, name: 'Alparslan Türkeş', role: 'MHP Genel Başkanı', photo: './assets/portraits/turkey-left-right/alparslan-turkes.jpg', photoCredit: 'Yerel dosya' },
+                { lat: 38.75, lon: 34.3, name: 'Bülent Ecevit', role: 'CHP liderliği yükselişi', photo: './assets/portraits/turkey-left-right/bulent-ecevit.jpg', photoCredit: 'Yerel dosya' }
+              ],
+              animatedUnits: [
+                { type: 'soldier', side: 'right', path: [[40.99, 29.02], [40.9, 29.0], [40.95, 28.99], [41.04, 28.98]], label: 'Kanlı Pazar', endFrac: 0.94 },
+                { type: 'soldier', side: 'left', path: [[39.93, 32.86], [40.2, 31.8], [40.55, 30.7], [41.01, 28.98]], label: 'Dev-Genç hareketi', endFrac: 0.9, startOffsetMs: 700 },
+                { type: 'soldier', side: 'right', path: [[41.01, 28.98], [40.7, 28.6], [40.2, 28.3], [39.65, 27.89]], label: 'Batı Marmara devriyesi', endFrac: 0.88, startOffsetMs: 1500 },
+                { type: 'tank', side: 'army', path: [[39.93, 32.86], [40.15, 31.9], [40.45, 31.1], [40.74, 30.39]], label: 'Muhtıra sonrası askeri sevk', endFrac: 0.84, startOffsetMs: 2100 }
+              ],
+              terms: [
+                { en: 'Political Violence', tr: 'Siyasi Şiddet', cat: 'Güvenlik' },
+                { en: 'Militant Network', tr: 'Militan Ağ', cat: 'Güvenlik' },
+                { en: 'Memorandum', tr: 'Muhtıra', cat: 'Kurumlar' },
+                { en: 'Capital Punishment', tr: 'İdam Cezası', cat: 'Hukuk' },
+                { en: 'State Repression', tr: 'Devlet Baskısı', cat: 'Kurumlar' },
+                { en: 'Counter-Mobilization', tr: 'Karşı-Mobilizasyon', cat: 'Teori' },
+                { en: 'Urban Conflict', tr: 'Kentsel Çatışma', cat: 'Güvenlik' },
+                { en: 'Escalation', tr: 'Tırmanma', cat: 'Teori' }
+              ]
+            },
+            {
+              id: 'tr-phase3-massacres',
+              title: 'Katliamlar Dalgası (1976–1978)',
+              dateRange: '1976–1978',
+              summary: 'Bahçelievler katliamı (1977), Maraş katliamı (1978) ve kent ölçekli misilleme döngüleri, mezhepsel/ideolojik fay hatlarını sertleştirdi; devlet kapasitesi sıkıyönetimle güvenlikçi eksene kaydı.',
+              eventWindow: { start: '1976-01-01', end: '1978-12-31' },
+              queryHint: 'bahçelievler massacre 1977 OR maraş massacre 1978',
+              focus: { bounds: [[36.3, 29.8], [41.2, 40.2]], altitude: 2.45 },
+              countries: ['TUR'],
+              legendHint: 'Kırmızı pulse = katliam noktası. Yeşil tank = sıkıyönetim.',
+              style: { frontColor: '#dc2626', ringColor: 'rgba(220,38,38,0.55)', operationWeight2d: 4.7 },
+              fronts: [
+                { label: 'Ankara–Maraş kırılma hattı', points: [[39.91, 32.82], [38.75, 34.8], [37.59, 36.94]] },
+                { label: 'Doğu gerilim hattı', points: [[37.59, 36.94], [37.75, 37.6], [37.92, 40.23]] }
+              ],
+              operations: [
+                { from: [39.91, 32.82], to: [37.59, 36.94], label: 'Bahçelievler → Maraş', actor: 'Ulkucu', intensity: 1.0, unitType: 'soldier' },
+                { from: [39.87, 32.75], to: [37.59, 36.94], label: 'Sıkıyönetim sevki', actor: 'Ordu', intensity: 0.78, unitType: 'tank' },
+                { from: [37.59, 36.94], to: [37.92, 40.23], label: 'Doğuya sıçrama riski', actor: 'Sol', intensity: 0.67, unitType: 'soldier' },
+                { from: [39.91, 32.82], to: [38.42, 27.13], label: 'Batı metropollerinde misilleme dalgası', actor: 'Sol', intensity: 0.6, unitType: 'soldier' }
+              ],
+              units: [
+                { lat: 39.91, lon: 32.82, country: 'TUR', label: 'Bahçelievler (1977)', size: 'large' },
+                { lat: 37.59, lon: 36.94, country: 'TUR', label: 'Maraş (1978)', size: 'large' },
+                { lat: 37.92, lon: 40.23, country: 'TUR', label: 'Diyarbakır hattı', size: 'medium' }
+              ],
+              markers: [
+                { lat: 39.91, lon: 32.82, label: 'Bahçelievler katliamı (1977)', side: 'right' },
+                { lat: 37.59, lon: 36.94, label: 'Maraş katliamı (1978)', side: 'right' },
+                { lat: 37.92, lon: 40.23, label: 'Doğuya yayılım ve güvenlik kırılması', side: 'left' }
+              ],
+              portraits: [
+                { lat: 40.85, lon: 30.6, name: 'Alparslan Türkeş', role: 'MHP lideri', photo: './assets/portraits/turkey-left-right/alparslan-turkes.jpg', photoCredit: 'Yerel dosya' },
+                { lat: 37.2, lon: 33.7, name: 'Bülent Ecevit', role: 'Başbakan', photo: './assets/portraits/turkey-left-right/bulent-ecevit.jpg', photoCredit: 'Yerel dosya' }
+              ],
+              animatedUnits: [
+                { type: 'soldier', side: 'right', path: [[39.91, 32.82], [39.0, 34.5], [38.2, 35.8], [37.59, 36.94]], label: 'Katliam dalgası', endFrac: 0.92 },
+                { type: 'tank', side: 'army', path: [[39.87, 32.75], [39.0, 34.0], [38.2, 35.5], [37.59, 36.94]], label: 'Sıkıyönetim', endFrac: 0.96, startOffsetMs: 900 },
+                { type: 'soldier', side: 'left', path: [[37.59, 36.94], [37.7, 37.5], [37.82, 38.8], [37.92, 40.23]], label: 'Doğu temasları', endFrac: 0.83, startOffsetMs: 1700 },
+                { type: 'soldier', side: 'left', path: [[39.91, 32.82], [39.5, 31.8], [39.0, 30.1], [38.42, 27.13]], label: 'Batı şehirlerine misilleme', endFrac: 0.78, startOffsetMs: 2300 }
+              ],
+              terms: [
+                { en: 'Sectarian Violence', tr: 'Mezhep Şiddeti', cat: 'Güvenlik' },
+                { en: 'Massacre', tr: 'Katliam', cat: 'Güvenlik' },
+                { en: 'Martial Law', tr: 'Sıkıyönetim', cat: 'Kurumlar' },
+                { en: 'Cycle of Retaliation', tr: 'Misilleme Döngüsü', cat: 'Teori' },
+                { en: 'State Capacity', tr: 'Devlet Kapasitesi', cat: 'Kurumlar' },
+                { en: 'Urban Terror', tr: 'Kent Terörü', cat: 'Güvenlik' }
+              ]
+            },
+            {
+              id: 'tr-phase4-coup',
+              title: '12 Eylül Darbesi (1979–1980)',
+              dateRange: '1979 – 12 Eylül 1980',
+              summary: '1979-1980 döneminde günlük siyasi cinayetler ve suikastlar zirveye çıktı; güvenlik bürokrasisi Ankara merkezli komuta ağıyla ülke çapında müdahaleye hazırlanırken 12 Eylül 1980 darbesiyle askerî idare tesis edildi.',
+              eventWindow: { start: '1979-01-01', end: '1980-09-12' },
+              queryHint: 'turkey 1980 military coup OR kenan evren',
+              focus: { bounds: [[36.5, 26.0], [42.2, 40.4]], altitude: 3.05 },
+              countries: ['TUR'],
+              legendHint: 'Mor ok = darbe harekâtı. Tank = askeri sevkiyat.',
+              style: { frontColor: '#a855f7', ringColor: 'rgba(168,85,247,0.45)', operationWeight2d: 5.1 },
+              fronts: [
+                { label: 'Ankara merkezli askeri hat', points: [[39.87, 32.75], [40.5, 30.5], [41.01, 28.98]] },
+                { label: 'Batı sahil emniyet hattı', points: [[39.87, 32.75], [39.2, 30.0], [38.42, 27.13]] }
+              ],
+              operations: [
+                { from: [39.87, 32.75], to: [41.01, 28.98], label: 'Ordu: Ankara → İstanbul', actor: 'Ordu', intensity: 0.96, unitType: 'tank' },
+                { from: [39.87, 32.75], to: [38.42, 27.13], label: 'Ordu: Ankara → İzmir', actor: 'Ordu', intensity: 0.9, unitType: 'tank' },
+                { from: [39.87, 32.75], to: [37.87, 32.49], label: 'Merkez birlik devri', actor: 'Ordu', intensity: 0.72, unitType: 'tank' },
+                { from: [39.87, 32.75], to: [40.19, 29.06], label: 'Marmara kritik merkez kontrolü', actor: 'Ordu', intensity: 0.78, unitType: 'tank' }
+              ],
+              units: [
+                { lat: 39.87, lon: 32.75, country: 'TUR', label: 'Ankara (Karargâh)', size: 'large' },
+                { lat: 41.01, lon: 28.98, country: 'TUR', label: 'İstanbul', size: 'large' },
+                { lat: 38.42, lon: 27.13, country: 'TUR', label: 'İzmir', size: 'medium' },
+                { lat: 37.87, lon: 32.49, country: 'TUR', label: 'Konya', size: 'small' }
+              ],
+              markers: [
+                { lat: 39.87, lon: 32.75, label: '12 Eylül: Genelkurmay merkez komuta', side: 'army' },
+                { lat: 40.19, lon: 29.06, label: 'Marmara güvenlik düğümü', side: 'army' },
+                { lat: 41.01, lon: 28.98, label: 'Siyasi parti ve sendika kapatmaları', side: 'army' }
+              ],
+              portraits: [
+                { lat: 39.15, lon: 34.2, name: 'Kenan Evren', role: 'Darbe lideri', photo: './assets/portraits/turkey-left-right/kenan-evren.jpg', photoCredit: 'Yerel dosya' },
+                { lat: 41.25, lon: 27.7, name: 'Bülent Ecevit', role: 'Devrilen Başbakan', photo: './assets/portraits/turkey-left-right/bulent-ecevit.jpg', photoCredit: 'Yerel dosya' }
+              ],
+              animatedUnits: [
+                { type: 'tank', side: 'army', path: [[39.87, 32.75], [40.2, 31.2], [40.6, 29.8], [41.01, 28.98]], label: 'Ankara → İstanbul', endFrac: 0.94 },
+                { type: 'tank', side: 'army', path: [[39.87, 32.75], [39.4, 31.0], [38.9, 29.5], [38.42, 27.13]], label: 'Ankara → İzmir', endFrac: 0.92, startOffsetMs: 500 },
+                { type: 'tank', side: 'army', path: [[39.87, 32.75], [39.6, 32.6], [39.0, 32.55], [37.87, 32.49]], label: 'Merkez güvenlik hattı', endFrac: 0.84, startOffsetMs: 1500 },
+                { type: 'tank', side: 'army', path: [[39.87, 32.75], [40.0, 31.8], [40.1, 30.6], [40.19, 29.06]], label: 'Ankara → Bursa kontrol hattı', endFrac: 0.8, startOffsetMs: 2100 }
+              ],
+              terms: [
+                { en: 'Coup d\'etat', tr: 'Askeri Darbe', cat: 'Temel Kavramlar' },
+                { en: 'Military Junta', tr: 'Askeri Cunta', cat: 'Kurumlar' },
+                { en: 'Martial Law', tr: 'Sıkıyönetim', cat: 'Güvenlik' },
+                { en: 'Authoritarian Consolidation', tr: 'Otoriter Konsolidasyon', cat: 'Siyaset' },
+                { en: 'Command-and-Control', tr: 'Komuta-Kontrol', cat: 'Kurumlar' },
+                { en: 'Depoliticization', tr: 'Depolitizasyon', cat: 'Siyaset' }
+              ]
+            }
+          ]
         }
       };
 
@@ -4862,18 +5756,9 @@ loadData();
       }
 
       async function resolveBackendBase(){
-        if(!(location && location.protocol === 'file:')) return '';
-        const candidates = ['http://localhost:3000','http://localhost:3001','http://localhost:3002','http://localhost:3003'];
-        for(const base of candidates){
-          try{
-            const h = await fetch(base + '/api/health');
-            if(!h.ok) continue;
-            // Yeni backend'i ayırt etmek için OWID route var mı bak.
-            const probe = await fetch(base + '/api/owid/summary?slug=trade-as-share-of-gdp&codes=TUR');
-            if(probe.status !== 404) return base;
-          } catch(_e){}
-        }
-        return 'http://localhost:3000';
+        // Kullanıcı talebi: localhost zorunluluğu olmasın.
+        // Bu yüzden backend tabanı varsayılan boş bırakılır.
+        return '';
       }
 
       function polysToFeatureCollection(polys){
@@ -5124,6 +6009,58 @@ loadData();
         }
       }
 
+      function buildEmbeddedPhaseEvents(preset, phase, startDate, endDate){
+        var p = phase || getActiveHistoryPhase();
+        if(!p) return [];
+        var presetTitle = (preset && preset.title) ? String(preset.title) : 'IR Lexicon';
+        var seedDate =
+          (p.eventWindow && (p.eventWindow.start || p.eventWindow.end)) ||
+          startDate ||
+          endDate ||
+          '';
+        var items = [];
+        var ops = Array.isArray(p.operations) ? p.operations : [];
+        ops.forEach(function(op, idx){
+          if(!op) return;
+          var actor = op.actor ? String(op.actor) : 'Aktör';
+          var unit = op.unitType ? String(op.unitType) : 'harekat';
+          var title = (op.label ? String(op.label) : ('Operasyon ' + (idx + 1))) + ' · ' + actor;
+          items.push({
+            seendate: seedDate,
+            title: title,
+            domain: presetTitle + ' (yerel veri)',
+            sourcecommonname: 'IR_LEXICON.html',
+            url: '#',
+            description: unit
+          });
+        });
+        var marks = Array.isArray(p.markers) ? p.markers : [];
+        marks.forEach(function(m, idx){
+          if(!m || !m.label) return;
+          items.push({
+            seendate: seedDate,
+            title: String(m.label),
+            domain: presetTitle + ' (faz notu)',
+            sourcecommonname: 'IR_LEXICON.html',
+            url: '#',
+            description: 'marker-' + (idx + 1)
+          });
+        });
+        var terms = Array.isArray(p.terms) ? p.terms : [];
+        terms.slice(0, 6).forEach(function(t){
+          if(!t || !t.en || !t.tr) return;
+          items.push({
+            seendate: seedDate,
+            title: String(t.en) + ' / ' + String(t.tr),
+            domain: presetTitle + ' (kavram)',
+            sourcecommonname: 'IR_LEXICON.html',
+            url: '#',
+            description: String(t.cat || 'Kategori')
+          });
+        });
+        return items.slice(0, 18);
+      }
+
       function renderHistoryStory(preset){
         if(!historyStory) return;
         if(!preset){
@@ -5153,8 +6090,8 @@ loadData();
 
         // Country legend
         if(activePhase && Array.isArray(activePhase.countries)){
-          var countryNames = { 'EGY': 'Misir', 'SYR': 'Suriye', 'ISR': 'Israil' };
-          var countryColors = { 'EGY': '#22c55e', 'SYR': '#ef4444', 'ISR': '#3b82f6' };
+          var countryNames = { 'EGY': 'Misir', 'SYR': 'Suriye', 'ISR': 'Israil', 'TUR': 'Türkiye', 'JOR': 'Ürdün', 'GBR': 'İngiltere', 'FRA': 'Fransa' };
+          var countryColors = { 'EGY': '#22c55e', 'SYR': '#ef4444', 'ISR': '#3b82f6', 'TUR': '#f59e0b', 'JOR': '#8b5cf6', 'GBR': '#06b6d4', 'FRA': '#6366f1' };
           html += '<div class="country-legend">';
           activePhase.countries.forEach(function(c){
             html += '<div class="country-legend-item"><div class="country-legend-dot" style="background:'+countryColors[c]+'40;border-color:'+countryColors[c]+'"></div>' + (countryNames[c]||c) + '</div>';
@@ -5166,7 +6103,7 @@ loadData();
         if(activePhase && Array.isArray(activePhase.operations) && activePhase.operations.length > 0){
           html += '<div class="phase-panel-section"><h6>Askeri Harekatlar</h6>';
           activePhase.operations.forEach(function(op){
-            var actorColor = {'Egypt':'#22c55e','Syria':'#ef4444','Israel':'#3b82f6','UN':'#818cf8','US':'#f59e0b','USSR':'#dc2626'}[op.actor] || '#f97316';
+            var actorColor = {'Egypt':'#22c55e','Syria':'#ef4444','Israel':'#3b82f6','UN':'#818cf8','US':'#f59e0b','USSR':'#dc2626','Ulkucu':'#3b82f6','Sol':'#ef4444','Ordu':'#94a3b8'}[op.actor] || '#f97316';
             html += '<div style="display:flex;align-items:center;gap:6px;margin:4px 0;font-size:12px;color:#cddcf1">';
             html += '<span style="color:'+actorColor+';font-weight:700;min-width:8px">&#x2192;</span> ';
             html += escapeHtml(op.label || 'Harekat');
@@ -5313,15 +6250,16 @@ loadData();
 
         const ACTOR_COLORS = {
           'Egypt': '#22c55e', 'Syria': '#ef4444', 'Israel': '#3b82f6',
-          'UN': '#818cf8', 'US': '#f59e0b', 'USSR': '#dc2626'
+          'UN': '#818cf8', 'US': '#f59e0b', 'USSR': '#dc2626',
+          'Ulkucu': '#3b82f6', 'Sol': '#ef4444', 'Ordu': '#6b7280'
         };
         const COUNTRY_COLORS = {
-          'EGY': { fill: '#22c55e', stroke: '#15803d' },
-          'SYR': { fill: '#ef4444', stroke: '#b91c1c' },
-          'ISR': { fill: '#3b82f6', stroke: '#1d4ed8' },
+          'EGY': { fill: '#22c55e', stroke: '#16a34a' },
+          'SYR': { fill: '#ef4444', stroke: '#dc2626' },
+          'ISR': { fill: '#3b82f6', stroke: '#2563eb' },
+          'TUR': { fill: '#e11d48', stroke: '#be123c' },
           'JOR': { fill: '#a78bfa', stroke: '#6d28d9' },
           'LBN': { fill: '#f472b6', stroke: '#be185d' },
-          'TUR': { fill: '#fb923c', stroke: '#c2410c' },
           'PSE': { fill: '#94a3b8', stroke: '#475569' }
         };
 
@@ -5356,26 +6294,61 @@ loadData();
         }
 
         var fronts = phase && Array.isArray(phase.fronts) ? phase.fronts : [];
-        fronts.forEach(function(fr){
+        var isTurkeyPhaseFallback = !!(phase && phase.id && String(phase.id).indexOf('tr-phase') === 0);
+        var turkeyPortraitCoordsFallback = [];
+        var turkeyFrontLabelCoordsFallback = [];
+        var turkeyFlowLabelCoordsFallback = [];
+        if (isTurkeyPhaseFallback && Array.isArray(visual.portraits)) {
+          visual.portraits.forEach(function(pp, pidx) {
+            var py = Number(pp && pp.lat), px = Number(pp && pp.lon);
+            if (!Number.isFinite(py) || !Number.isFinite(px)) return;
+            var sp = IRLEX_spreadGeoPoint(py, px, pidx, 0.14, 0.2);
+            turkeyPortraitCoordsFallback.push(sp);
+          });
+        }
+        fronts.forEach(function(fr, fri){
           if(!fr.points || fr.points.length < 2) return;
           var coords = fr.points.map(function(p){ return [Number(p[0]), Number(p[1])]; });
+          if (isTurkeyPhaseFallback && coords.length > 2) {
+            coords = [coords[0], coords[coords.length - 1]];
+          }
+          var fallbackZoom = leafletMap && typeof leafletMap.getZoom === 'function' ? leafletMap.getZoom() : 6;
+          if (!isTurkeyPhaseFallback) {
+            if (fri > 0) return;
+            if (fallbackZoom < 4.7) return;
+          }
           L.polyline(coords, {
             color: '#38bdf8', weight: 2, opacity: 0.7,
             dashArray: '8 4', className: 'front-line'
           }).addTo(leafletHistoryLayer);
           var mid = coords[Math.floor(coords.length/2)];
-          L.marker(mid, {
+          var frontNudgeHist = isTurkeyPhaseFallback
+            ? IRLEX_labelNudge('hist_front_' + fri + '_' + (fr.label || ''), 0.08, 0.1)
+            : [0, 0];
+          var frontAdj = IRLEX_pushAwayFromPoints(
+            mid[0] + frontNudgeHist[0],
+            mid[1] + frontNudgeHist[1],
+            turkeyPortraitCoordsFallback,
+            0.1,
+            0.14,
+            0.72
+          );
+          var frontLbl = L.marker([frontAdj[0], frontAdj[1]], {
             icon: L.divIcon({
               className: 'history-label',
               html: '<span style="background:rgba(10,14,26,0.85);color:#38bdf8;padding:2px 6px;border-radius:4px;font-size:10px;font-family:monospace;white-space:nowrap;pointer-events:none">' + (fr.label||'') + '</span>',
-              iconSize: [0,0], iconAnchor: [0,12]
+              iconSize: [0,0], iconAnchor: [0,14]
             }), interactive: false
-          }).addTo(leafletHistoryLayer);
+          });
+          frontLbl.addTo(leafletHistoryLayer);
+          if (isTurkeyPhaseFallback) turkeyFrontLabelCoordsFallback.push([frontAdj[0], frontAdj[1]]);
+          if (isTurkeyPhaseFallback && fri === 0) frontLbl._irlexTurkeyPrimaryFrontLabel = true;
+          if (isTurkeyPhaseFallback && fri > 0) frontLbl._irlexTurkeySecondaryLabel = true;
         });
 
-        visual.polylines2d.forEach(function(l){
+        visual.polylines2d.forEach(function(l, li){
           var a = l.from, b = l.to;
-          var color = ACTOR_COLORS[l.actor] || '#f97316';
+          var color = ACTOR_COLORS[l.actor] || (l.actor === 'Ulkucu' ? '#3b82f6' : l.actor === 'Sol' ? '#ef4444' : l.actor === 'Ordu' ? '#6b7280' : '#f97316');
           var umH = IRLEX_flowUnitMode(l);
           // Tip bazlı çizgi stilleri
           var wHist = umH === 'plane' ? 2 : umH === 'soldier' ? 1.35 : 3.85;
@@ -5408,24 +6381,49 @@ loadData();
           var decHist = IRLEX_addFlowArrowDecorator(leafletMap, histGuide, leafletHistoryLayer);
           if (!decHist) {
             // Kendi SVG ikonlarını kullan (IRLEX_buildArrowDivIcon artık icons/ klasörünü kullanıyor)
-            var arrowM = IRLEX_createBriefingArrowMarker(leafletMap, a, b, color, umH);
+            var arrowM = IRLEX_createBriefingArrowMarker(leafletMap, a, b, color, umH, IRLEX_actorToSide(l.actor));
             if (arrowM) arrowM.addTo(leafletHistoryLayer);
           }
           if(l.label){
+            var fallbackZoom2 = leafletMap && typeof leafletMap.getZoom === 'function' ? leafletMap.getZoom() : 6;
+            if (!isTurkeyPhaseFallback) {
+              if (li > 2) return;
+              if (fallbackZoom2 < 4.9 && li > 0) return;
+            }
+            if (isTurkeyPhaseFallback && li > 2) return;
             var midLat = (a[0]+b[0])/2, midLon = (a[1]+b[1])/2;
+            var histNudge = isTurkeyPhaseFallback
+              ? IRLEX_labelNudge('hist_flow_' + li + '_' + (l.label || ''), 0.1, 0.14)
+              : [0, 0];
+            var histAvoidPoints = isTurkeyPhaseFallback
+              ? turkeyPortraitCoordsFallback
+                  .concat(turkeyFrontLabelCoordsFallback)
+                  .concat(turkeyFlowLabelCoordsFallback)
+              : turkeyPortraitCoordsFallback;
+            var histAdj = IRLEX_pushAwayFromPoints(
+              midLat + histNudge[0],
+              midLon + histNudge[1],
+              histAvoidPoints,
+              isTurkeyPhaseFallback ? 0.16 : 0.12,
+              isTurkeyPhaseFallback ? 0.24 : 0.18,
+              isTurkeyPhaseFallback ? 1.05 : 0.72
+            );
             var actEsc = l.actor ? escapeHtml(String(l.actor)) : '';
             var labEsc = escapeHtml(l.label);
             var innerHist =
               '<span class="irlex-map-label" style="border-color:' + color + '66">' +
               (actEsc ? '<span class="irlex-map-label-actor" style="color:' + color + '">' + actEsc + '</span>' : '') +
               '<span class="irlex-map-label-title">' + labEsc + '</span></span>';
-            L.marker([midLat, midLon], {
+            var histLbl = L.marker([histAdj[0], histAdj[1]], {
               icon: L.divIcon({
                 className: 'history-label',
                 html: innerHist,
-                iconSize: [0,0], iconAnchor: [0,16]
+                iconSize: [0,0], iconAnchor: [0,18]
               }), interactive: false
-            }).addTo(leafletHistoryLayer);
+            });
+            histLbl.addTo(leafletHistoryLayer);
+            if (isTurkeyPhaseFallback) turkeyFlowLabelCoordsFallback.push([histAdj[0], histAdj[1]]);
+            if (isTurkeyPhaseFallback && li > 0) histLbl._irlexTurkeySecondaryLabel = true;
           }
         });
 
@@ -5445,7 +6443,12 @@ loadData();
         });
 
         var portraitsV = Array.isArray(visual.portraits) ? visual.portraits : [];
-        portraitsV.forEach(function(p) {
+        portraitsV.forEach(function(p, pidx) {
+          var baseLat = Number(p.lat);
+          var baseLon = Number(p.lon);
+          var shifted = isTurkeyPhaseFallback
+            ? IRLEX_spreadGeoPoint(baseLat, baseLon, pidx, 0.14, 0.2)
+            : [baseLat, baseLon];
           var html = IRLEX_buildPortraitPinHtml(p.photo, p.name, p.role);
           var icon = L.divIcon({
             className: 'irlex-portrait-marker',
@@ -5453,11 +6456,54 @@ loadData();
             iconSize: [76, 102],
             iconAnchor: [38, 102]
           });
-          var pm = L.marker([p.lat, p.lon], { icon: icon, interactive: true, zIndexOffset: 900 });
+          var pm = L.marker([shifted[0], shifted[1]], { icon: icon, interactive: true, zIndexOffset: 900 });
           var tip = (p.name || '') + (p.role ? ' — ' + p.role : '');
           if (p.photoCredit) tip += ' · ' + p.photoCredit;
           pm.bindTooltip(tip, { direction: 'top', className: 'unit-tooltip', offset: [0, -96] });
           pm.addTo(leafletHistoryLayer);
+        });
+
+        function applyHistoryTurkeySecondaryLabelVisibility() {
+          if (!leafletMap || !leafletHistoryLayer) return;
+          var showSecondary = leafletMap.getZoom() >= 6.3;
+          var showPrimaryFront = leafletMap.getZoom() >= 5.3;
+          leafletHistoryLayer.eachLayer(function(ly) {
+            if (!ly || !ly._icon) return;
+            if (ly._irlexTurkeySecondaryLabel) {
+              ly._icon.style.display = showSecondary ? '' : 'none';
+              return;
+            }
+            if (ly._irlexTurkeyPrimaryFrontLabel) {
+              ly._icon.style.display = showPrimaryFront ? '' : 'none';
+            }
+          });
+        }
+        if (isTurkeyPhaseFallback) {
+          applyHistoryTurkeySecondaryLabelVisibility();
+          if (leafletMap && !leafletMap._irlexHistoryTurkeyZoomBound) {
+            leafletMap._irlexHistoryTurkeyZoomBound = true;
+            leafletMap.on('zoomend', function() {
+              applyHistoryTurkeySecondaryLabelVisibility();
+            });
+          }
+        }
+
+        /* Yüksek yoğunluklu olaylar için kalıcı nabız halkası (pulse ring) */
+        var opsForPulse = phase && Array.isArray(phase.operations) ? phase.operations : [];
+        opsForPulse.forEach(function(op) {
+          if (!op || !(op.intensity >= 0.9)) return;
+          var loc = (Array.isArray(op.to) && op.to.length === 2) ? op.to : (Array.isArray(op.from) && op.from.length === 2 ? op.from : null);
+          if (!loc) return;
+          var actColor = ACTOR_COLORS[op.actor] || '#ef4444';
+          var pulseHtml =
+            '<div style="position:relative;width:36px;height:36px;pointer-events:none">' +
+            '<div class="irlex-pulse-ring" style="border-color:' + actColor + ';animation-duration:' + (op.intensity >= 0.98 ? '1.1s' : '1.6s') + '"></div>' +
+            '<div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:8px;height:8px;border-radius:50%;background:' + actColor + ';opacity:0.9"></div>' +
+            '</div>';
+          var pulseIcon = L.divIcon({ className: 'irlex-pulse-marker', html: pulseHtml, iconSize: [36,36], iconAnchor: [18,18] });
+          var pm2 = L.marker([Number(loc[0]), Number(loc[1])], { icon: pulseIcon, interactive: false, zIndexOffset: 800 });
+          if (op.label) pm2.bindTooltip(escapeHtml(op.label), { className: 'unit-tooltip', direction: 'top' });
+          pm2.addTo(leafletHistoryLayer);
         });
       }
 
@@ -5505,6 +6551,17 @@ loadData();
         const backendBase = await resolveBackendBase();
         const q = options.query || 'middle east diplomacy OR ceasefire OR conflict OR negotiation';
         const introHtml = buildHistoryIntro(options.preset || null, startDate, endDate, options.phase || null);
+        const isFileMode = typeof location !== 'undefined' && location && location.protocol === 'file:';
+        if (isFileMode || !backendBase) {
+          var localItems = buildEmbeddedPhaseEvents(
+            options.preset || currentHistoryPreset,
+            options.phase || getActiveHistoryPhase(),
+            startDate,
+            endDate
+          );
+          renderEventsList(localItems, endDate, noteEl, introHtml);
+          return;
+        }
         const url =
           `${backendBase}/api/events?query=${encodeURIComponent(q)}` +
           `&lang=en&startDate=${encodeURIComponent(startDate)}` +
@@ -5525,6 +6582,16 @@ loadData();
           renderEventsList(json.data || [], endDate, noteEl, introHtml);
         } catch(err){
           if(requestToken && requestToken !== historyFetchToken) return;
+          var fallbackItems = buildEmbeddedPhaseEvents(
+            options.preset || currentHistoryPreset,
+            options.phase || getActiveHistoryPhase(),
+            startDate,
+            endDate
+          );
+          if (fallbackItems.length) {
+            renderEventsList(fallbackItems, endDate, noteEl, introHtml);
+            return;
+          }
           if(noteEl){
             noteEl.textContent =
               'Tarihi olaylar cekilemedi. ' +

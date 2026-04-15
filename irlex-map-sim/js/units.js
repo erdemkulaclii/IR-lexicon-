@@ -56,6 +56,13 @@
     return global.IRLEX_ICON_BASE || './icons/';
   }
 
+  function resolveSoldierIconBySide(side) {
+    var s = String(side || '').toLowerCase();
+    if (s === 'left') return 'sol.svg';
+    if (s === 'right') return 'sağ.svg';
+    return 'helmet-soldier-svgrepo-com.svg';
+  }
+
   var UNIT_ICON_FILES = {
     plane: 'plane-2-svgrepo-com.svg',
     tank: 'tank-svgrepo-com.svg',
@@ -65,7 +72,7 @@
   var UNIT_SIZES = {
     plane: [34, 34],
     tank: [32, 32],
-    soldier: [22, 22]
+    soldier: [30, 30]
   };
 
   var UNIT_HEADING_OFFSET_RAD = {
@@ -80,7 +87,7 @@
 
   var SCALE_PLANE = 1.2;
   var SCALE_TANK = 1.0;
-  var SCALE_SOLDIER = 0.8;
+  var SCALE_SOLDIER = 0.95;
 
   function spawnImpactPulse(map, latlng, layerGroup) {
     if (!map || !latlng) return;
@@ -135,28 +142,42 @@
     this._boundRebuild = this._rebuildFollowPath.bind(this);
 
     var ci = Number.isFinite(options.clusterIndex) ? options.clusterIndex : 0;
-    this._clusterOffX = type === 'soldier' ? ((ci % 4) - 1.5) * 6 : 0;
-    this._clusterOffY = type === 'soldier' ? (Math.floor(ci / 4) % 3 - 1) * 5 : 0;
+    this._clusterOffX = type === 'soldier' ? ((ci % 4) - 1.5) * 9 : 0;
+    this._clusterOffY = type === 'soldier' ? (Math.floor(ci / 4) % 3 - 1) * 8 : 0;
 
     var zOff = type === 'plane' ? Z_PLANE : type === 'tank' ? Z_TANK : Z_SOLDIER;
     var depthClass = type === 'plane' ? 'unit-plane' : type === 'tank' ? 'unit-tank' : 'unit-soldier';
 
     var sz = UNIT_SIZES[type] || [28, 28];
+    if (type === 'soldier') {
+      var sideNorm = String(options.side || '').toLowerCase();
+      if (sideNorm === 'left' || sideNorm === 'right') sz = [64, 64];
+    }
     var base = getIconBase();
-    var file = UNIT_ICON_FILES[type] || UNIT_ICON_FILES.soldier;
+    var file = type === 'soldier'
+      ? resolveSoldierIconBySide(options.side)
+      : (UNIT_ICON_FILES[type] || UNIT_ICON_FILES.soldier);
     var iconPath = base + file;
+
+    /* side: 'left'→Sol, 'right'→Ülkücü, 'army'→Ordu — CSS filtresi ile renk tonu */
+    var sideNormClass = String(options.side || '').toLowerCase();
+    var sideAttr = options.side ? ' data-side="' + options.side + '"' : '';
+    var motionClass = 'unit-motion' + (sideNormClass ? ' side-' + sideNormClass : '');
+
     var icon = Lref.divIcon({
       className: 'unit-icon unit-icon-root ' + type + ' ' + depthClass,
       html:
         '<div class="unit ' +
         depthClass +
         '">' +
-        '<div class="unit-motion">' +
+        '<div class="' + motionClass + '">' +
         '<img src="' +
         iconPath +
         '" alt="" class="unit-img ' +
         type +
-        '" draggable="false"/>' +
+        '" draggable="false"' +
+        sideAttr +
+        '/>' +
         '</div></div>',
       iconSize: sz,
       iconAnchor: [sz[0] / 2, sz[1] / 2]
@@ -182,6 +203,20 @@
           opacity: 0.55,
           interactive: false,
           className: 'unit-plane-trail unit-plane-trail-live'
+        });
+      } catch (e) {
+        this._trail = null;
+      }
+    }
+    if (type === 'tank' && this._fxLayer) {
+      try {
+        this._trail = Lref.polyline([this._start], {
+          color: '#f97316',
+          weight: 2.5,
+          opacity: 0.5,
+          dashArray: '6 5',
+          interactive: false,
+          className: 'unit-tank-trail unit-plane-trail-live'
         });
       } catch (e) {
         this._trail = null;
@@ -333,12 +368,13 @@
         'translate3d(' + tx + 'px,' + ty + 'px,0) rotate(' + angleRad + 'rad) scale(' + sc + ')';
     }
 
-    if (this._type === 'plane' && this._trail && this._trailHist) {
+    if ((this._type === 'plane' || this._type === 'tank') && this._trail && this._trailHist) {
       var p0 = this._map.latLngToLayerPoint(Lref.latLng(this._start[0], this._start[1]));
       var absLp = Lref.point(p0.x + tx, p0.y + ty);
       var ll = this._map.layerPointToLatLng(absLp);
       this._trailHist.push([ll.lat, ll.lng]);
-      if (this._trailHist.length > 10) this._trailHist.shift();
+      var maxHist = this._type === 'tank' ? 18 : 10;
+      if (this._trailHist.length > maxHist) this._trailHist.shift();
       if (this._trailHist.length >= 2) {
         try {
           this._trail.setLatLngs(this._trailHist);

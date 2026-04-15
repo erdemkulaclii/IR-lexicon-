@@ -66,6 +66,35 @@
   filter: none;
 }
 
+/* Sadece sol.svg / sağ.svg büyük: side=left|right */
+.unit-icon.soldier img.unit-img.soldier[data-side="left"],
+.unit-icon.soldier img.unit-img.soldier[data-side="right"] {
+  width: 58px;
+  height: 58px;
+  max-width: 58px;
+  max-height: 58px;
+}
+
+/* Sol/Sag ikonları okunur bir rozet içinde dursun */
+.unit-icon.soldier .unit-motion.side-left,
+.unit-icon.soldier .unit-motion.side-right {
+  background: rgba(6, 10, 22, 0.66);
+  border: 1px solid rgba(148, 163, 184, 0.34);
+  border-radius: 999px;
+  box-shadow: 0 0 0 2px rgba(3, 7, 18, 0.45), 0 6px 14px rgba(2, 6, 23, 0.35);
+}
+
+/* Sol/Sag custom svg renkleri bozulmasın */
+.unit-icon.soldier img.unit-img.soldier[data-side="left"],
+.unit-icon.soldier img.unit-img.soldier[data-side="right"] {
+  filter: none !important;
+}
+
+/* Aktör/yan renk tonu — data-side img üzerinde, CSS img[data-side] ile */
+img.unit-img[data-side="left"]  { filter: sepia(1) saturate(5) hue-rotate(310deg) brightness(1.15) !important; }
+img.unit-img[data-side="right"] { filter: sepia(1) saturate(5) hue-rotate(190deg) brightness(1.1)  !important; }
+img.unit-img[data-side="army"]  { filter: sepia(1) saturate(3) hue-rotate(75deg)  brightness(0.95) !important; }
+
 /* Depth between unit types: zIndexOffset on markers in units.js (plane > tank > soldier); scale on .unit-motion */
 
 .unit-plane-trail {
