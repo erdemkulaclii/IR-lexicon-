@@ -3475,9 +3475,42 @@ loadData().catch(function (e) { console.error(e); });
       return '';
     }
 
+    function IRLEX_portraitFallbackCandidates(baseSrc) {
+      var src = String(baseSrc || '').trim();
+      if (!src) return [];
+      if (/^data:/i.test(src)) return [];
+      if (/^https?:\/\//i.test(src)) return [];
+      var rel = src.replace(/^\.\//, '').replace(/^\/+/, '');
+      if (!rel) return [];
+      var out = [];
+      out.push('../' + rel);
+      out.push('/' + rel);
+      try {
+        if (typeof location !== 'undefined' && location && /\.github\.io$/i.test(location.hostname || '')) {
+          var segs = String(location.pathname || '').split('/').filter(Boolean);
+          if (segs.length > 0) out.push('/' + segs[0] + '/' + rel);
+        }
+      } catch (e) {}
+      var seen = {};
+      return out.filter(function(v) {
+        var k = String(v || '').trim();
+        if (!k || seen[k]) return false;
+        seen[k] = true;
+        return true;
+      });
+    }
+
     function IRLEX_portraitImgOnError(img) {
       try {
         if (!img || !img.parentNode) return;
+        var base = img.getAttribute('data-src-orig') || img.getAttribute('src') || '';
+        var cands = IRLEX_portraitFallbackCandidates(base);
+        var idx = Number(img.getAttribute('data-fallback-idx') || '0');
+        if (Number.isFinite(idx) && idx < cands.length) {
+          img.setAttribute('data-fallback-idx', String(idx + 1));
+          img.src = cands[idx];
+          return;
+        }
         img.onerror = null;
         var d = document.createElement('div');
         d.className = 'irlex-portrait-placeholder';
@@ -3496,7 +3529,7 @@ loadData().catch(function (e) { console.error(e); });
       var ph = '<div class="irlex-portrait-placeholder" aria-hidden="true" style="display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#c8a96e;font-family:Georgia,serif;letter-spacing:1px">' + initials + '</div>';
       /* lazy yok: Leaflet marker icinde bazen hic yuklenmez */
       var imgHtml = src
-        ? '<img class="irlex-portrait-img" src="' + src + '" alt="" draggable="false" decoding="async" referrerpolicy="no-referrer" crossorigin="anonymous" onerror="window.IRLEX_portraitImgOnError&&window.IRLEX_portraitImgOnError(this)"/>'
+        ? '<img class="irlex-portrait-img" src="' + src + '" data-src-orig="' + src + '" data-fallback-idx="0" alt="" draggable="false" decoding="async" referrerpolicy="no-referrer" crossorigin="anonymous" onerror="window.IRLEX_portraitImgOnError&&window.IRLEX_portraitImgOnError(this)"/>'
         : ph;
       var crownSvg =
         '<svg class="irlex-portrait-crown" viewBox="0 0 24 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
