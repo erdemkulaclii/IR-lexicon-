@@ -873,6 +873,19 @@ body.dragging .sim-tooltip{opacity:0!important;visibility:hidden!important;}
 .sim-panel-enter{opacity:0;transform:translateY(8px);}
 .sim-panel-visible{opacity:1;transform:translateY(0);}
 
+/* Lightbox overlay */
+.irlex-lightbox-overlay{position:fixed;inset:0;z-index:99999;background:rgba(2,6,18,0.92);display:flex;align-items:center;justify-content:center;cursor:zoom-out;opacity:0;transition:opacity 0.25s ease;pointer-events:none;}
+.irlex-lightbox-overlay.active{opacity:1;pointer-events:auto;}
+.irlex-lightbox-overlay img{max-width:92vw;max-height:88vh;border-radius:10px;box-shadow:0 8px 40px rgba(0,0,0,0.7);object-fit:contain;cursor:default;}
+.irlex-lightbox-caption{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);color:#e2e8f0;font-size:13px;font-family:monospace;background:rgba(10,14,26,0.85);padding:6px 16px;border-radius:8px;max-width:80vw;text-align:center;pointer-events:none;}
+
+/* Gazete manşet kartları */
+.irlex-newspaper-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:8px;}
+.irlex-newspaper-card{border:1px solid #1e2d47;border-radius:8px;overflow:hidden;cursor:zoom-in;transition:transform 0.2s ease,box-shadow 0.2s ease;background:#0d1117;}
+.irlex-newspaper-card:hover{transform:scale(1.03);box-shadow:0 4px 16px rgba(56,189,248,0.15);}
+.irlex-newspaper-card img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;pointer-events:none;}
+.irlex-newspaper-card .irlex-np-caption{padding:5px 7px;font-size:10px;line-height:1.35;color:#9bb9df;font-family:monospace;}
+
 /* Unit marker enhanced hover */
 .unit-marker{transition:transform 0.3s ease,filter 0.3s ease;}
 .unit-marker:hover{transform:scale(1.22);filter:none;z-index:9999!important;}
@@ -5249,7 +5262,7 @@ loadData().catch(function (e) { console.error(e); });
               id: 'tr-phase1-polarization',
               title: 'Kutuplaşma (1960–1968)',
               dateRange: '1960–1968',
-              summary: '27 Mayıs 1960 darbesi sonrası milliyetçi sağ (MHP/CKMP) ve Marksist sol (TİP, Dev-Genç) ağları üniversite, sendika ve şehir merkezlerinde hızla genişledi; karşıt mitingler, öğrenci boykotları ve sokak mobilizasyonu ideolojik kutuplaşmayı kurumsallaştırdı.',
+              summary: '27 Mayıs 1960 askeri darbesi, Demokrat Parti iktidarını devirerek Türk siyasi hayatında derin bir kırılma yarattı. Yassıada yargılamaları sonunda Başbakan Adnan Menderes ve iki bakanı idam edildi. 1961 Anayasası geniş özgürlükler tanıdı: sendikalar, öğrenci örgütleri ve siyasi partiler hızla çoğaldı. Milliyetçi sağda Alparslan Türkeş CKMP\'yi (sonra MHP) ele geçirirken, solda TİP ilk kez parlamentoya girdi. Üniversitelerde Dev-Genç ve Fikir Kulüpleri Federasyonu karşıt kampları oluşturdu. 1968 küresel öğrenci dalgası Türkiye\'ye sıçradığında kampüsler çatışma alanına dönüştü; ABD 6. Filo protestoları, toprak işgalleri ve fabrika grevleri ideolojik kutuplaşmayı sokağa taşıdı.',
               eventWindow: { start: '1960-05-27', end: '1968-12-31' },
               queryHint: 'turkey 1960 coup OR MHP founding turkey OR turkish student movements 1968',
               focus: { bounds: [[36.5, 26.0], [42.5, 45.0]], altitude: 3.0 },
@@ -5287,20 +5300,26 @@ loadData().catch(function (e) { console.error(e); });
                 { type: 'soldier', side: 'left', path: [[38.42, 27.13], [38.15, 28.5], [37.95, 30.2], [37.87, 32.49]], label: 'Öğrenci hattı: Ege → İç Anadolu', endFrac: 0.86, startOffsetMs: 1300 },
                 { type: 'soldier', side: 'right', path: [[39.93, 32.86], [39.5, 32.7], [38.8, 32.6], [37.87, 32.49]], label: 'Sağ kadro transferi', endFrac: 0.82, startOffsetMs: 1800 }
               ],
+              newspapers: [
+                { img: './assets/newspapers/turkey-left-right/27-mayis-1960-gazete.png', caption: '27 Mayıs 1960 Darbesi — Ordunun yönetime el koyduğu günün simgesi', credit: 'Wikimedia Commons CC BY-SA 3.0' },
+                { img: './assets/newspapers/turkey-left-right/turkish-revolution-1963-kitap.jpg', caption: 'Walter F. Weiker — "The Turkish Revolution 1960" (1963) — Darbe analizi', credit: 'Wikimedia Commons CC BY-SA 3.0' }
+              ],
               terms: [
                 { en: 'Polarization', tr: 'Kutuplaşma', cat: 'Teori' },
                 { en: 'Ideological Camps', tr: 'İdeolojik Kamplar', cat: 'Teori' },
                 { en: 'Street Mobilization', tr: 'Sokak Mobilizasyonu', cat: 'Güvenlik' },
                 { en: 'Cadre Formation', tr: 'Kadrolaşma', cat: 'Kurumlar' },
                 { en: 'Campus Politics', tr: 'Kampüs Siyaseti', cat: 'Siyaset' },
-                { en: 'Collective Action', tr: 'Kolektif Eylem', cat: 'Teori' }
+                { en: 'Collective Action', tr: 'Kolektif Eylem', cat: 'Teori' },
+                { en: 'Military Junta', tr: 'Askeri Cunta', cat: 'Kurumlar' },
+                { en: 'Constitutional Reform', tr: 'Anayasa Reformu', cat: 'Hukuk' }
               ]
             },
             {
               id: 'tr-phase2-bloody-sunday',
               title: 'Kanlı Pazar ve Muhtıra (1969–1975)',
               dateRange: '1969–1975',
-              summary: 'Kanlı Pazar (1969), 15-16 Haziran işçi eylemleri (1970), 12 Mart muhtırası ve idamlar sonrası şehirlerde paramiliter ağlar daha görünür hale geldi; kampüs-sokak hattı düzenli çatışma döngüsüne girdi.',
+              summary: '16 Şubat 1969\'da İstanbul\'da "Kanlı Pazar" olayında sağ-sol gruplar ilk kez kitlesel olarak çatıştı; 2 kişi öldü, yüzlerce yaralı. 15-16 Haziran 1970\'de yüzbinlerce işçi DİSK protestolarında sokaklara döküldü, sıkıyönetim ilan edildi. 12 Mart 1971 muhtırasıyla ordu yönetime el koydu, sol örgütler kapatıldı, Dev-Genç liderleri tutuklandı. THKP-C lideri Mahir Çayan ve arkadaşları Kızıldere\'de çatışmada öldürüldü (30 Mart 1972). 6 Mayıs 1972\'de Deniz Gezmiş, Yusuf Aslan ve Hüseyin İnan asılarak idam edildi — bu idamlar Türk solunun sembolik kırılma noktası oldu. Dönem boyunca üniversiteler, basın ve sendikalar sistematik baskı altına alındı.',
               eventWindow: { start: '1969-02-16', end: '1975-12-31' },
               queryHint: 'kanlı pazar 1969 OR 12 mart muhtırası OR deniz gezmis idam 1972 OR dev-genc',
               focus: { bounds: [[38.2, 26.9], [42.2, 34.6]], altitude: 1.9 },
@@ -5323,14 +5342,22 @@ loadData().catch(function (e) { console.error(e); });
                 { lat: 39.65, lon: 27.89, country: 'TUR', label: 'Balıkesir hattı', size: 'small' }
               ],
               markers: [
-                { lat: 41.04, lon: 28.98, label: 'Kanlı Pazar (1969)', side: 'right' },
-                { lat: 39.93, lon: 32.86, label: 'Deniz Gezmiş, Yusuf Aslan, Hüseyin İnan idamları (1972)', side: 'army' },
-                { lat: 40.74, lon: 30.39, label: '12 Mart sonrası baskı dalgası', side: 'army' },
-                { lat: 39.93, lon: 32.86, label: 'Üniversite merkezli karşı mobilizasyon', side: 'left' }
+                { lat: 41.04, lon: 28.98, label: 'Kanlı Pazar — 16 Şubat 1969: Sağ-sol ilk kitlesel çatışma', side: 'right' },
+                { lat: 41.01, lon: 29.15, label: '15-16 Haziran 1970: DİSK İşçi Direnişi, sıkıyönetim', side: 'left' },
+                { lat: 39.93, lon: 32.86, label: '12 Mart 1971 Muhtırası: Ordunun siyasete müdahalesi', side: 'army' },
+                { lat: 40.65, lon: 31.5, label: 'Kızıldere (30 Mart 1972): Mahir Çayan ve 9 THKP-C militanı öldürüldü', side: 'left' },
+                { lat: 39.88, lon: 32.80, label: '6 Mayıs 1972: Deniz Gezmiş, Yusuf Aslan, Hüseyin İnan idam edildi', side: 'army' },
+                { lat: 39.93, lon: 33.1, label: 'Üniversite ve basın üzerinde sistematik baskı', side: 'army' }
               ],
               portraits: [
                 { lat: 40.65, lon: 31.3, name: 'Alparslan Türkeş', role: 'MHP Genel Başkanı', photo: './assets/portraits/turkey-left-right/alparslan-turkes.jpg', photoCredit: 'Yerel dosya' },
                 { lat: 38.75, lon: 34.3, name: 'Bülent Ecevit', role: 'CHP liderliği yükselişi', photo: './assets/portraits/turkey-left-right/bulent-ecevit.jpg', photoCredit: 'Yerel dosya' }
+              ],
+              newspapers: [
+                { img: './assets/newspapers/turkey-left-right/deniz-gezmis-gozalti.png', caption: 'Deniz Gezmiş gözaltında — 18 Mart 1971 (Associated Press / NYT)', credit: 'Public Domain — Wikimedia Commons' },
+                { img: './assets/newspapers/turkey-left-right/deniz-gezmis-kimlik.jpg', caption: 'Deniz Gezmiş\'in kimlik cüzdanı', credit: 'Wikimedia Commons CC BY-SA 4.0' },
+                { img: './assets/newspapers/turkey-left-right/deniz-gezmis-idam-belgeleri.jpg', caption: 'İdam kararı belgeleri — Gezmiş, Aslan, İnan (Ulucanlar Müzesi)', credit: 'Wikimedia Commons CC BY-SA 4.0' },
+                { img: './assets/newspapers/turkey-left-right/deniz-gezmis-kelepce.jpg', caption: 'Kelepçe ve belgeler — Ulucanlar Cezaevi Müzesi', credit: 'Wikimedia Commons CC BY-SA 4.0' }
               ],
               animatedUnits: [
                 { type: 'soldier', side: 'right', path: [[40.99, 29.02], [40.9, 29.0], [40.95, 28.99], [41.04, 28.98]], label: 'Kanlı Pazar', endFrac: 0.94 },
@@ -5346,6 +5373,8 @@ loadData().catch(function (e) { console.error(e); });
                 { en: 'State Repression', tr: 'Devlet Baskısı', cat: 'Kurumlar' },
                 { en: 'Counter-Mobilization', tr: 'Karşı-Mobilizasyon', cat: 'Teori' },
                 { en: 'Urban Conflict', tr: 'Kentsel Çatışma', cat: 'Güvenlik' },
+                { en: 'Execution', tr: 'İdam', cat: 'Hukuk' },
+                { en: 'Guerrilla Warfare', tr: 'Gerilla Savaşı', cat: 'Güvenlik' },
                 { en: 'Escalation', tr: 'Tırmanma', cat: 'Teori' }
               ]
             },
@@ -5353,7 +5382,7 @@ loadData().catch(function (e) { console.error(e); });
               id: 'tr-phase3-massacres',
               title: 'Katliamlar Dalgası (1976–1978)',
               dateRange: '1976–1978',
-              summary: 'Bahçelievler katliamı (1977), Maraş katliamı (1978) ve kent ölçekli misilleme döngüleri, mezhepsel/ideolojik fay hatlarını sertleştirdi; devlet kapasitesi sıkıyönetimle güvenlikçi eksene kaydı.',
+              summary: '1 Mayıs 1977 Taksim katliamı: İstanbul\'da yüzbinlerce kişinin toplandığı mitinge Intercontinental Otel ve çevresinden ateş açıldı; resmi rakamlara göre 34, gayrı resmi kaynaklara göre 42 kişi öldü, yüzlercesi yaralandı — failler hiçbir zaman tam olarak tespit edilemedi. 3 Ekim 1978 Bahçelievler katliamı: Ankara\'da yedi TİP üyesi genç, evlerinde uyurken Ülkücü militanlar tarafından boğularak ve bıçaklanarak katledildi. 19-26 Aralık 1978 Maraş katliamı: Kahramanmaraş\'ta Alevi mahallelerine yönelik organize saldırılarda 111\'den fazla kişi (çoğu sivil) öldürüldü, evler ve dükkanlar yakıldı; olaylar sıkıyönetim ilanına yol açtı. Bu dönemde günlük ortalama 10-20 siyasi cinayet işleniyordu ve devlet mekanizması şiddeti durdurmakta aciz kaldı.',
               eventWindow: { start: '1976-01-01', end: '1978-12-31' },
               queryHint: 'bahçelievler massacre 1977 OR maraş massacre 1978',
               focus: { bounds: [[36.3, 29.8], [41.2, 40.2]], altitude: 2.45 },
@@ -5376,13 +5405,19 @@ loadData().catch(function (e) { console.error(e); });
                 { lat: 37.92, lon: 40.23, country: 'TUR', label: 'Diyarbakır hattı', size: 'medium' }
               ],
               markers: [
-                { lat: 39.91, lon: 32.82, label: 'Bahçelievler katliamı (1977)', side: 'right' },
-                { lat: 37.59, lon: 36.94, label: 'Maraş katliamı (1978)', side: 'right' },
-                { lat: 37.92, lon: 40.23, label: 'Doğuya yayılım ve güvenlik kırılması', side: 'left' }
+                { lat: 41.04, lon: 28.98, label: '1 Mayıs 1977 Taksim Katliamı: 34+ ölü, failler meçhul', side: 'left' },
+                { lat: 39.91, lon: 32.82, label: '3 Ekim 1978 Bahçelievler Katliamı: 7 TİP üyesi öldürüldü', side: 'right' },
+                { lat: 37.59, lon: 36.94, label: '19-26 Aralık 1978 Maraş Katliamı: 111+ ölü, Alevi mahalleleri yakıldı', side: 'right' },
+                { lat: 37.92, lon: 40.23, label: 'Doğu illerinde şiddet yayılımı ve güvenlik kırılması', side: 'left' },
+                { lat: 40.19, lon: 29.06, label: 'Sıkıyönetim bölgeleri genişletildi (13 il)', side: 'army' }
               ],
               portraits: [
                 { lat: 40.85, lon: 30.6, name: 'Alparslan Türkeş', role: 'MHP lideri', photo: './assets/portraits/turkey-left-right/alparslan-turkes.jpg', photoCredit: 'Yerel dosya' },
                 { lat: 37.2, lon: 33.7, name: 'Bülent Ecevit', role: 'Başbakan', photo: './assets/portraits/turkey-left-right/bulent-ecevit.jpg', photoCredit: 'Yerel dosya' }
+              ],
+              newspapers: [
+                { img: './assets/newspapers/turkey-left-right/1-mayis-1977-taksim.jpg', caption: '1 Mayıs 1977 Taksim Katliamı — Yüzbinlerce kişinin toplandığı mitinge ateş açıldı', credit: 'Tarihî arşiv' },
+                { img: './assets/newspapers/turkey-left-right/maras-katliami-1978.jpg', caption: 'Maraş Katliamı (Aralık 1978) — Alevi mahallelerine organize saldırı', credit: 'Tarihî arşiv' }
               ],
               animatedUnits: [
                 { type: 'soldier', side: 'right', path: [[39.91, 32.82], [39.0, 34.5], [38.2, 35.8], [37.59, 36.94]], label: 'Katliam dalgası', endFrac: 0.92 },
@@ -5396,14 +5431,17 @@ loadData().catch(function (e) { console.error(e); });
                 { en: 'Martial Law', tr: 'Sıkıyönetim', cat: 'Kurumlar' },
                 { en: 'Cycle of Retaliation', tr: 'Misilleme Döngüsü', cat: 'Teori' },
                 { en: 'State Capacity', tr: 'Devlet Kapasitesi', cat: 'Kurumlar' },
-                { en: 'Urban Terror', tr: 'Kent Terörü', cat: 'Güvenlik' }
+                { en: 'Urban Terror', tr: 'Kent Terörü', cat: 'Güvenlik' },
+                { en: 'Deep State', tr: 'Derin Devlet', cat: 'Güvenlik' },
+                { en: 'Ethnic Cleansing', tr: 'Etnik Temizlik', cat: 'Güvenlik' },
+                { en: 'Impunity', tr: 'Cezasızlık', cat: 'Hukuk' }
               ]
             },
             {
               id: 'tr-phase4-coup',
               title: '12 Eylül Darbesi (1979–1980)',
               dateRange: '1979 – 12 Eylül 1980',
-              summary: '1979-1980 döneminde günlük siyasi cinayetler ve suikastlar zirveye çıktı; güvenlik bürokrasisi Ankara merkezli komuta ağıyla ülke çapında müdahaleye hazırlanırken 12 Eylül 1980 darbesiyle askerî idare tesis edildi.',
+              summary: '1979-80 döneminde şiddet doruk noktasına ulaştı: günde ortalama 20-30 siyasi cinayet işleniyor, suikastlar ve bombalı saldırılar günlük hayatın parçası oluyordu. Abdi İpekçi suikastı (1 Şubat 1979), Çorum olayları (Mayıs-Temmuz 1980, 57 ölü) ve İstanbul Üniversitesi baskınları çözülme hissini artırdı. Genelkurmay Başkanı Kenan Evren liderliğindeki Millî Güvenlik Konseyi 12 Eylül 1980\'de darbe yaparak parlamentoyu feshetti, tüm siyasi partileri kapattı, 650.000\'den fazla kişi gözaltına alındı, 230.000 kişi yargılandı, 517 kişiye idam cezası verildi (50\'si infaz edildi). 1982 Anayasası kalıcı vesayet mekanizmalarını tesis etti. Darbe Türkiye\'nin demokratik gelişimini onlarca yıl geriye attı.',
               eventWindow: { start: '1979-01-01', end: '1980-09-12' },
               queryHint: 'turkey 1980 military coup OR kenan evren',
               focus: { bounds: [[36.5, 26.0], [42.2, 40.4]], altitude: 3.05 },
@@ -5427,13 +5465,20 @@ loadData().catch(function (e) { console.error(e); });
                 { lat: 37.87, lon: 32.49, country: 'TUR', label: 'Konya', size: 'small' }
               ],
               markers: [
-                { lat: 39.87, lon: 32.75, label: '12 Eylül: Genelkurmay merkez komuta', side: 'army' },
-                { lat: 40.19, lon: 29.06, label: 'Marmara güvenlik düğümü', side: 'army' },
-                { lat: 41.01, lon: 28.98, label: 'Siyasi parti ve sendika kapatmaları', side: 'army' }
+                { lat: 41.01, lon: 29.1, label: '1 Şubat 1979: Abdi İpekçi suikastı (Mehmet Ali Ağca)', side: 'right' },
+                { lat: 40.19, lon: 36.5, label: 'Mayıs-Temmuz 1980: Çorum Olayları — 57 ölü', side: 'right' },
+                { lat: 39.87, lon: 32.75, label: '12 Eylül 1980: Genelkurmay darbe emri, parlamento feshedildi', side: 'army' },
+                { lat: 41.01, lon: 28.98, label: 'Tüm siyasi partiler kapatıldı, 650.000+ gözaltı', side: 'army' },
+                { lat: 38.42, lon: 27.13, label: '517 idam cezası, 50 infaz — DGM\'ler kuruldu', side: 'army' },
+                { lat: 37.87, lon: 32.49, label: '1982 Anayasası: Kalıcı vesayet mekanizmaları', side: 'army' }
               ],
               portraits: [
                 { lat: 39.15, lon: 34.2, name: 'Kenan Evren', role: 'Darbe lideri', photo: './assets/portraits/turkey-left-right/kenan-evren.jpg', photoCredit: 'Yerel dosya' },
                 { lat: 41.25, lon: 27.7, name: 'Bülent Ecevit', role: 'Devrilen Başbakan', photo: './assets/portraits/turkey-left-right/bulent-ecevit.jpg', photoCredit: 'Yerel dosya' }
+              ],
+              newspapers: [
+                { img: './assets/newspapers/turkey-left-right/kenan-evren-darbe.png', caption: 'Kenan Evren — 12 Eylül 1980 darbesinin lideri', credit: 'Wikimedia Commons' },
+                { img: './assets/newspapers/turkey-left-right/kenan-evren-reagan.png', caption: 'Kenan Evren & Ronald Reagan — Darbe sonrası ABD ile ilişkiler', credit: 'Wikimedia Commons / Public Domain' }
               ],
               animatedUnits: [
                 { type: 'tank', side: 'army', path: [[39.87, 32.75], [40.2, 31.2], [40.6, 29.8], [41.01, 28.98]], label: 'Ankara → İstanbul', endFrac: 0.94 },
@@ -5447,7 +5492,11 @@ loadData().catch(function (e) { console.error(e); });
                 { en: 'Martial Law', tr: 'Sıkıyönetim', cat: 'Güvenlik' },
                 { en: 'Authoritarian Consolidation', tr: 'Otoriter Konsolidasyon', cat: 'Siyaset' },
                 { en: 'Command-and-Control', tr: 'Komuta-Kontrol', cat: 'Kurumlar' },
-                { en: 'Depoliticization', tr: 'Depolitizasyon', cat: 'Siyaset' }
+                { en: 'Depoliticization', tr: 'Depolitizasyon', cat: 'Siyaset' },
+                { en: 'Mass Detention', tr: 'Toplu Gözaltı', cat: 'Güvenlik' },
+                { en: 'Press Censorship', tr: 'Basın Sansürü', cat: 'Siyaset' },
+                { en: 'Constitution', tr: 'Anayasa', cat: 'Hukuk' },
+                { en: 'Authoritarian Regime', tr: 'Otoriter Rejim', cat: 'Siyaset' }
               ]
             }
           ]
@@ -6166,6 +6215,22 @@ loadData().catch(function (e) { console.error(e); });
           html += '</div>';
         }
 
+        // Newspaper archive panel
+        if(activePhase && Array.isArray(activePhase.newspapers) && activePhase.newspapers.length > 0){
+          html += '<div class="phase-panel-section"><h6>Tarih&icirc; G&ouml;rseller &amp; Gazete Ar&#351;ivi</h6>';
+          html += '<div class="irlex-newspaper-grid">';
+          activePhase.newspapers.forEach(function(np, npIdx){
+            var imgSrc = escapeHtml(np.img || '');
+            var caption = escapeHtml(np.caption || '');
+            var credit = escapeHtml(np.credit || '');
+            html += '<div class="irlex-newspaper-card" onclick="IRLEX_openLightbox(\'' + imgSrc.replace(/'/g, "\\'") + '\',\'' + caption.replace(/'/g, "\\'") + (credit ? ' — ' + credit.replace(/'/g, "\\'") : '') + '\')">';
+            html += '<img src="' + imgSrc + '" alt="' + caption + '" loading="lazy" onerror="this.parentElement.style.display=\'none\'">';
+            html += '<div class="irlex-np-caption">' + caption + '</div>';
+            html += '</div>';
+          });
+          html += '</div></div>';
+        }
+
         // Full details
         html += '<details style="margin-top:8px;border:1px solid #1e2d47;border-radius:8px;padding:6px 8px;color:#c9d7eb">';
         html += '<summary style="cursor:pointer;color:#9bb9df;font-size:12px">Tum fazlar ve detaylar</summary>';
@@ -6815,6 +6880,30 @@ loadData().catch(function (e) { console.error(e); });
   document.addEventListener('DOMContentLoaded', () => {
     try { if(typeof showTab === 'function') showTab('globe'); } catch(e){}
   });
+</script>
+<!-- Lightbox overlay element -->
+<div class="irlex-lightbox-overlay" id="irlexLightbox" onclick="IRLEX_closeLightbox()">
+  <img id="irlexLightboxImg" src="" alt="">
+  <div class="irlex-lightbox-caption" id="irlexLightboxCap"></div>
+</div>
+<script>
+function IRLEX_openLightbox(src, caption){
+  var ov = document.getElementById('irlexLightbox');
+  var im = document.getElementById('irlexLightboxImg');
+  var cap = document.getElementById('irlexLightboxCap');
+  if(!ov||!im) return;
+  im.src = src;
+  cap.textContent = caption || '';
+  cap.style.display = caption ? 'block' : 'none';
+  ov.classList.add('active');
+  document.addEventListener('keydown', IRLEX_lightboxEsc);
+}
+function IRLEX_closeLightbox(){
+  var ov = document.getElementById('irlexLightbox');
+  if(ov) ov.classList.remove('active');
+  document.removeEventListener('keydown', IRLEX_lightboxEsc);
+}
+function IRLEX_lightboxEsc(e){ if(e.key==='Escape') IRLEX_closeLightbox(); }
 </script>
 </body>
 </html>
