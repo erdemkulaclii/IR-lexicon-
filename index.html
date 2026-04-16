@@ -12,6 +12,8 @@
   --irlex-safe-right:env(safe-area-inset-right,0px);
   --irlex-safe-bottom:env(safe-area-inset-bottom,0px);
   --irlex-safe-left:env(safe-area-inset-left,0px);
+  --irlex-story-rail-width:300px;
+  --irlex-intel-panel-width:380px;
 }
 body{background:#0a0e1a;color:#e8e4d9;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;}
 .app{max-width:880px;margin:0 auto;padding:0 16px 60px;}
@@ -32,7 +34,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:24p
 /* Globe as fullscreen home (masaüstü); mobil düzen aşağıdaki @media ile */
 body.globe-home{overflow:hidden;}
 body.globe-home .app{max-width:none;margin:0;padding:0;}
-body.globe-home header{position:fixed;left:0;right:0;top:0;z-index:5000;margin:0;padding:14px 16px;background:rgba(10,14,26,0.70);backdrop-filter:blur(6px);border-bottom:1px solid rgba(30,45,71,0.7);}
+body.globe-home header{position:fixed;left:0;right:0;top:0;z-index:5000;margin:0;padding:14px 16px;background:rgba(10,14,26,0.88);border-bottom:1px solid rgba(30,45,71,0.7);}
 body.globe-home .tabs{position:fixed;left:16px;right:16px;top:78px;z-index:5000;margin:0;}
 body.globe-home #tab-globe{
   display:block !important;
@@ -54,17 +56,30 @@ body.globe-home .globe-main.card{
 body.globe-home .globe-main.card{display:flex;flex-direction:column;}
 body.globe-home .map-stack{flex:1;min-height:0;height:100%;}
 body.globe-home #map2dCanvas{height:100%;}
-body.globe-home .globe-side{
+body.globe-home .globe-story-rail{
   position:fixed;
   left:16px;
-  top:128px;   /* header+tabs altı; JS ile güncellenir */
+  top:128px;
   bottom:16px;
-  width:380px;
+  width:var(--irlex-story-rail-width);
   max-width:calc(100vw - 32px);
   z-index:6000;
   margin:0;
-  background:rgba(17,24,39,0.92);
-  backdrop-filter: blur(6px);
+  background:rgba(10,14,26,0.94);
+  border:1px solid rgba(30,45,71,0.9);
+  overflow:auto;
+  padding:14px 12px;
+}
+body.globe-home .globe-side{
+  position:fixed;
+  right:16px;
+  top:128px;   /* header+tabs altı; JS ile güncellenir */
+  bottom:16px;
+  width:var(--irlex-intel-panel-width);
+  max-width:calc(100vw - 32px);
+  z-index:6000;
+  margin:0;
+  background:rgba(13,18,32,0.96);
   border:1px solid rgba(30,45,71,0.9);
   max-height:none;
   overflow:auto;
@@ -274,6 +289,69 @@ input::placeholder{color:#6b7a96;}
   line-height:1.55;
   color:#9bb9df;
 }
+.sim-briefing-empty{
+  opacity:.78;
+  font-style:italic;
+}
+.sim-briefing-metrics{
+  margin-top:10px;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+.sim-briefing-metric{
+  border:1px solid rgba(59,130,246,0.28);
+  background:rgba(15,23,42,0.55);
+  border-radius:8px;
+  padding:7px 8px;
+}
+.sim-briefing-metric-k{
+  font-family:monospace;
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:#7fa0c9;
+  margin-bottom:3px;
+}
+.sim-briefing-metric-v{
+  color:#e2e8f0;
+  font-size:12px;
+}
+.sim-briefing-trend{
+  margin-top:8px;
+  border:1px solid rgba(30,45,71,.9);
+  border-radius:8px;
+  padding:8px;
+  background:rgba(8,12,20,0.72);
+}
+.sim-briefing-trend-label{
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:#8ba0bf;
+  font-family:monospace;
+  margin-bottom:6px;
+}
+.sim-briefing-trend-bars{
+  display:flex;
+  gap:4px;
+  align-items:flex-end;
+  height:24px;
+}
+.sim-briefing-trend-bar{
+  flex:1;
+  border-radius:3px 3px 2px 2px;
+  background:rgba(59,130,246,.22);
+  min-height:4px;
+}
+.sim-briefing-trend-bar.on{
+  background:linear-gradient(180deg,#38bdf8 0%,#3b82f6 100%);
+}
+.sim-briefing-trend-note{
+  margin-top:6px;
+  font-size:11px;
+  color:#b8c8dd;
+}
 .history-mask, .history-area, .history-arrow-line, .history-arrow-head{
   transition: opacity 0.5s ease;
 }
@@ -378,7 +456,7 @@ input::placeholder{color:#6b7a96;}
   border-radius:50%;
   border:2.5px solid #ef4444;
   box-shadow:0 0 10px rgba(239,68,68,0.5);
-  animation:irlexPulseRing 1.6s ease-out infinite;
+  animation:irlexPulseRing 1.6s ease-out 3;
   opacity:0.85;
 }
 @keyframes irlexPulseRing{
@@ -539,6 +617,9 @@ input::placeholder{color:#6b7a96;}
   .globe-layout{grid-template-columns:1fr;}
   .map-stack{height:min(520px,58vh);}
   #map2dCanvas{min-height:240px;}
+  body.globe-home .globe-story-rail{
+    display:none;
+  }
   body.globe-home .globe-side{
     left:max(8px,var(--irlex-safe-left));
     right:max(8px,var(--irlex-safe-right));
@@ -653,6 +734,73 @@ input::placeholder{color:#6b7a96;}
   margin-top:10px;
   overflow-x:auto;
 }
+.story-rail-head{
+  margin-bottom:10px;
+  border-bottom:1px solid #1e2d47;
+  padding-bottom:8px;
+}
+.story-rail-title{
+  color:#c8a96e;
+  font-family:Georgia,serif;
+  font-size:16px;
+  margin:0;
+}
+.story-rail-sub{
+  margin-top:4px;
+  color:#6b7a96;
+  font-size:10px;
+  font-family:monospace;
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+.story-rail-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.story-rail-card{
+  border:1px solid #2a3f5f;
+  background:rgba(10,14,26,.72);
+  border-radius:10px;
+  padding:9px;
+  cursor:pointer;
+  transition:all .18s ease;
+}
+.story-rail-card:hover{
+  border-color:#4a9eff;
+  transform:translateY(-1px);
+}
+.story-rail-card.active{
+  border-color:rgba(74,158,255,.78);
+  background:rgba(74,158,255,.12);
+  box-shadow:0 0 0 1px rgba(74,158,255,.2) inset;
+}
+.story-rail-kicker{
+  font-family:monospace;
+  color:#7ba3cf;
+  font-size:9px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+.story-rail-card-title{
+  color:#e2e8f0;
+  font-size:12px;
+  margin-top:4px;
+  line-height:1.35;
+}
+.story-rail-card-summary{
+  color:#93a7c2;
+  font-size:11px;
+  line-height:1.4;
+  margin-top:5px;
+}
+.story-rail-empty{
+  border:1px dashed #2a3f5f;
+  border-radius:10px;
+  padding:10px;
+  color:#7f91a9;
+  font-size:11px;
+}
 .history-phase-btn{
   border:1px solid #2a3f5f;
   background:#0a0e1a;
@@ -686,6 +834,34 @@ input::placeholder{color:#6b7a96;}
   color:#c8d8e8;
   background:rgba(74,158,255,.06);
 }
+.map-layer-pills{
+  margin-top:9px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+.map-layer-pill{
+  border:1px solid #2a3f5f;
+  background:rgba(10,14,26,.7);
+  color:#9bb9df;
+  border-radius:999px;
+  padding:4px 9px;
+  font-size:10px;
+  font-family:monospace;
+  letter-spacing:.4px;
+  cursor:pointer;
+  transition:all .16s;
+}
+.map-layer-pill.active{
+  border-color:#4a9eff;
+  color:#dbeafe;
+  background:rgba(74,158,255,.2);
+}
+.map-layer-pill[data-layer="operations"].active{border-color:#f97316;color:#ffedd5;background:rgba(249,115,22,.2);}
+.map-layer-pill[data-layer="fronts"].active{border-color:#38bdf8;color:#dbeafe;background:rgba(56,189,248,.2);}
+.map-layer-pill[data-layer="markers"].active{border-color:#facc15;color:#fef3c7;background:rgba(250,204,21,.16);}
+.map-layer-pill[data-layer="portraits"].active{border-color:#c8a96e;color:#f5e7cb;background:rgba(200,169,110,.18);}
+.map-layer-pill[data-layer="pulse"].active{border-color:#ef4444;color:#fee2e2;background:rgba(239,68,68,.16);}
 
 .unit-marker{
   border-radius:50%;
@@ -733,9 +909,18 @@ input::placeholder{color:#6b7a96;}
 .country-legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;}
 .country-legend-item{display:flex;align-items:center;gap:4px;font-size:11px;font-family:monospace;}
 .country-legend-dot{width:10px;height:10px;border-radius:50%;border:1.5px solid;}
+.analytic-grid{display:grid;grid-template-columns:1fr;gap:8px;}
+.analytic-card{background:rgba(15,23,42,0.62);border:1px solid rgba(59,130,246,0.22);border-radius:8px;padding:7px 9px;}
+.analytic-card-title{font-family:monospace;font-size:10px;letter-spacing:.7px;text-transform:uppercase;color:#93c5fd;margin-bottom:4px;}
+.analytic-card-body{font-size:12px;line-height:1.45;color:#e2e8f0;}
+.analytic-badge{display:inline-block;padding:1px 6px;border-radius:999px;font-size:10px;font-family:monospace;border:1px solid transparent;}
+.analytic-badge.conf-a{color:#22c55e;border-color:rgba(34,197,94,.4);background:rgba(34,197,94,.12);}
+.analytic-badge.conf-b{color:#f59e0b;border-color:rgba(245,158,11,.4);background:rgba(245,158,11,.12);}
+.analytic-badge.conf-c{color:#ef4444;border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.12);}
+.analytic-list{margin:0;padding-left:16px;color:#dbe7f8;font-size:12px;line-height:1.45;}
+.analytic-list li{margin:3px 0;}
 .front-line{
   stroke-dasharray:8 4;
-  animation:frontDash 1.5s linear infinite;
 }
 @keyframes frontDash{to{stroke-dashoffset:-24}}
 
@@ -746,8 +931,7 @@ input::placeholder{color:#6b7a96;}
   position:absolute;bottom:0;left:0;right:0;z-index:9999;
   display:flex;align-items:center;gap:10px;
   padding:8px 16px;
-  background:linear-gradient(180deg,rgba(5,7,12,0.0) 0%,rgba(5,7,12,0.92) 40%,rgba(5,7,12,0.97) 100%);
-  backdrop-filter:blur(6px);
+  background:linear-gradient(180deg,rgba(5,7,12,0.0) 0%,rgba(5,7,12,0.95) 35%,rgba(5,7,12,0.98) 100%);
   font-family:monospace;color:#c8d8e8;font-size:12px;
   pointer-events:auto;
   transition:opacity 0.4s;
@@ -760,8 +944,8 @@ body.dragging .info-panel{
 body.globe-home .sim-timeline-bar.timeline-container,
 body.globe-home .sim-timeline-bar{
   position:fixed;
-  left:calc(16px + min(380px,100vw - 32px) + 8px);
-  right:16px;
+  left:calc(16px + min(var(--irlex-story-rail-width),100vw - 32px) + 8px);
+  right:calc(16px + min(var(--irlex-intel-panel-width),100vw - 32px) + 8px);
   bottom:16px;
   z-index:10000;
 }
@@ -777,8 +961,15 @@ body.globe-home .sim-timeline-bar{
   }
   body.globe-home .sim-timeline-bar.timeline-container,
   body.globe-home .sim-timeline-bar{
-    right:max(16px,var(--irlex-safe-right));
+    left:calc(max(16px,var(--irlex-safe-left)) + var(--irlex-story-rail-width) + 8px);
+    right:calc(max(16px,var(--irlex-safe-right)) + var(--irlex-intel-panel-width) + 8px);
     bottom:max(16px,var(--irlex-safe-bottom));
+  }
+  body.globe-home .globe-story-rail{
+    left:max(16px,var(--irlex-safe-left));
+  }
+  body.globe-home .globe-side{
+    right:max(16px,var(--irlex-safe-right));
   }
 }
 .sim-play-btn{
@@ -825,6 +1016,32 @@ body.globe-home .sim-timeline-bar{
   color:#c8a96e;font-size:11px;font-weight:600;
   max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
+.map-top-status{
+  position:absolute;
+  left:12px;
+  right:12px;
+  top:12px;
+  z-index:9200;
+  pointer-events:none;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:wrap;
+}
+.map-top-status-chip{
+  border:1px solid rgba(42,63,95,.92);
+  background:rgba(10,14,26,.78);
+  color:#c9d7eb;
+  border-radius:999px;
+  padding:4px 9px;
+  font-family:monospace;
+  font-size:10px;
+  letter-spacing:.5px;
+}
+.map-top-status-chip strong{
+  color:#9bb9df;
+  font-weight:600;
+}
 
 /* Glow classes — kept for API compatibility; no filters (ışık/glow kapalı) */
 .sim-glow-active,.sim-glow-soft,.sim-glow-plane,.sim-glow-tank,.sim-glow-soldier{filter:none;}
@@ -846,6 +1063,26 @@ body.globe-home .sim-timeline-bar{
   50%{opacity:0.28}
 }
 .sim-zone-pulse{animation:none;}
+body.layer-hide-fronts .leaflet-overlay-pane svg path.front-line,
+body.layer-hide-fronts .leaflet-marker-pane .history-front-label{
+  visibility:hidden !important;
+}
+body.layer-hide-operations .leaflet-overlay-pane svg path.history-arrow-line,
+body.layer-hide-operations .leaflet-overlay-pane svg path.sim-flow-arrow-poly,
+body.layer-hide-operations .leaflet-overlay-pane .sim-flow-arrow-head,
+body.layer-hide-operations .leaflet-marker-pane .history-op-label{
+  visibility:hidden !important;
+}
+body.layer-hide-markers .leaflet-marker-pane .unit-marker,
+body.layer-hide-markers .leaflet-marker-pane .irlex-flow-label-wrap{
+  visibility:hidden !important;
+}
+body.layer-hide-portraits .leaflet-marker-pane .irlex-portrait-marker{
+  visibility:hidden !important;
+}
+body.layer-hide-pulse .leaflet-marker-pane .irlex-pulse-marker{
+  visibility:hidden !important;
+}
 
 /* Flow trail — glow animasyonu kapalı */
 .sim-flow-glow{animation:none;}
@@ -880,11 +1117,6 @@ body.dragging .sim-tooltip{opacity:0!important;visibility:hidden!important;}
 .irlex-lightbox-caption{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);color:#e2e8f0;font-size:13px;font-family:monospace;background:rgba(10,14,26,0.85);padding:6px 16px;border-radius:8px;max-width:80vw;text-align:center;pointer-events:none;}
 
 /* Gazete manşet kartları */
-.irlex-newspaper-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:8px;}
-.irlex-newspaper-card{border:1px solid #1e2d47;border-radius:8px;overflow:hidden;cursor:zoom-in;transition:transform 0.2s ease,box-shadow 0.2s ease;background:#0d1117;}
-.irlex-newspaper-card:hover{transform:scale(1.03);box-shadow:0 4px 16px rgba(56,189,248,0.15);}
-.irlex-newspaper-card img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;pointer-events:none;}
-.irlex-newspaper-card .irlex-np-caption{padding:5px 7px;font-size:10px;line-height:1.35;color:#9bb9df;font-family:monospace;}
 
 /* Unit marker enhanced hover */
 .unit-marker{transition:transform 0.3s ease,filter 0.3s ease;}
@@ -912,7 +1144,6 @@ body.dragging .sim-tooltip{opacity:0!important;visibility:hidden!important;}
 <!-- Leaflet (2D harita) -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet-ant-path@1.3.0/dist/leaflet-ant-path.js"></script>
 <script src="https://unpkg.com/leaflet-polylinedecorator@1.6.0/dist/leaflet.polylineDecorator.js"></script>
 <link rel="stylesheet" href="irlex-map-sim/styles.css" />
 <script>window.IRLEX_ICON_BASE = './icons/';</script>
@@ -984,7 +1215,7 @@ body.dragging .sim-tooltip{opacity:0!important;visibility:hidden!important;}
   <!-- LIST -->
   <div class="panel" id="tab-list">
     <div class="list-controls">
-      <input type="text" id="searchInput" placeholder="Cümle veya anahtar kelime ara..." oninput="renderList()">
+      <input type="text" id="searchInput" placeholder="Cümle veya anahtar kelime ara..." oninput="debouncedRenderList()">
       <select id="catFilter" onchange="renderList()">
         <option value="">Tüm Kategoriler</option>
         <option>Temel Kavramlar</option><option>Diplomasi</option><option>Güvenlik</option>
@@ -1071,6 +1302,12 @@ body.dragging .sim-tooltip{opacity:0!important;visibility:hidden!important;}
     <div class="globe-layout">
       <div class="card globe-main">
         <div class="map-stack">
+          <div class="map-top-status" id="simTopStatusBar">
+            <span class="map-top-status-chip"><strong>Preset</strong> <span id="simTopStatusPreset">-</span></span>
+            <span class="map-top-status-chip"><strong>Faz</strong> <span id="simTopStatusPhase">-</span></span>
+            <span class="map-top-status-chip"><strong>Pencere</strong> <span id="simTopStatusWindow">-</span></span>
+            <span class="map-top-status-chip"><strong>Olay</strong> <span id="simTopStatusEvents">0</span></span>
+          </div>
           <div id="map2dCanvas" style="width:100%;height:100%"></div>
         </div>
         <div class="sim-timeline-bar timeline-container timeline" id="simTimelineBar">
@@ -1089,6 +1326,13 @@ body.dragging .sim-tooltip{opacity:0!important;visibility:hidden!important;}
       <div class="sim-tooltip" id="simTooltip">
         <div class="sim-tooltip-title" id="simTooltipTitle"></div>
         <div class="sim-tooltip-desc" id="simTooltipDesc"></div>
+      </div>
+      <div class="card globe-story-rail" id="historyStoryRail">
+        <div class="story-rail-head">
+          <h3 class="story-rail-title">Story Flow</h3>
+          <div class="story-rail-sub">Sahne bazlı anlatım</div>
+        </div>
+        <div class="story-rail-list" id="historyStoryRailList"></div>
       </div>
 
       <div class="card globe-side info-panel info-box">
@@ -1121,10 +1365,40 @@ body.dragging .sim-tooltip{opacity:0!important;visibility:hidden!important;}
             <div class="sim-briefing-date" id="simBriefingDate">—</div>
             <div class="sim-briefing-title" id="simBriefingTitle">—</div>
             <div class="sim-briefing-body" id="simBriefingBody">Select a war preset and use the timeline to advance the simulation.</div>
+            <div class="sim-briefing-metrics">
+              <div class="sim-briefing-metric">
+                <div class="sim-briefing-metric-k">Etki skoru</div>
+                <div class="sim-briefing-metric-v" id="simMetricImpact">-</div>
+              </div>
+              <div class="sim-briefing-metric">
+                <div class="sim-briefing-metric-k">Güven düzeyi</div>
+                <div class="sim-briefing-metric-v" id="simMetricConfidence">-</div>
+              </div>
+              <div class="sim-briefing-metric">
+                <div class="sim-briefing-metric-k">Olum bandı</div>
+                <div class="sim-briefing-metric-v" id="simMetricFatality">-</div>
+              </div>
+              <div class="sim-briefing-metric">
+                <div class="sim-briefing-metric-k">Yoğunluk</div>
+                <div class="sim-briefing-metric-v" id="simMetricDensity">-</div>
+              </div>
+            </div>
+            <div class="sim-briefing-trend">
+              <div class="sim-briefing-trend-label">Faz yoğunluk trendi</div>
+              <div class="sim-briefing-trend-bars" id="simBriefingTrendBars"></div>
+              <div class="sim-briefing-trend-note" id="simBriefingTrendNote">-</div>
+            </div>
           </div>
           <div id="historyPhaseTabs" class="history-phase-tabs"></div>
           <div id="historyPhaseMeta" class="history-phase-meta"></div>
           <div id="historyMapLegend" class="history-map-legend" style="display:none"></div>
+          <div id="historyLayerPills" class="map-layer-pills">
+            <button class="map-layer-pill active" data-layer="fronts" type="button">Fronts</button>
+            <button class="map-layer-pill active" data-layer="operations" type="button">Operations</button>
+            <button class="map-layer-pill active" data-layer="markers" type="button">Markers</button>
+            <button class="map-layer-pill active" data-layer="portraits" type="button">Portraits</button>
+            <button class="map-layer-pill active" data-layer="pulse" type="button">Pulse</button>
+          </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
             <button class="btn btn-secondary" id="historySimPlayBtn" type="button">Oynat</button>
           </div>
@@ -1168,6 +1442,16 @@ body.dragging .sim-tooltip{opacity:0!important;visibility:hidden!important;}
             <button class="region-tab" type="button" data-region-key="asia">Asya</button>
           </div>
         </div>
+        <div style="margin-top:10px" class="kv">
+          <div class="k">Boyama Modu</div>
+          <div class="v">
+            <select id="regionHighlightMode">
+              <option value="region" selected>Bölgeyi boya</option>
+              <option value="turkey">Sadece Türkiye kırmızı</option>
+              <option value="none">Boyama yok</option>
+            </select>
+          </div>
+        </div>
 
                 <div class="hint" style="margin-top:12px">Faz butonlarina tiklayarak olaylari incele, Oynat ile similasyonu izle.</div>
       </div>
@@ -1177,6 +1461,11 @@ body.dragging .sim-tooltip{opacity:0!important;visibility:hidden!important;}
 
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
 <script>
+let _renderListTimer = null;
+function debouncedRenderList(){
+  if(_renderListTimer) clearTimeout(_renderListTimer);
+  _renderListTimer = setTimeout(renderList, 120);
+}
 // ─── DATA ────────────────────────────────────────────────────────────────────
 const DEFAULT = [
   {en:"Sovereignty",tr:"Egemenlik",cat:"Temel Kavramlar"},
@@ -2915,6 +3204,23 @@ loadData().catch(function (e) { console.error(e); });
         phases.forEach(function(phase, pi) {
           var phaseStart = pi * self.phaseDuration;
           var phaseEnd = phaseStart + self.phaseDuration;
+          var layerPlan = phase && phase.layerPlan && typeof phase.layerPlan === 'object' ? phase.layerPlan : {};
+          var layerRule = function(name, defaults){
+            var base = defaults || {};
+            var raw = layerPlan[name] && typeof layerPlan[name] === 'object' ? layerPlan[name] : {};
+            var rs = Number(raw.revealStart);
+            var re = Number(raw.revealEnd);
+            var mz = Number(raw.minZoom);
+            return {
+              revealStart: Number.isFinite(rs) ? rs : base.revealStart,
+              revealEnd: Number.isFinite(re) ? re : base.revealEnd,
+              minZoom: Number.isFinite(mz) ? mz : base.minZoom
+            };
+          };
+          var densityRule = layerRule('density', { revealStart: 0.0, revealEnd: 0.34, minZoom: 4.8 });
+          var networkRule = layerRule('network', { revealStart: 0.24, revealEnd: 0.76, minZoom: 5.0 });
+          var institutionalRule = layerRule('institutional', { revealStart: 0.62, revealEnd: 1.0, minZoom: 5.2 });
+          var reliabilityRule = layerRule('reliability', { revealStart: 0.80, revealEnd: 1.0, minZoom: 5.4 });
 
           if (phase.countries && phase.countries.length) {
             self.events.push({
@@ -2928,7 +3234,15 @@ loadData().catch(function (e) { console.error(e); });
                 zoneIntensity: typeof phase.zoneIntensity === 'number' ? phase.zoneIntensity : 1
               },
               style: { fadeIn: 800 },
-              meta: { title: phase.title, description: phase.summary }
+              meta: {
+                title: phase.title,
+                description: phase.summary,
+                layer: 'density',
+                revealStart: densityRule.revealStart,
+                revealEnd: densityRule.revealEnd,
+                minZoom: densityRule.minZoom,
+                confidence: 'A'
+              }
             });
           }
 
@@ -2941,7 +3255,14 @@ loadData().catch(function (e) { console.error(e); });
               endTime: phaseEnd,
               data: { points: front.points, label: front.label },
               style: { color: '#38bdf8', fadeIn: 600 },
-              meta: { title: front.label }
+              meta: {
+                title: front.label,
+                layer: 'network',
+                revealStart: networkRule.revealStart,
+                revealEnd: networkRule.revealEnd,
+                minZoom: networkRule.minZoom,
+                confidence: String(front.confidence || 'B').toUpperCase()
+              }
             });
           });
 
@@ -2962,7 +3283,46 @@ loadData().catch(function (e) { console.error(e); });
                 unitType: op.unitType || null
               },
               style: { color: self._actorColor(op.actor), fadeIn: 500 },
-              meta: { title: op.label, description: op.actor + ' harekati' }
+              meta: {
+                title: op.label,
+                description: op.actor + ' harekati',
+                layer: 'network',
+                revealStart: networkRule.revealStart,
+                revealEnd: networkRule.revealEnd,
+                minZoom: networkRule.minZoom,
+                confidence: String(op.confidence || 'B').toUpperCase()
+              }
+            });
+          });
+
+          (phase.markers || []).forEach(function(mark, mi) {
+            if (!mark) return;
+            var stagger = 500 + mi * 420;
+            var sideTag = String(mark.side || '').toLowerCase();
+            var markLayer = sideTag === 'army' ? 'institutional' : 'density';
+            var rule = markLayer === 'institutional' ? institutionalRule : densityRule;
+            self.events.push({
+              id: phase.id + '_marker_' + mi,
+              type: 'marker',
+              phaseIndex: pi,
+              startTime: phaseStart + stagger,
+              endTime: phaseEnd,
+              data: {
+                lat: mark.lat,
+                lon: mark.lon,
+                label: mark.label,
+                side: mark.side || '',
+                intensity: typeof mark.intensity === 'number' ? mark.intensity : 0.72
+              },
+              style: { fadeIn: 450 },
+              meta: {
+                title: mark.label || ('Olay #' + (mi + 1)),
+                layer: markLayer,
+                revealStart: rule.revealStart,
+                revealEnd: rule.revealEnd,
+                minZoom: rule.minZoom,
+                confidence: String(mark.confidence || (markLayer === 'institutional' ? 'A' : 'B')).toUpperCase()
+              }
             });
           });
 
@@ -2976,7 +3336,15 @@ loadData().catch(function (e) { console.error(e); });
               endTime: phaseEnd,
               data: { lat: unit.lat, lon: unit.lon, country: unit.country, label: unit.label, size: unit.size },
               style: { fadeIn: 400 },
-              meta: { title: unit.label, description: unit.country }
+              meta: {
+                title: unit.label,
+                description: unit.country,
+                layer: 'institutional',
+                revealStart: institutionalRule.revealStart,
+                revealEnd: institutionalRule.revealEnd,
+                minZoom: institutionalRule.minZoom,
+                confidence: String(unit.confidence || 'B').toUpperCase()
+              }
             });
           });
 
@@ -3010,7 +3378,14 @@ loadData().catch(function (e) { console.error(e); });
                   side: au.side || ''
                 },
                 style: { fadeIn: 300 },
-                meta: { title: au.label }
+                meta: {
+                  title: au.label,
+                  layer: 'network',
+                  revealStart: networkRule.revealStart,
+                  revealEnd: networkRule.revealEnd,
+                  minZoom: networkRule.minZoom,
+                  confidence: String(au.confidence || 'B').toUpperCase()
+                }
               });
             });
           }
@@ -3030,7 +3405,11 @@ loadData().catch(function (e) { console.error(e); });
         return this.events.filter(function(e) { return e.phaseIndex === phaseIndex; });
       }
       _actorColor(actor) {
-        var m = { 'Egypt': '#22c55e', 'Syria': '#ef4444', 'Israel': '#3b82f6', 'UN': '#818cf8', 'US': '#f59e0b', 'USSR': '#dc2626' };
+        var m = {
+          'Egypt': '#22c55e', 'Syria': '#ef4444', 'Israel': '#3b82f6',
+          'UN': '#818cf8', 'US': '#f59e0b', 'USSR': '#dc2626',
+          'Ulkucu': '#3b82f6', 'Sol': '#ef4444', 'Ordu': '#6b7280'
+        };
         return m[actor] || '#f97316';
       }
     }
@@ -3684,9 +4063,16 @@ loadData().catch(function (e) { console.error(e); });
               u = uRaw <= d ? 0 : (uRaw - d) / (1 - d);
             }
             var path = layer._path;
-            var len = path.getTotalLength();
+            var len = layer._irlexPathLen;
+            if (!len || !isFinite(len)) {
+              len = path.getTotalLength();
+              layer._irlexPathLen = len;
+            }
             if (!len || !isFinite(len)) return;
-            path.style.strokeDasharray = String(len);
+            if (!layer._irlexDashReady) {
+              path.style.strokeDasharray = String(len);
+              layer._irlexDashReady = true;
+            }
             path.style.strokeDashoffset = String(len * (1 - u));
           });
         });
@@ -3901,6 +4287,32 @@ loadData().catch(function (e) { console.error(e); });
         this._activeLayers.set(key + '_mode', um);
       }
 
+      renderMarker(evt, progress) {
+        var group = this.ensureLayerGroup('events');
+        var key = 'events_' + evt.id;
+        if (this._activeLayers.has(key)) return;
+        var d = evt.data || {};
+        var lat = Number(d.lat), lon = Number(d.lon);
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
+        var side = String(d.side || '').toLowerCase();
+        var color = side === 'army' ? '#94a3b8' : (side === 'right' ? '#3b82f6' : '#ef4444');
+        var markerHtml =
+          '<span style="display:inline-flex;align-items:center;gap:6px;padding:2px 7px;border-radius:999px;border:1px solid ' + color + '66;background:rgba(7,12,24,0.88);font-family:monospace;font-size:10px;color:#e2e8f0">' +
+          '<span style="display:inline-block;width:7px;height:7px;border-radius:999px;background:' + color + '"></span>' +
+          'olay</span>';
+        var icon = L.divIcon({
+          className: 'irlex-flow-label-wrap',
+          html: markerHtml,
+          iconSize: [0, 0],
+          iconAnchor: [0, 10]
+        });
+        var m = L.marker([lat, lon], { icon: icon, interactive: false, zIndexOffset: 760 });
+        m.addTo(group);
+        var tip = d.label || (evt.meta && evt.meta.title) || 'Kritik olay';
+        m.bindTooltip(IRLEX_simEsc(tip), { className: 'unit-tooltip', direction: 'top', offset: [0, -8] });
+        this._activeLayers.set(key, m);
+      }
+
       renderPoint(evt, progress) {
         var group = this.ensureLayerGroup('units');
         var key = 'units_' + evt.id;
@@ -4069,11 +4481,16 @@ loadData().catch(function (e) { console.error(e); });
           this._sliderEl.addEventListener('mousedown', function() { self._sliderDragging = true; });
           this._sliderEl.addEventListener('touchstart', function() { self._sliderDragging = true; });
           this._sliderEl.addEventListener('pointerdown', function() { self._sliderDragging = true; });
+          var _seekRaf = null;
           this._sliderEl.addEventListener('input', function() {
             timeline.pause();
             self.hideTooltip();
-            var pct = Number(self._sliderEl.value) / 1000;
-            timeline.seek(pct * timeline.totalDuration);
+            if(_seekRaf) return;
+            _seekRaf = requestAnimationFrame(function(){
+              _seekRaf = null;
+              var pct = Number(self._sliderEl.value) / 1000;
+              timeline.seek(pct * timeline.totalDuration);
+            });
           });
         }
         this._speedBtns.forEach(function(btn) {
@@ -4119,6 +4536,15 @@ loadData().catch(function (e) { console.error(e); });
         this._phases = [];
         this._lastPhaseIdx = -1;
         this._lastPortraitPhaseIdx = -1;
+        this._lastBriefingDate = '';
+        this._lastBriefingTitle = '';
+        this._lastBriefingBody = '';
+        this._lastHistoryNote = '';
+        this._lastGlobeDate = '';
+        this._lastSimWarDate = '';
+        this._historyNoteEl = null;
+        this._globeDateEl = null;
+        this._simWarDateEl = null;
         this._worldGeoJson = null;
         this._selectPhaseFn = null;
         this._initialized = false;
@@ -4159,21 +4585,42 @@ loadData().catch(function (e) { console.error(e); });
         this.timeline.on('seek', function(t) { self._onSeek(t); });
 
         this.ui.bindEvents(this.timeline, document.getElementById('map2dCanvas'));
+        this._historyNoteEl = document.getElementById('historySimNote');
+        this._globeDateEl = document.getElementById('globeDate');
+        this._simWarDateEl = document.getElementById('simWarDate');
 
         this._initialized = true;
       }
 
-      _updateBriefingPanel(dateStr, phase) {
+      _updateBriefingPanel(dateStr, phase, phaseProgress) {
         var bd = document.getElementById('simBriefingDate');
         var bt = document.getElementById('simBriefingTitle');
         var bb = document.getElementById('simBriefingBody');
-        if (bd) bd.textContent = dateStr || '—';
-        if (bt) bt.textContent = (phase && phase.title) ? phase.title : '—';
+        var nextDate = dateStr || '—';
+        if (bd && nextDate !== this._lastBriefingDate) {
+          bd.textContent = nextDate;
+          this._lastBriefingDate = nextDate;
+        }
+        var nextTitle = (phase && phase.title) ? phase.title : '—';
+        if (bt && nextTitle !== this._lastBriefingTitle) {
+          bt.textContent = nextTitle;
+          this._lastBriefingTitle = nextTitle;
+        }
         if (bb) {
-          bb.textContent =
-            phase && (phase.summary || phase.dateRange)
-              ? String(phase.summary || phase.dateRange)
-              : 'Advance the timeline to display phase orders of battle.';
+          var nextBody = '';
+          if (phase && (phase.summary || phase.dateRange)) {
+            nextBody = String(phase.summary || phase.dateRange);
+            if (phase && phase.hypothesis) nextBody += ' Hipotez: ' + String(phase.hypothesis);
+            if (phase && phase.bridgeToNext && Number(phaseProgress) >= 0.82) {
+              nextBody += ' Faz köprüsü: ' + String(phase.bridgeToNext);
+            }
+          } else {
+            nextBody = 'Advance the timeline to display phase orders of battle.';
+          }
+          if (nextBody !== this._lastBriefingBody) {
+            bb.textContent = nextBody;
+            this._lastBriefingBody = nextBody;
+          }
         }
       }
 
@@ -4191,6 +4638,12 @@ loadData().catch(function (e) { console.error(e); });
         this.timeline.currentTime = 0;
         this._lastPhaseIdx = -1;
         this._lastPortraitPhaseIdx = -1;
+        this._lastBriefingDate = '';
+        this._lastBriefingTitle = '';
+        this._lastBriefingBody = '';
+        this._lastHistoryNote = '';
+        this._lastGlobeDate = '';
+        this._lastSimWarDate = '';
         this.mapCtrl.clearAll();
         this.unitManager.clearAll();
         this.effects.clearAll();
@@ -4206,6 +4659,31 @@ loadData().catch(function (e) { console.error(e); });
       }
       isPlaying() { return this.timeline.playing; }
 
+      _shouldRenderEvent(evt, phase, phaseProgress) {
+        if (!evt) return false;
+        var meta = evt.meta || {};
+        var layer = String(meta.layer || '');
+        var confidence = String(meta.confidence || 'B').toUpperCase();
+        var rs = Number(meta.revealStart);
+        var re = Number(meta.revealEnd);
+        var minZoom = Number(meta.minZoom);
+        var zoom = this.mapCtrl && this.mapCtrl._map && typeof this.mapCtrl._map.getZoom === 'function'
+          ? this.mapCtrl._map.getZoom()
+          : 6;
+        if (Number.isFinite(minZoom) && zoom < minZoom) return false;
+        if (Number.isFinite(rs) && phaseProgress < rs) return false;
+        if (Number.isFinite(re) && phaseProgress > re) return false;
+        if (layer === 'reliability' && phaseProgress < 0.78) return false;
+        if (confidence === 'C') {
+          var relStart = phase && phase.layerPlan && phase.layerPlan.reliability
+            ? Number(phase.layerPlan.reliability.revealStart)
+            : NaN;
+          if (Number.isFinite(relStart) && phaseProgress < relStart) return false;
+          if (!Number.isFinite(relStart) && phaseProgress < 0.8) return false;
+        }
+        return true;
+      }
+
       _onTimeUpdate(t) {
         var td = this.timeline.totalDuration;
         var prog = td > 0 ? t / td : 0;
@@ -4215,10 +4693,14 @@ loadData().catch(function (e) { console.error(e); });
         sim.isPlaying = this.timeline.playing;
 
         var dateStr = warDateFromProgress(prog, this._preset);
-        var ge = document.getElementById('globeDate');
-        if (ge) ge.value = dateStr;
-        var sw = document.getElementById('simWarDate');
-        if (sw) sw.textContent = dateStr;
+        if (this._globeDateEl && dateStr !== this._lastGlobeDate) {
+          this._globeDateEl.value = dateStr;
+          this._lastGlobeDate = dateStr;
+        }
+        if (this._simWarDateEl && dateStr !== this._lastSimWarDate) {
+          this._simWarDateEl.textContent = dateStr;
+          this._lastSimWarDate = dateStr;
+        }
         if (window.IRLEX_WarEngine && window.IRLEX_WarEngine.syncSimulationMirror) {
           window.IRLEX_WarEngine.syncSimulationMirror(prog, td, this.timeline.playing);
         }
@@ -4230,7 +4712,17 @@ loadData().catch(function (e) { console.error(e); });
         var phaseProgress = this.timeline.getPhaseProgress(this.events.phaseDuration);
         var phase = this._phases[phaseIdx];
         this.ui.updatePhase(phase ? (phase.title + ' (' + Math.round(phaseProgress * 100) + '%)') : '');
-        this._updateBriefingPanel(dateStr, phase);
+        this._updateBriefingPanel(dateStr, phase, phaseProgress);
+        var phaseStage = phaseProgress < 0.3
+          ? 'Yogunluk katmani'
+          : (phaseProgress < 0.75 ? 'Ag akis katmani' : 'Kurumsal/reliability katmani');
+        if (this._historyNoteEl && phase) {
+          var nextNote = 'Simulasyon fazi: ' + phase.title + ' (' + Math.round(phaseProgress * 100) + '%) · ' + phaseStage;
+          if (nextNote !== this._lastHistoryNote) {
+            this._historyNoteEl.textContent = nextNote;
+            this._lastHistoryNote = nextNote;
+          }
+        }
 
         if (phaseIdx !== this._lastPhaseIdx) {
           this._lastPhaseIdx = phaseIdx;
@@ -4245,22 +4737,31 @@ loadData().catch(function (e) { console.error(e); });
       }
 
       _onSeek(t) {
-        this.mapCtrl.clearAll();
-        this.unitManager.clearAll();
-        this.effects.clearAll();
-        this._lastPhaseIdx = -1;
-        this._lastPortraitPhaseIdx = -1;
+        var newPhaseIdx = this.timeline.getPhaseIndex(this.events.phaseDuration);
+        if(newPhaseIdx !== this._lastPhaseIdx){
+          this.mapCtrl.clearAll();
+          this.unitManager.clearAll();
+          this.effects.clearAll();
+          this._lastPhaseIdx = -1;
+          this._lastPortraitPhaseIdx = -1;
+        }
         this._onTimeUpdate(t);
         this._renderFrame();
       }
 
       _renderFrame() {
         var t = this.timeline.currentTime;
-        var activeEvts = this.events.getActiveEvents(t);
+        var phaseIdxForRender = this.timeline.getPhaseIndex(this.events.phaseDuration);
+        phaseIdxForRender = Math.max(0, Math.min(phaseIdxForRender, this._phases.length - 1));
+        var phaseForRender = this._phases[phaseIdxForRender] || null;
+        var phaseProgressForRender = this.timeline.getPhaseProgress(this.events.phaseDuration);
+        var phaseEvents = this.events.getPhaseEvents(phaseIdxForRender);
         var self = this;
         var hasFlowEvent = false;
 
-        activeEvts.forEach(function(evt) {
+        phaseEvents.forEach(function(evt) {
+          if (!evt || t < evt.startTime || t > evt.endTime) return;
+          if (!self._shouldRenderEvent(evt, phaseForRender, phaseProgressForRender)) return;
           var localProgress = 0;
           var elapsed = t - evt.startTime;
           var fadeIn = (evt.style && evt.style.fadeIn) || 500;
@@ -4280,6 +4781,9 @@ loadData().catch(function (e) { console.error(e); });
             case 'point':
               self.mapCtrl.renderPoint(evt, localProgress);
               break;
+            case 'marker':
+              self.mapCtrl.renderMarker(evt, localProgress);
+              break;
             case 'unit':
               self.mapCtrl.renderUnit(evt, localProgress, self.unitManager);
               break;
@@ -4287,8 +4791,7 @@ loadData().catch(function (e) { console.error(e); });
         });
 
         if (hasFlowEvent) self.mapCtrl.updateFlowLinesProgress(t);
-        var pIdx = self.timeline.getPhaseIndex(self.events.phaseDuration);
-        pIdx = Math.max(0, Math.min(pIdx, self._phases.length - 1));
+        var pIdx = phaseIdxForRender;
         if (pIdx !== self._lastPortraitPhaseIdx) {
           self._lastPortraitPhaseIdx = pIdx;
           self.mapCtrl.syncPhasePortraits(self._phases[pIdx]);
@@ -4356,6 +4859,7 @@ loadData().catch(function (e) { console.error(e); });
     let activeRegionKey = 'mideast'; // mideast | asia
     let activeRegionLabel = 'Ortadoğu';
     let activeIsoA2Set = MIDDLE_EAST_COUNTRY_A2;
+    let regionHighlightMode = 'region'; // region | turkey | none
 
     const REGION_V1_BOUNDS = {
       mideast: { latMin: 12, latMax: 42, lonMin: -14, lonMax: 52 },
@@ -4633,7 +5137,23 @@ loadData().catch(function (e) { console.error(e); });
       const historySimPlayBtn = document.getElementById('historySimPlayBtn');
       const historySimNote = document.getElementById('historySimNote');
       const historyStory = document.getElementById('historyStory');
+      const historyStoryRail = document.getElementById('historyStoryRail');
+      const historyStoryRailList = document.getElementById('historyStoryRailList');
       const historyNote = document.getElementById('globeHistoryNote');
+      const historyLayerPills = document.getElementById('historyLayerPills');
+      const simPlayBtn = document.getElementById('simPlayBtn');
+      const simSlider = document.getElementById('simSlider');
+      const simTopStatusPreset = document.getElementById('simTopStatusPreset');
+      const simTopStatusPhase = document.getElementById('simTopStatusPhase');
+      const simTopStatusWindow = document.getElementById('simTopStatusWindow');
+      const simTopStatusEvents = document.getElementById('simTopStatusEvents');
+      const simMetricImpact = document.getElementById('simMetricImpact');
+      const simMetricConfidence = document.getElementById('simMetricConfidence');
+      const simMetricFatality = document.getElementById('simMetricFatality');
+      const simMetricDensity = document.getElementById('simMetricDensity');
+      const simBriefingTrendBars = document.getElementById('simBriefingTrendBars');
+      const simBriefingTrendNote = document.getElementById('simBriefingTrendNote');
+      const simBriefingBody = document.getElementById('simBriefingBody');
       const eventsBtn = document.getElementById('globeEventsBtn');
       const eventsNote = document.getElementById('globeEventsNote');
 
@@ -4649,6 +5169,21 @@ loadData().catch(function (e) { console.error(e); });
       let historySimTimer = null;
       let historySimRunning = false;
       let historyFetchToken = 0;
+      let lastRenderedEventCount = 0;
+      let storyRailSuppressUntil = 0;
+      let cinematicTourTimer = null;
+      let cinematicTourCancelled = false;
+      let historyLightMode = false;
+      let lastStoryRenderKey = '';
+      let lastPhaseTabsKey = '';
+      const historyEventsCache = new Map();
+      const historyLayerVisibility = {
+        fronts: true,
+        operations: true,
+        markers: true,
+        portraits: true,
+        pulse: true
+      };
       let simEngine = null;
       if(!canvas2d){
         initInProgress = false;
@@ -4663,13 +5198,15 @@ loadData().catch(function (e) { console.error(e); });
 
         const tabGlobe = document.getElementById('tab-globe');
         if(tabGlobe) tabGlobe.style.paddingTop = top + 'px';
-        if(sideModeHistory){
-          const sideEl = document.querySelector('#tab-globe .globe-side');
-          if(sideEl && !window.matchMedia('(max-width: 768px)').matches){
-            sideEl.style.top = top + 'px';
-          } else if(sideEl){
-            sideEl.style.top = '';
-          }
+        const sideEl = document.querySelector('#tab-globe .globe-side');
+        const storyEl = document.querySelector('#tab-globe .globe-story-rail');
+        if(sideEl){
+          if(!window.matchMedia('(max-width: 768px)').matches) sideEl.style.top = top + 'px';
+          else sideEl.style.top = '';
+        }
+        if(storyEl){
+          if(!window.matchMedia('(max-width: 768px)').matches) storyEl.style.top = top + 'px';
+          else storyEl.style.top = '';
         }
 
         const mobile = window.matchMedia('(max-width: 768px)').matches;
@@ -5257,6 +5794,13 @@ loadData().catch(function (e) { console.error(e); });
             { t: '12 Eylül', d: 'Suikastlar, Çorum olayları ve Kenan Evren\'in askeri müdahalesi (1979–1980).' }
           ],
           phaseDurationMs: 14000,
+          validationChecklist: [
+            'Her fazda hipotez ve karşı-hipotez açıkça görünüyor.',
+            'Kaynak güven skorları (A/B/C) iddialarla eşlenmiş durumda.',
+            'Nedensellik dili deterministik değil, olasılıksal tutuldu.',
+            'Fazlar arası köprü cümlesi mekanizma sürekliliğini açıklıyor.',
+            'Belirsizlik ve veri sınırları panelde açık biçimde işaretli.'
+          ],
           mapPhases: [
             {
               id: 'tr-phase1-polarization',
@@ -5269,6 +5813,31 @@ loadData().catch(function (e) { console.error(e); });
               countries: ['TUR'],
               legendHint: 'Turuncu ok = sağ örgütlenme, kırmızı ok = sol örgütlenme.',
               style: { frontColor: '#f97316', ringColor: 'rgba(249,115,22,0.45)' },
+              hypothesis: '1960-1968 döneminde şiddetin zemini, ideolojik mobilizasyonun kurumsallaşması ve kampüs-sendika ağlarının eşzamanlı büyümesiyle oluştu.',
+              mechanism: {
+                trigger: '27 Mayıs darbesi sonrası yeni anayasal düzen ve siyasi yeniden dizilim.',
+                carrier: 'Öğrenci örgütleri, parti gençlik kolları ve sendikal ağlar.',
+                amplifier: '6. Filo protestoları gibi yüksek görünürlüklü sokak mobilizasyonları.',
+                break: '1968 sonunda kampüslerde karşıt blokların kalıcı örgütsel hatlara dönüşmesi.'
+              },
+              evidence: [
+                { claim: '1961 Anayasası sonrası örgütlenme kapasitesi hızla genişledi.', sourceType: 'official', confidence: 'A', note: 'Mevzuat ve parti/sendika kayıtlarıyla desteklenebilir.' },
+                { claim: 'Öğrenci mobilizasyonu İstanbul-Ankara-İzmir hattında kümelendi.', sourceType: 'academic', confidence: 'B', note: 'Üniversite hareketleri literatürüyle uyumlu.' },
+                { claim: 'Sokak repertuarı daha bu fazda kalıcılaştı.', sourceType: 'archive', confidence: 'B', note: 'Dönem gazeteleri ve foto arşivleri destek sunar.' }
+              ],
+              counterArguments: [
+                'Şiddet zeminini yalnızca ideoloji değil, hızlı kentleşme ve genç işsizlik de beslemiş olabilir.',
+                'Aynı dönemde küresel öğrenci dalgasının dışsal etkisi iç dinamiklerden daha güçlü olmuş olabilir.'
+              ],
+              uncertainty: 'Bu fazda ölümlü olay sayıları farklı kaynaklarda düzensiz raporlandığı için nicel kıyaslarda hata payı yüksektir.',
+              metrics: { fatalitiesMin: 120, fatalitiesMax: 320, incidentDensityHint: 'İstanbul-Ankara-İzmir ekseninde orta yoğunluk' },
+              layerPlan: {
+                density: { revealStart: 0.00, revealEnd: 0.35, minZoom: 4.8 },
+                network: { revealStart: 0.25, revealEnd: 0.78, minZoom: 5.0 },
+                institutional: { revealStart: 0.72, revealEnd: 1.00, minZoom: 5.2 },
+                reliability: { revealStart: 0.82, revealEnd: 1.00, minZoom: 5.4 }
+              },
+              bridgeToNext: 'Kurumsallaşan kutuplaşma, 1969 sonrası paramiliter ağların açık çatışmasına zemin hazırladı.',
               fronts: [
                 { label: 'İstanbul–Ankara temas ekseni', points: [[41.01, 28.98], [40.2, 31.0], [39.93, 32.86]] },
                 { label: 'Ege öğrenci hattı', points: [[41.01, 28.98], [39.6, 28.5], [38.42, 27.13]] }
@@ -5300,10 +5869,6 @@ loadData().catch(function (e) { console.error(e); });
                 { type: 'soldier', side: 'left', path: [[38.42, 27.13], [38.15, 28.5], [37.95, 30.2], [37.87, 32.49]], label: 'Öğrenci hattı: Ege → İç Anadolu', endFrac: 0.86, startOffsetMs: 1300 },
                 { type: 'soldier', side: 'right', path: [[39.93, 32.86], [39.5, 32.7], [38.8, 32.6], [37.87, 32.49]], label: 'Sağ kadro transferi', endFrac: 0.82, startOffsetMs: 1800 }
               ],
-              newspapers: [
-                { img: './assets/newspapers/turkey-left-right/27-mayis-1960-gazete.png', caption: '27 Mayıs 1960 Darbesi — Ordunun yönetime el koyduğu günün simgesi', credit: 'Wikimedia Commons CC BY-SA 3.0' },
-                { img: './assets/newspapers/turkey-left-right/turkish-revolution-1963-kitap.jpg', caption: 'Walter F. Weiker — "The Turkish Revolution 1960" (1963) — Darbe analizi', credit: 'Wikimedia Commons CC BY-SA 3.0' }
-              ],
               terms: [
                 { en: 'Polarization', tr: 'Kutuplaşma', cat: 'Teori' },
                 { en: 'Ideological Camps', tr: 'İdeolojik Kamplar', cat: 'Teori' },
@@ -5326,6 +5891,31 @@ loadData().catch(function (e) { console.error(e); });
               countries: ['TUR'],
               legendHint: 'Mavi = Ülkücü saldırı, kırmızı = Sol eylem.',
               style: { frontColor: '#ef4444', ringColor: 'rgba(239,68,68,0.5)', operationWeight2d: 4.1 },
+              hypothesis: '1969-1975 arası şiddet tırmanışı, muhtıra sonrası baskı + paramiliter karşı-mobilizasyon etkileşimiyle döngüsel hale geldi.',
+              mechanism: {
+                trigger: 'Kanlı Pazar ve ardından 12 Mart muhtırası ile güvenlikçi kırılma.',
+                carrier: 'Ülkücü ve sol militan ağların şehirlerarası kadro dolaşımı.',
+                amplifier: 'Cezalandırma kapasitesinin düşmesi ve yüksek sembolik olaylar (idamlar).',
+                break: 'İdamlar ve Kızıldere sonrası çatışmanın normatif sınırlarının aşınması.'
+              },
+              evidence: [
+                { claim: 'Muhtıra sonrası devlet baskısı ve tutuklamalar belirgin arttı.', sourceType: 'official', confidence: 'A', note: 'Resmi yargı ve sıkıyönetim kayıtlarıyla doğrulanabilir.' },
+                { claim: 'Karşı-mobilizasyon ağları İstanbul-Ankara hattında düzenli akış üretti.', sourceType: 'academic', confidence: 'B', note: 'Siyasal şiddet literatürü bu desenle uyumlu.' },
+                { claim: '1972 idamları çatışma repertuarını sertleştirdi.', sourceType: 'archive', confidence: 'B', note: 'Gazete söylemi ve tanıklık kaynakları destekleyici.' }
+              ],
+              counterArguments: [
+                'Tırmanmada uluslararası Soğuk Savaş etkileri iç örgüt dinamiklerinden daha baskın olmuş olabilir.',
+                'Ekonomik daralma ve işsizlik tek başına da benzer şiddet döngüsünü açıklayabilir.'
+              ],
+              uncertainty: 'Fail-atıfları çoğu olayda tartışmalı olduğundan aktörler arası nedensel bağlar kısmi belirsizlik içerir.',
+              metrics: { fatalitiesMin: 700, fatalitiesMax: 1300, incidentDensityHint: 'Marmara-Ankara koridorunda yüksek yoğunluk' },
+              layerPlan: {
+                density: { revealStart: 0.00, revealEnd: 0.28, minZoom: 4.8 },
+                network: { revealStart: 0.22, revealEnd: 0.76, minZoom: 5.0 },
+                institutional: { revealStart: 0.62, revealEnd: 1.00, minZoom: 5.2 },
+                reliability: { revealStart: 0.80, revealEnd: 1.00, minZoom: 5.4 }
+              },
+              bridgeToNext: 'Norm erozyonu ve cezasızlık sinyali, 1976 sonrası kitlesel katliam dalgasına geçişi hızlandırdı.',
               fronts: [
                 { label: 'Marmara–Ankara temas hattı', points: [[41.01, 28.98], [40.35, 30.4], [39.93, 32.86]] },
                 { label: 'Karadeniz geçiş hattı', points: [[41.01, 28.98], [41.15, 31.2], [40.98, 34.0]] }
@@ -5352,12 +5942,6 @@ loadData().catch(function (e) { console.error(e); });
               portraits: [
                 { lat: 40.65, lon: 31.3, name: 'Alparslan Türkeş', role: 'MHP Genel Başkanı', photo: './assets/portraits/turkey-left-right/alparslan-turkes.jpg', photoCredit: 'Yerel dosya' },
                 { lat: 38.75, lon: 34.3, name: 'Bülent Ecevit', role: 'CHP liderliği yükselişi', photo: './assets/portraits/turkey-left-right/bulent-ecevit.jpg', photoCredit: 'Yerel dosya' }
-              ],
-              newspapers: [
-                { img: './assets/newspapers/turkey-left-right/deniz-gezmis-gozalti.png', caption: 'Deniz Gezmiş gözaltında — 18 Mart 1971 (Associated Press / NYT)', credit: 'Public Domain — Wikimedia Commons' },
-                { img: './assets/newspapers/turkey-left-right/deniz-gezmis-kimlik.jpg', caption: 'Deniz Gezmiş\'in kimlik cüzdanı', credit: 'Wikimedia Commons CC BY-SA 4.0' },
-                { img: './assets/newspapers/turkey-left-right/deniz-gezmis-idam-belgeleri.jpg', caption: 'İdam kararı belgeleri — Gezmiş, Aslan, İnan (Ulucanlar Müzesi)', credit: 'Wikimedia Commons CC BY-SA 4.0' },
-                { img: './assets/newspapers/turkey-left-right/deniz-gezmis-kelepce.jpg', caption: 'Kelepçe ve belgeler — Ulucanlar Cezaevi Müzesi', credit: 'Wikimedia Commons CC BY-SA 4.0' }
               ],
               animatedUnits: [
                 { type: 'soldier', side: 'right', path: [[40.99, 29.02], [40.9, 29.0], [40.95, 28.99], [41.04, 28.98]], label: 'Kanlı Pazar', endFrac: 0.94 },
@@ -5389,6 +5973,31 @@ loadData().catch(function (e) { console.error(e); });
               countries: ['TUR'],
               legendHint: 'Kırmızı pulse = katliam noktası. Yeşil tank = sıkıyönetim.',
               style: { frontColor: '#dc2626', ringColor: 'rgba(220,38,38,0.55)', operationWeight2d: 4.7 },
+              hypothesis: '1976-1978 döneminde şiddet, yerel fay hatlarının örgütlü infaz kapasitesiyle birleşmesi sonucu kitlesel katliam formuna dönüştü.',
+              mechanism: {
+                trigger: 'Yüksek görünürlüklü şehir olayları (Taksim) sonrası misilleme eşiğinin düşmesi.',
+                carrier: 'Mahalle ölçekli militan kümeler ve bağlantılı lojistik ağlar.',
+                amplifier: 'Cezasızlık algısı, mezhepsel/ideolojik kutuplaşma ve güvenlik zaafı.',
+                break: 'Maraş sonrası sıkıyönetimin genişletilmesi ve devlet kapasitesi tartışmasının derinleşmesi.'
+              },
+              evidence: [
+                { claim: 'Taksim-Bahçelievler-Maraş hattı kitlesel şiddet eşiğinin yükseldiğini gösterir.', sourceType: 'archive', confidence: 'A', note: 'Dönem basını ve görsel arşivler yoğun veri sunar.' },
+                { claim: 'Maraş sonrası sıkıyönetim kapsamı genişletildi.', sourceType: 'official', confidence: 'A', note: 'Resmi kararlar ve TBMM kayıtlarıyla doğrulanabilir.' },
+                { claim: 'Şiddet doğu/batı metropollerine eşzamanlı yayıldı.', sourceType: 'academic', confidence: 'B', note: 'Coğrafi yayılım literatürde tutarlı fakat ölçüm farkları var.' }
+              ],
+              counterArguments: [
+                'Şiddetin katliam formuna geçişi merkezi koordinasyondan ziyade yerel tesadüfi kırılmalarla açıklanabilir.',
+                'Dönem medyasının seçici görünürlük üretmesi yoğunluk algısını olduğundan yüksek göstermiş olabilir.'
+              ],
+              uncertainty: 'Ölü sayıları ve fail kimlikleri bazı olaylarda kaynaklar arasında anlamlı biçimde ayrışmaktadır.',
+              metrics: { fatalitiesMin: 1600, fatalitiesMax: 2600, incidentDensityHint: 'Ankara-Maraş ve metropol çevresinde çok yüksek yoğunluk' },
+              layerPlan: {
+                density: { revealStart: 0.00, revealEnd: 0.33, minZoom: 4.9 },
+                network: { revealStart: 0.20, revealEnd: 0.70, minZoom: 5.1 },
+                institutional: { revealStart: 0.58, revealEnd: 1.00, minZoom: 5.2 },
+                reliability: { revealStart: 0.78, revealEnd: 1.00, minZoom: 5.5 }
+              },
+              bridgeToNext: 'Kitlesel şiddetin sürdürülemez maliyeti, 1979-1980\'de askeri müdahaleyi meşrulaştıran güvenlik söylemini güçlendirdi.',
               fronts: [
                 { label: 'Ankara–Maraş kırılma hattı', points: [[39.91, 32.82], [38.75, 34.8], [37.59, 36.94]] },
                 { label: 'Doğu gerilim hattı', points: [[37.59, 36.94], [37.75, 37.6], [37.92, 40.23]] }
@@ -5414,10 +6023,6 @@ loadData().catch(function (e) { console.error(e); });
               portraits: [
                 { lat: 40.85, lon: 30.6, name: 'Alparslan Türkeş', role: 'MHP lideri', photo: './assets/portraits/turkey-left-right/alparslan-turkes.jpg', photoCredit: 'Yerel dosya' },
                 { lat: 37.2, lon: 33.7, name: 'Bülent Ecevit', role: 'Başbakan', photo: './assets/portraits/turkey-left-right/bulent-ecevit.jpg', photoCredit: 'Yerel dosya' }
-              ],
-              newspapers: [
-                { img: './assets/newspapers/turkey-left-right/1-mayis-1977-taksim.jpg', caption: '1 Mayıs 1977 Taksim Katliamı — Yüzbinlerce kişinin toplandığı mitinge ateş açıldı', credit: 'Tarihî arşiv' },
-                { img: './assets/newspapers/turkey-left-right/maras-katliami-1978.jpg', caption: 'Maraş Katliamı (Aralık 1978) — Alevi mahallelerine organize saldırı', credit: 'Tarihî arşiv' }
               ],
               animatedUnits: [
                 { type: 'soldier', side: 'right', path: [[39.91, 32.82], [39.0, 34.5], [38.2, 35.8], [37.59, 36.94]], label: 'Katliam dalgası', endFrac: 0.92 },
@@ -5448,6 +6053,31 @@ loadData().catch(function (e) { console.error(e); });
               countries: ['TUR'],
               legendHint: 'Mor ok = darbe harekâtı. Tank = askeri sevkiyat.',
               style: { frontColor: '#a855f7', ringColor: 'rgba(168,85,247,0.45)', operationWeight2d: 5.1 },
+              hypothesis: '1979-1980 güvenlik çöküşü anlatısı, askeri müdahaleyi kurumsal yeniden yapılanma için fırsat penceresine çevirdi.',
+              mechanism: {
+                trigger: 'Suikastlar, günlük siyasi cinayetler ve Çorum gibi yüksek maliyetli olaylar.',
+                carrier: 'Ankara merkezli komuta zinciri ve ülke geneline yayılan askeri lojistik.',
+                amplifier: 'Kamusal güvenlik talebinin artışı ve siyasal tıkanma algısı.',
+                break: '12 Eylül 1980 darbesi ve ardından anayasal-kurumsal yeniden tasarım.'
+              },
+              evidence: [
+                { claim: 'Darbe sonrası toplu gözaltı/yargılama ölçeği olağanüstü düzeye çıktı.', sourceType: 'official', confidence: 'A', note: 'Resmi raporlar ve yargı istatistikleri güçlü kanıt sağlar.' },
+                { claim: 'Şiddet zirvesi ve müdahale zamanlaması ardışık bir kırılma dizisi oluşturdu.', sourceType: 'academic', confidence: 'B', note: 'Nedensellik tartışmalı olsa da zamansal eşleşme güçlü.' },
+                { claim: 'Kurumsal sonuçlar (1982 Anayasası) uzun dönemli rejim etkisi üretti.', sourceType: 'official', confidence: 'A', note: 'Anayasal değişim metinleriyle doğrudan doğrulanır.' }
+              ],
+              counterArguments: [
+                'Askeri müdahale güvenlikten ziyade siyasal elitler arası güç mücadelesinin sonucu olabilir.',
+                'Şiddet eğrisi zaten düşüşe geçmek üzereyken darbe zamanlaması tesadüfi yakınlık gösterebilir.'
+              ],
+              uncertainty: 'Gözaltı, işkence ve infaz verilerinde resmi/bağımsız kaynak farkları mutlak sayı yorumlarını sınırlar.',
+              metrics: { fatalitiesMin: 1800, fatalitiesMax: 2600, incidentDensityHint: 'Ülke geneline yayılmış çok yüksek yoğunluk ve merkezi askeri kontrol' },
+              layerPlan: {
+                density: { revealStart: 0.00, revealEnd: 0.25, minZoom: 4.8 },
+                network: { revealStart: 0.18, revealEnd: 0.62, minZoom: 5.0 },
+                institutional: { revealStart: 0.50, revealEnd: 1.00, minZoom: 5.2 },
+                reliability: { revealStart: 0.76, revealEnd: 1.00, minZoom: 5.5 }
+              },
+              bridgeToNext: 'Bu faz, çatışma rejiminden güvenlik-devlet rejimine geçişin kurumsal eşik anını temsil eder.',
               fronts: [
                 { label: 'Ankara merkezli askeri hat', points: [[39.87, 32.75], [40.5, 30.5], [41.01, 28.98]] },
                 { label: 'Batı sahil emniyet hattı', points: [[39.87, 32.75], [39.2, 30.0], [38.42, 27.13]] }
@@ -5475,10 +6105,6 @@ loadData().catch(function (e) { console.error(e); });
               portraits: [
                 { lat: 39.15, lon: 34.2, name: 'Kenan Evren', role: 'Darbe lideri', photo: './assets/portraits/turkey-left-right/kenan-evren.jpg', photoCredit: 'Yerel dosya' },
                 { lat: 41.25, lon: 27.7, name: 'Bülent Ecevit', role: 'Devrilen Başbakan', photo: './assets/portraits/turkey-left-right/bulent-ecevit.jpg', photoCredit: 'Yerel dosya' }
-              ],
-              newspapers: [
-                { img: './assets/newspapers/turkey-left-right/kenan-evren-darbe.png', caption: 'Kenan Evren — 12 Eylül 1980 darbesinin lideri', credit: 'Wikimedia Commons' },
-                { img: './assets/newspapers/turkey-left-right/kenan-evren-reagan.png', caption: 'Kenan Evren & Ronald Reagan — Darbe sonrası ABD ile ilişkiler', credit: 'Wikimedia Commons / Public Domain' }
               ],
               animatedUnits: [
                 { type: 'tank', side: 'army', path: [[39.87, 32.75], [40.2, 31.2], [40.6, 29.8], [41.01, 28.98]], label: 'Ankara → İstanbul', endFrac: 0.94 },
@@ -5546,6 +6172,7 @@ loadData().catch(function (e) { console.error(e); });
         if(!historyPhaseTabsEl) return;
         const phases = getPresetPhases(preset);
         if(!phases.length){
+          lastPhaseTabsKey = '';
           historyPhaseTabsEl.innerHTML = '';
           historyPhaseTabsEl.style.display = 'none';
           if(historyMapLegend){
@@ -5554,6 +6181,9 @@ loadData().catch(function (e) { console.error(e); });
           }
           return;
         }
+        const tabsKey = `${preset && preset.title ? preset.title : 'preset'}:${currentHistoryPhaseIdx}:${phases.length}`;
+        if(tabsKey === lastPhaseTabsKey) return;
+        lastPhaseTabsKey = tabsKey;
         historyPhaseTabsEl.style.display = 'flex';
         historyPhaseTabsEl.innerHTML = phases.map((p, idx) => (
           `<button class="history-phase-btn ${idx===currentHistoryPhaseIdx ? 'active' : ''}" ` +
@@ -5608,11 +6238,59 @@ loadData().catch(function (e) { console.error(e); });
         };
       }
 
+      function getHistoryPhaseDurationMs(preset, phase){
+        var pDur = phase && Number.isFinite(Number(phase.phaseDurationMs))
+          ? Number(phase.phaseDurationMs)
+          : NaN;
+        if(Number.isFinite(pDur) && pDur >= 1200) return pDur;
+        var presetDur = preset && Number.isFinite(Number(preset.phaseDurationMs))
+          ? Number(preset.phaseDurationMs)
+          : NaN;
+        if(Number.isFinite(presetDur) && presetDur >= 1200) return presetDur;
+        return 3000;
+      }
+
+      function getPhaseAnalyticModel(phase){
+        var p = phase || {};
+        var mechanism = p.mechanism && typeof p.mechanism === 'object' ? p.mechanism : {};
+        var evidence = Array.isArray(p.evidence) ? p.evidence : [];
+        var counterArguments = Array.isArray(p.counterArguments) ? p.counterArguments : [];
+        var metrics = p.metrics && typeof p.metrics === 'object' ? p.metrics : {};
+        var layerPlan = p.layerPlan && typeof p.layerPlan === 'object' ? p.layerPlan : {};
+        return {
+          hypothesis: String(p.hypothesis || ''),
+          mechanism: {
+            trigger: String(mechanism.trigger || ''),
+            carrier: String(mechanism.carrier || ''),
+            amplifier: String(mechanism.amplifier || ''),
+            break: String(mechanism.break || '')
+          },
+          evidence: evidence,
+          counterArguments: counterArguments,
+          uncertainty: String(p.uncertainty || ''),
+          metrics: {
+            fatalitiesMin: Number.isFinite(Number(metrics.fatalitiesMin)) ? Number(metrics.fatalitiesMin) : null,
+            fatalitiesMax: Number.isFinite(Number(metrics.fatalitiesMax)) ? Number(metrics.fatalitiesMax) : null,
+            incidentDensityHint: String(metrics.incidentDensityHint || '')
+          },
+          layerPlan: layerPlan,
+          bridgeToNext: String(p.bridgeToNext || '')
+        };
+      }
+
+      function analyticConfidenceClass(v){
+        var s = String(v || '').trim().toUpperCase();
+        if(s === 'A') return 'conf-a';
+        if(s === 'B') return 'conf-b';
+        return 'conf-c';
+      }
+
       function focusHistoryPhase(phase, opts = {}){
         if(!phase) return;
         const focus = buildPhaseFocusFromVisual(phase);
         const win = phase && phase.eventWindow ? phase.eventWindow : null;
         const shouldSyncDate = opts.syncDate !== false;
+        const shouldAnimate = opts.animate !== false && !historyLightMode;
         if(shouldSyncDate && win && isIsoDateString(win.end) && dateInput){
           dateInput.value = win.end;
           if (simWarDateEl) simWarDateEl.textContent = win.end;
@@ -5631,7 +6309,7 @@ loadData().catch(function (e) { console.error(e); });
             if(leafletMap){
               leafletMap.fitBounds([[minLat, minLon], [maxLat, maxLon]], {
                 padding: [22, 22],
-                animate: true,
+                animate: shouldAnimate,
                 duration: 0.8
               });
             }
@@ -5643,7 +6321,7 @@ loadData().catch(function (e) { console.error(e); });
         if(Number.isFinite(lat) && Number.isFinite(lon)){
           if(leafletMap){
             const zoom = Number.isFinite(Number(focus.zoom)) ? Number(focus.zoom) : 5;
-            leafletMap.setView([lat, lon], zoom, { animate: true });
+            leafletMap.setView([lat, lon], zoom, { animate: shouldAnimate });
           }
         }
       }
@@ -5657,6 +6335,14 @@ loadData().catch(function (e) { console.error(e); });
         }
         const style = getPhaseStyle(phase);
         const hint = escapeHtml(phase.legendHint || 'Oklar operasyon akisini, kesik mavi cizgiler temas hattini, noktalar kritik merkezleri gosterir.');
+        const analytic = getPhaseAnalyticModel(phase);
+        const lp = analytic.layerPlan || {};
+        const layerTxt = function(name){
+          if(!lp[name]) return '-';
+          var rs = Number(lp[name].revealStart), re = Number(lp[name].revealEnd);
+          if(!Number.isFinite(rs) || !Number.isFinite(re)) return '-';
+          return '%' + Math.round(rs * 100) + ' - %' + Math.round(re * 100);
+        };
         historyMapLegend.style.display = 'block';
         historyMapLegend.innerHTML =
           `<div style="font-family:monospace;color:#9bb9df;margin-bottom:6px">Harita Anahtari</div>` +
@@ -5666,6 +6352,7 @@ loadData().catch(function (e) { console.error(e); });
           `<span style="display:inline-flex;align-items:center;gap:6px"><i style="display:inline-block;width:8px;height:8px;border-radius:999px;background:#facc15"></i> Kritik noktalar</span>` +
           `<span style="display:inline-flex;align-items:center;gap:6px"><i style="display:inline-block;width:10px;height:10px;border-radius:50%;border:2px solid #2c1810;background:#b91c1c"></i> Lider portresi</span>` +
           `</div>` +
+          `<div style="margin-top:6px;font-family:monospace;font-size:10px;color:#93c5fd">Katman Akisi: Yogunluk ${layerTxt('density')} · Ag ${layerTxt('network')} · Kurumsal ${layerTxt('institutional')} · Guvenilirlik ${layerTxt('reliability')}</div>` +
           `<div style="margin-top:6px;color:#dbe7f8;line-height:1.45">${hint}</div>`;
       }
 
@@ -5675,6 +6362,7 @@ loadData().catch(function (e) { console.error(e); });
           if(!btn) return;
           const idx = Number(btn.getAttribute('data-phase-idx'));
           if(!Number.isFinite(idx)) return;
+          cancelCinematicTour();
           if (simEngine && simEngine._initialized) {
             simEngine.pause();
             simEngine.seekToPhase(idx);
@@ -5688,12 +6376,53 @@ loadData().catch(function (e) { console.error(e); });
         });
       }
 
+      // Story rail card clicks
+      if(historyStoryRailList){
+        historyStoryRailList.addEventListener('click', (e) => {
+          const card = e.target && e.target.closest ? e.target.closest('.story-rail-card') : null;
+          if(!card) return;
+          const idx = Number(card.dataset.phaseIdx);
+          if(!Number.isFinite(idx)) return;
+          cancelCinematicTour();
+          storyRailSuppressUntil = Date.now() + 1000;
+          if (simEngine && simEngine._initialized) {
+            simEngine.pause();
+            simEngine.seekToPhase(idx);
+            historySimRunning = false;
+            if(historySimPlayBtn) historySimPlayBtn.textContent = 'Oynat';
+          } else {
+            stopHistorySimulation();
+            if(historySimPlayBtn) historySimPlayBtn.textContent = 'Oynat';
+            selectHistoryPhase(idx, { fetchEvents: true });
+          }
+        });
+      }
+
+      // Layer pill toggles
+      if(historyLayerPills){
+        historyLayerPills.addEventListener('click', (e) => {
+          const pill = e.target && e.target.closest ? e.target.closest('.map-layer-pill') : null;
+          if(!pill) return;
+          const layer = pill.dataset.layer;
+          if(!layer) return;
+          historyLayerVisibility[layer] = !historyLayerVisibility[layer];
+          pill.classList.toggle('active', historyLayerVisibility[layer]);
+          applyLayerVisibilityClasses();
+        });
+      }
+
+      // Cancel cinematic tour on user interaction
+      if(simSlider) simSlider.addEventListener('input', cancelCinematicTour);
+      if(simPlayBtn) simPlayBtn.addEventListener('click', cancelCinematicTour);
+
       function stopHistorySimulation(){
         if(historySimTimer){
           clearInterval(historySimTimer);
+          clearTimeout(historySimTimer);
           historySimTimer = null;
         }
         historySimRunning = false;
+        historyLightMode = false;
         if (simEngine && simEngine._initialized) {
           simEngine.pause();
         }
@@ -5711,12 +6440,13 @@ loadData().catch(function (e) { console.error(e); });
         if(!phases.length) return;
         currentHistoryPhaseIdx = Math.min(Math.max(Number(idx) || 0, 0), phases.length - 1);
         const phase = phases[currentHistoryPhaseIdx];
+        historyLightMode = !!opts.lightweight || !!historySimRunning;
         renderHistoryPhaseTabs(currentHistoryPreset);
         renderHistoryStory(currentHistoryPreset);
         if (!(opts && opts.fromEngine)) {
           clearHistoryPhaseMapLayers();
           renderHistoryPhaseMapLayers();
-          focusHistoryPhase(phase, opts);
+          focusHistoryPhase(phase, { ...opts, animate: opts.animate !== false && !historyLightMode });
         }
 
         if(opts.fetchEvents && currentHistoryPreset){
@@ -5737,6 +6467,12 @@ loadData().catch(function (e) { console.error(e); });
           historySimNote.textContent =
             `Simulasyon fazi: ${p && p.title ? p.title : (currentHistoryPhaseIdx + 1)} / ${phases.length}`;
         }
+
+        // WOW framework: sync all UI
+        syncStoryRailActiveCard();
+        renderIntelCard(currentHistoryPreset, phase);
+        renderTopStatusBar();
+        applyLayerVisibilityClasses();
       }
 
       // Region tabs (Ortadoğu, Asya...)
@@ -5789,6 +6525,7 @@ loadData().catch(function (e) { console.error(e); });
       }
 
       // Custom GeoJSON: file:// CORS engelini aşmak için FileReader ile okuyoruz.
+      const regionHighlightModeSelect = document.getElementById('regionHighlightMode');
       const customGeoInput = document.getElementById('customGeoInput');
       const customGeoBtn = document.getElementById('customGeoBtn');
       const customGeoStatus = document.getElementById('customGeoStatus');
@@ -5819,6 +6556,18 @@ loadData().catch(function (e) { console.error(e); });
             if(customGeoStatus) customGeoStatus.textContent = 'Dosya okunamadi.';
           };
           reader.readAsText(file);
+        });
+      }
+
+      if(regionHighlightModeSelect){
+        const savedHighlightMode = localStorage.getItem('IRL_regionHighlightMode') || 'region';
+        regionHighlightMode = ['region', 'turkey', 'none'].includes(savedHighlightMode) ? savedHighlightMode : 'region';
+        regionHighlightModeSelect.value = regionHighlightMode;
+        regionHighlightModeSelect.addEventListener('change', () => {
+          const nextMode = regionHighlightModeSelect.value;
+          regionHighlightMode = ['region', 'turkey', 'none'].includes(nextMode) ? nextMode : 'region';
+          localStorage.setItem('IRL_regionHighlightMode', regionHighlightMode);
+          updateLeafletRegion();
         });
       }
 
@@ -5857,11 +6606,39 @@ loadData().catch(function (e) { console.error(e); });
 
       function updateLeafletRegion(){
         if(!leafletMap) return;
+        if(leafletRegionLayer){
+          leafletRegionLayer.remove();
+          leafletRegionLayer = null;
+        }
+
+        if(regionHighlightMode === 'none'){
+          return;
+        }
+
+        if(regionHighlightMode === 'turkey'){
+          if(!worldGeojsonCache || !Array.isArray(worldGeojsonCache.features)) return;
+          const turkeyFeatures = worldGeojsonCache.features.filter((f) => {
+            if(!f || !f.properties) return false;
+            const a3 = f.properties['ISO3166-1-Alpha-3'] || f.properties.iso_a3 || f.properties.ISO_A3 || f.properties.adm0_a3 || '';
+            return a3 === 'TUR';
+          });
+          if(!turkeyFeatures.length) return;
+          leafletRegionLayer = L.geoJSON({ type: 'FeatureCollection', features: turkeyFeatures }, {
+            style: () => ({
+              color: '#dc2626',
+              weight: 2.6,
+              opacity: 0.98,
+              fillColor: '#ef4444',
+              fillOpacity: 0.28,
+              lineCap: 'round',
+              lineJoin: 'round'
+            })
+          }).addTo(leafletMap);
+          return;
+        }
+
         if(!middleEastPolygons || !middleEastPolygons.length) return;
-
         const regionGeojson = polysToFeatureCollection(middleEastPolygons);
-        if(leafletRegionLayer) leafletRegionLayer.remove();
-
         leafletRegionLayer = L.geoJSON(regionGeojson, {
           style: () => ({
             color: '#f87171',
@@ -5983,12 +6760,15 @@ loadData().catch(function (e) { console.error(e); });
         leafletMap.invalidateSize();
       }
 
-      function resize(){
-        if(leafletMap) leafletMap.invalidateSize();
+      let _resizeRaf = null;
+      function _onResize(){
+        if(_resizeRaf) return;
+        _resizeRaf = requestAnimationFrame(() => {
+          _resizeRaf = null;
+          updateHomeLayoutHeights();
+        });
       }
-
-      window.addEventListener('resize', resize);
-      window.addEventListener('resize', updateHomeLayoutHeights);
+      window.addEventListener('resize', _onResize);
       updateHomeLayoutHeights();
 
       function updateEventsBtn(){
@@ -6019,10 +6799,153 @@ loadData().catch(function (e) { console.error(e); });
         return `${y}-${m}-${day}`;
       }
 
+      function applyLayerVisibilityClasses(){
+        document.body.classList.toggle('layer-hide-fronts', !historyLayerVisibility.fronts);
+        document.body.classList.toggle('layer-hide-operations', !historyLayerVisibility.operations);
+        document.body.classList.toggle('layer-hide-markers', !historyLayerVisibility.markers);
+        document.body.classList.toggle('layer-hide-portraits', !historyLayerVisibility.portraits);
+        document.body.classList.toggle('layer-hide-pulse', !historyLayerVisibility.pulse);
+      }
+
+      function renderTopStatusBar(){
+        const phase = getActiveHistoryPhase();
+        const preset = currentHistoryPreset;
+        if(simTopStatusPreset) simTopStatusPreset.textContent = preset && preset.title ? preset.title : '-';
+        if(simTopStatusPhase) simTopStatusPhase.textContent = phase && phase.title ? phase.title : 'Genel';
+        if(simTopStatusWindow){
+          const w = phase && phase.eventWindow ? phase.eventWindow : null;
+          const txt = w && w.start && w.end ? `${w.start} → ${w.end}` : (phase && phase.dateRange ? phase.dateRange : (preset && preset.date ? preset.date : '-'));
+          simTopStatusWindow.textContent = txt;
+        }
+        if(simTopStatusEvents) simTopStatusEvents.textContent = String(lastRenderedEventCount || 0);
+      }
+
+      function countConfidence(phase){
+        const evidence = phase && Array.isArray(phase.evidence) ? phase.evidence : [];
+        const score = evidence.reduce((acc, ev) => {
+          const conf = String((ev && ev.confidence) || 'C').toUpperCase();
+          if(conf === 'A') return acc + 3;
+          if(conf === 'B') return acc + 2;
+          return acc + 1;
+        }, 0);
+        if(!evidence.length) return 'C';
+        const avg = score / evidence.length;
+        if(avg >= 2.5) return 'A';
+        if(avg >= 1.7) return 'B';
+        return 'C';
+      }
+
+      function renderIntelCard(preset, phase){
+        if(!phase){
+          if(simMetricImpact) simMetricImpact.textContent = '-';
+          if(simMetricConfidence) simMetricConfidence.textContent = '-';
+          if(simMetricFatality) simMetricFatality.textContent = '-';
+          if(simMetricDensity) simMetricDensity.textContent = '-';
+          if(simBriefingTrendBars) simBriefingTrendBars.innerHTML = '';
+          if(simBriefingTrendNote) simBriefingTrendNote.textContent = 'Faz verisi bekleniyor.';
+          if(simBriefingBody) simBriefingBody.classList.add('sim-briefing-empty');
+          return;
+        }
+        if(simBriefingBody) simBriefingBody.classList.remove('sim-briefing-empty');
+        const analytic = getPhaseAnalyticModel(phase);
+        const ops = Array.isArray(phase.operations) ? phase.operations : [];
+        const intensity = ops.reduce((acc, op) => acc + (Number(op && op.intensity) || 0.5), 0);
+        const impact = Math.max(1, Math.min(5, Math.round((intensity / Math.max(ops.length, 1)) * 5)));
+        const conf = countConfidence(phase);
+        const minFatal = analytic.metrics.fatalitiesMin != null ? analytic.metrics.fatalitiesMin : '?';
+        const maxFatal = analytic.metrics.fatalitiesMax != null ? analytic.metrics.fatalitiesMax : '?';
+        const dens = analytic.metrics.incidentDensityHint || 'Belirtilmedi';
+
+        if(simMetricImpact) simMetricImpact.textContent = `${impact}/5`;
+        if(simMetricConfidence) simMetricConfidence.textContent = conf;
+        if(simMetricFatality) simMetricFatality.textContent = `${minFatal}-${maxFatal}`;
+        if(simMetricDensity) simMetricDensity.textContent = dens;
+
+        const bars = [];
+        for(let i = 0; i < 8; i++){
+          const h = 20 + (Math.abs(Math.sin((impact + i) * 0.9)) * 80);
+          bars.push(`<span class="sim-briefing-trend-bar ${i < impact + 1 ? 'on' : ''}" style="height:${Math.round(h)}%"></span>`);
+        }
+        if(simBriefingTrendBars) simBriefingTrendBars.innerHTML = bars.join('');
+        if(simBriefingTrendNote){
+          simBriefingTrendNote.textContent = analytic.bridgeToNext || (preset && preset.summary ? preset.summary.slice(0, 90) + '...' : 'Bir sonraki faz geçişi izleniyor.');
+        }
+      }
+
+      function syncStoryRailActiveCard(){
+        if(!historyStoryRailList) return;
+        const cards = historyStoryRailList.children;
+        for(let i = 0; i < cards.length; i++){
+          const card = cards[i];
+          if(!card.dataset) continue;
+          const isActive = Number(card.dataset.phaseIdx) === currentHistoryPhaseIdx;
+          if(isActive !== card.classList.contains('active')){
+            card.classList.toggle('active', isActive);
+          }
+          if(isActive && Date.now() > storyRailSuppressUntil){
+            storyRailSuppressUntil = Date.now() + 500;
+            requestAnimationFrame(() => card.scrollIntoView({ block: 'nearest', behavior: 'smooth' }));
+          }
+        }
+      }
+
+      function renderHistoryStoryRail(preset){
+        if(!historyStoryRailList) return;
+        var railTitle = historyStoryRail && historyStoryRail.querySelector('.story-rail-title');
+        var railSub = historyStoryRail && historyStoryRail.querySelector('.story-rail-sub');
+        if(railTitle) railTitle.textContent = preset && preset.title ? preset.title : 'Story Flow';
+        if(railSub) railSub.textContent = preset && preset.date ? (preset.date + ' — Sahne Akisi') : 'Sahne bazli anlatim';
+        if(!preset || !Array.isArray(preset.mapPhases) || !preset.mapPhases.length){
+          historyStoryRailList.innerHTML = '<div class="story-rail-empty">Faz kartlari bu preset icin tanimli degil.</div>';
+          return;
+        }
+        historyStoryRailList.innerHTML = preset.mapPhases.map((phase, idx) => {
+          const dateTxt = phase && phase.dateRange ? phase.dateRange : (phase && phase.eventWindow ? `${phase.eventWindow.start || ''} -> ${phase.eventWindow.end || ''}` : '');
+          const summary = String((phase && phase.summary) || '').slice(0, 130);
+          return (
+            `<article class="story-rail-card ${idx === currentHistoryPhaseIdx ? 'active' : ''}" data-phase-idx="${idx}">` +
+            `<div class="story-rail-kicker">${escapeHtml(dateTxt || `Faz ${idx + 1}`)}</div>` +
+            `<div class="story-rail-card-title">${escapeHtml((phase && phase.title) || `Faz ${idx + 1}`)}</div>` +
+            `<div class="story-rail-card-summary">${escapeHtml(summary || 'Bu faz icin ozet eklenmedi.')}</div>` +
+            `</article>`
+          );
+        }).join('');
+      }
+
+      function cancelCinematicTour(){
+        cinematicTourCancelled = true;
+        if(cinematicTourTimer){
+          clearTimeout(cinematicTourTimer);
+          cinematicTourTimer = null;
+        }
+      }
+
+      function startCinematicTour(preset){
+        cancelCinematicTour();
+        cinematicTourCancelled = false;
+        const phases = getPresetPhases(preset);
+        if(!phases.length) return;
+        const checkpoints = [0, Math.floor((phases.length - 1) / 2), phases.length - 1]
+          .filter((idx, pos, arr) => arr.indexOf(idx) === pos);
+        let step = 0;
+        const playStep = () => {
+          if(cinematicTourCancelled) return;
+          const idx = checkpoints[step];
+          if(Number.isFinite(idx)) focusHistoryPhase(phases[idx], { syncDate: false });
+          step += 1;
+          if(step < checkpoints.length){
+            cinematicTourTimer = setTimeout(playStep, 2300);
+          }
+        };
+        cinematicTourTimer = setTimeout(playStep, 550);
+      }
+
       function renderEventsList(items, selectedDate, noteEl, introHtml = ''){
         const target = noteEl || eventsNote;
         if(!target) return;
         const arrRaw = Array.isArray(items) ? items : [];
+        lastRenderedEventCount = arrRaw.length;
+        if(simTopStatusEvents) simTopStatusEvents.textContent = String(arrRaw.length);
         const parseSeenDate = (v) => {
           const raw = String(v || '').trim();
           if(!raw) return NaN;
@@ -6148,6 +7071,7 @@ loadData().catch(function (e) { console.error(e); });
         if(!preset){
           historyStory.style.display = 'none';
           historyStory.innerHTML = '';
+          lastStoryRenderKey = '';
           if(historyPhaseMeta) historyPhaseMeta.textContent = '';
           return;
         }
@@ -6160,6 +7084,25 @@ loadData().catch(function (e) { console.error(e); });
           historyPhaseMeta.textContent = escapeHtml(activePhase ? activePhase.title : 'Genel') + ' | ' + escapeHtml(dateTxt);
         }
         renderHistoryMapLegend(activePhase);
+        var renderKey = [
+          preset && preset.title ? preset.title : 'preset',
+          currentHistoryPhaseIdx,
+          historyLightMode ? 'light' : 'full'
+        ].join('|');
+        if(renderKey === lastStoryRenderKey) return;
+        lastStoryRenderKey = renderKey;
+
+        if(historyLightMode){
+          var liteSummary = activePhase ? escapeHtml(activePhase.summary || '') : summary;
+          historyStory.style.display = 'block';
+          historyStory.innerHTML =
+            '<div class="phase-panel">' +
+            '<h5>' + escapeHtml(activePhase ? activePhase.title : title) + '</h5>' +
+            '<div style="font-size:12px;line-height:1.55;color:#b8c8dd">' + liteSummary + '</div>' +
+            '<div style="margin-top:8px;font-family:monospace;font-size:10px;color:#7fa0c9">Canli oynatma modu: performans icin detay paneli sadeleştirildi.</div>' +
+            '</div>';
+          return;
+        }
 
         var html = '<div class="phase-panel">';
 
@@ -6167,8 +7110,31 @@ loadData().catch(function (e) { console.error(e); });
         var phaseSummary = activePhase
           ? escapeHtml(activePhase.summary || '')
           : summary;
+        var analytic = getPhaseAnalyticModel(activePhase);
         html += '<h5>' + escapeHtml(activePhase ? activePhase.title : title) + '</h5>';
         html += '<div style="font-size:12px;line-height:1.6;color:#e6edf8;margin-bottom:8px">' + phaseSummary + '</div>';
+        if(analytic.hypothesis){
+          html += '<div class="analytic-card" style="margin-bottom:8px">';
+          html += '<div class="analytic-card-title">Faz Hipotezi</div>';
+          html += '<div class="analytic-card-body">' + escapeHtml(analytic.hypothesis) + '</div>';
+          html += '</div>';
+        }
+        if(analytic.mechanism.trigger || analytic.mechanism.carrier || analytic.mechanism.amplifier || analytic.mechanism.break){
+          html += '<div class="analytic-grid" style="margin-bottom:8px">';
+          if(analytic.mechanism.trigger){
+            html += '<div class="analytic-card"><div class="analytic-card-title">Tetikleyici</div><div class="analytic-card-body">' + escapeHtml(analytic.mechanism.trigger) + '</div></div>';
+          }
+          if(analytic.mechanism.carrier){
+            html += '<div class="analytic-card"><div class="analytic-card-title">Taşıyıcı Mekanizma</div><div class="analytic-card-body">' + escapeHtml(analytic.mechanism.carrier) + '</div></div>';
+          }
+          if(analytic.mechanism.amplifier){
+            html += '<div class="analytic-card"><div class="analytic-card-title">Büyütücü Etken</div><div class="analytic-card-body">' + escapeHtml(analytic.mechanism.amplifier) + '</div></div>';
+          }
+          if(analytic.mechanism.break){
+            html += '<div class="analytic-card"><div class="analytic-card-title">Kurumsal Kırılma</div><div class="analytic-card-body">' + escapeHtml(analytic.mechanism.break) + '</div></div>';
+          }
+          html += '</div>';
+        }
 
         // Country legend
         if(activePhase && Array.isArray(activePhase.countries)){
@@ -6194,6 +7160,49 @@ loadData().catch(function (e) { console.error(e); });
           html += '</div>';
         }
 
+        if(analytic.evidence && analytic.evidence.length){
+          html += '<div class="phase-panel-section"><h6>Kanıt Seti ve Güven Düzeyi</h6><ul class="analytic-list">';
+          analytic.evidence.forEach(function(ev){
+            if(!ev || !ev.claim) return;
+            var conf = String(ev.confidence || 'C').toUpperCase();
+            var confCls = analyticConfidenceClass(conf);
+            var sourceType = ev.sourceType ? ' · ' + escapeHtml(String(ev.sourceType)) : '';
+            var note = ev.note ? ' — ' + escapeHtml(String(ev.note)) : '';
+            html += '<li><span class="analytic-badge ' + confCls + '">Kaynak ' + conf + '</span> ' + escapeHtml(String(ev.claim)) + sourceType + note + '</li>';
+          });
+          html += '</ul></div>';
+        }
+
+        if(analytic.counterArguments && analytic.counterArguments.length){
+          html += '<div class="phase-panel-section"><h6>Alternatif Açıklamalar</h6><ul class="analytic-list">';
+          analytic.counterArguments.forEach(function(ca){
+            if(!ca) return;
+            html += '<li>' + escapeHtml(String(ca)) + '</li>';
+          });
+          html += '</ul></div>';
+        }
+
+        if(analytic.uncertainty || analytic.metrics.incidentDensityHint || analytic.metrics.fatalitiesMin != null || analytic.metrics.fatalitiesMax != null){
+          html += '<div class="phase-panel-section"><h6>Belirsizlik ve Ölçüm Sınırı</h6>';
+          if(analytic.uncertainty){
+            html += '<div class="analytic-card-body" style="margin-bottom:6px">' + escapeHtml(analytic.uncertainty) + '</div>';
+          }
+          if(analytic.metrics.fatalitiesMin != null || analytic.metrics.fatalitiesMax != null){
+            var minTxt = analytic.metrics.fatalitiesMin != null ? String(analytic.metrics.fatalitiesMin) : '?';
+            var maxTxt = analytic.metrics.fatalitiesMax != null ? String(analytic.metrics.fatalitiesMax) : '?';
+            html += '<div style="font-family:monospace;font-size:11px;color:#a5b4fc">Tahmini ölüm bandı: ' + escapeHtml(minTxt) + ' - ' + escapeHtml(maxTxt) + '</div>';
+          }
+          if(analytic.metrics.incidentDensityHint){
+            html += '<div style="font-size:11px;color:#cbd5e1;margin-top:4px">' + escapeHtml(analytic.metrics.incidentDensityHint) + '</div>';
+          }
+          html += '</div>';
+        }
+
+        if(analytic.bridgeToNext){
+          html += '<div class="phase-panel-section"><h6>Sonraki Faza Köprü</h6>';
+          html += '<div class="analytic-card-body">' + escapeHtml(analytic.bridgeToNext) + '</div></div>';
+        }
+
         // IR Terms panel
         if(activePhase && Array.isArray(activePhase.terms) && activePhase.terms.length > 0){
           html += '<div class="phase-panel-section"><h6>IR Kavramlari (tiklayarak ekle)</h6><div>';
@@ -6210,25 +7219,9 @@ loadData().catch(function (e) { console.error(e); });
         // Image panel
         if(activePhase && activePhase.image && activePhase.image.url){
           html += '<div class="phase-panel-section"><h6>Gorsel</h6>';
-          html += '<img class="phase-image" src="'+escapeHtml(activePhase.image.url)+'" alt="'+escapeHtml(activePhase.image.caption||'')+'" loading="lazy" onerror="this.style.display=\'none\'">';
+          html += '<img class="phase-image" src="'+escapeHtml(activePhase.image.url)+'" alt="'+escapeHtml(activePhase.image.caption||'')+'" loading="lazy" style="cursor:zoom-in" onclick="IRLEX_openLightbox(\'' + escapeHtml(activePhase.image.url).replace(/'/g, "\\'") + '\',\'' + escapeHtml(activePhase.image.caption||'').replace(/'/g, "\\'") + '\')" onerror="this.style.display=\'none\'">';
           html += '<div class="phase-image-caption">' + escapeHtml(activePhase.image.caption||'') + ' <span style="color:#4a9eff">(' + escapeHtml(activePhase.image.source||'') + ')</span></div>';
           html += '</div>';
-        }
-
-        // Newspaper archive panel
-        if(activePhase && Array.isArray(activePhase.newspapers) && activePhase.newspapers.length > 0){
-          html += '<div class="phase-panel-section"><h6>Tarih&icirc; G&ouml;rseller &amp; Gazete Ar&#351;ivi</h6>';
-          html += '<div class="irlex-newspaper-grid">';
-          activePhase.newspapers.forEach(function(np, npIdx){
-            var imgSrc = escapeHtml(np.img || '');
-            var caption = escapeHtml(np.caption || '');
-            var credit = escapeHtml(np.credit || '');
-            html += '<div class="irlex-newspaper-card" onclick="IRLEX_openLightbox(\'' + imgSrc.replace(/'/g, "\\'") + '\',\'' + caption.replace(/'/g, "\\'") + (credit ? ' — ' + credit.replace(/'/g, "\\'") : '') + '\')">';
-            html += '<img src="' + imgSrc + '" alt="' + caption + '" loading="lazy" onerror="this.parentElement.style.display=\'none\'">';
-            html += '<div class="irlex-np-caption">' + caption + '</div>';
-            html += '</div>';
-          });
-          html += '</div></div>';
         }
 
         // Full details
@@ -6239,6 +7232,17 @@ loadData().catch(function (e) { console.error(e); });
           html += '<div style="margin-top:6px"><strong>' + (idx+1) + '. ' + escapeHtml(p.t||'-') + '</strong> - ' + escapeHtml(p.d||'') + '</div>';
         });
         html += '</div></details>';
+
+        if(preset && Array.isArray(preset.validationChecklist) && preset.validationChecklist.length){
+          html += '<details style="margin-top:8px;border:1px solid #1e2d47;border-radius:8px;padding:6px 8px;color:#c9d7eb">';
+          html += '<summary style="cursor:pointer;color:#9bb9df;font-size:12px">Sunum Öncesi Kalite Kontrol</summary>';
+          html += '<ul class="analytic-list" style="margin-top:6px">';
+          preset.validationChecklist.forEach(function(item){
+            if(!item) return;
+            html += '<li>□ ' + escapeHtml(String(item)) + '</li>';
+          });
+          html += '</ul></details>';
+        }
 
         html += '</div>';
         historyStory.style.display = 'block';
@@ -6363,13 +7367,15 @@ loadData().catch(function (e) { console.error(e); });
 
         const activeCountries = phase && Array.isArray(phase.countries) ? phase.countries : [];
         if(worldGeojsonCache && activeCountries.length > 0){
+          var acSet = new Set(activeCountries);
           var features = worldGeojsonCache.features || [];
-          features.forEach(function(f){
-            if(!f || !f.properties || !f.geometry) return;
+          for(var fi = 0; fi < features.length; fi++){
+            var f = features[fi];
+            if(!f || !f.properties || !f.geometry) continue;
             var a3 = f.properties['ISO3166-1-Alpha-3'] || f.properties.iso_a3 || f.properties.ISO_A3 || f.properties.adm0_a3 || '';
-            if(activeCountries.indexOf(a3) === -1) return;
+            if(!acSet.has(a3)) continue;
             var cc = COUNTRY_COLORS[a3];
-            if(!cc) return;
+            if(!cc) continue;
             try {
               L.geoJSON(f, {
                 style: function(){ return {
@@ -6379,7 +7385,7 @@ loadData().catch(function (e) { console.error(e); });
                 }; }
               }).addTo(leafletHistoryLayer);
             } catch(e){}
-          });
+          }
         }
 
         var area = Array.isArray(visual.areaPolygon2d) ? visual.areaPolygon2d : [];
@@ -6540,6 +7546,32 @@ loadData().catch(function (e) { console.error(e); });
           m.addTo(leafletHistoryLayer);
         });
 
+        var analyticModel = getPhaseAnalyticModel(phase);
+        var relStartFallback = analyticModel && analyticModel.layerPlan && analyticModel.layerPlan.reliability
+          ? Number(analyticModel.layerPlan.reliability.revealStart)
+          : 0.8;
+        var marksFallback = phase && Array.isArray(phase.markers) ? phase.markers : [];
+        marksFallback.forEach(function(mk, mki){
+          if(!mk) return;
+          var mkLat = Number(mk.lat), mkLon = Number(mk.lon);
+          if(!Number.isFinite(mkLat) || !Number.isFinite(mkLon)) return;
+          var mkConf = String(mk.confidence || 'B').toUpperCase();
+          if (mkConf === 'C' && relStartFallback > 0.75 && mki > 0) return;
+          var mkSide = String(mk.side || '').toLowerCase();
+          var mkColor = mkSide === 'army' ? '#94a3b8' : (mkSide === 'right' ? '#3b82f6' : '#ef4444');
+          var mkHtml =
+            '<span style="display:inline-flex;align-items:center;gap:6px;padding:2px 7px;border-radius:999px;border:1px solid ' + mkColor + '66;background:rgba(7,12,24,0.88);font-family:monospace;font-size:10px;color:#e2e8f0">' +
+            '<span style="display:inline-block;width:7px;height:7px;border-radius:999px;background:' + mkColor + '"></span>' +
+            'olay</span>';
+          var mkMarker = L.marker([mkLat, mkLon], {
+            icon: L.divIcon({ className: 'irlex-flow-label-wrap', html: mkHtml, iconSize: [0,0], iconAnchor: [0,10] }),
+            interactive: false,
+            zIndexOffset: 760
+          });
+          mkMarker.addTo(leafletHistoryLayer);
+          if (mk.label) mkMarker.bindTooltip(escapeHtml(String(mk.label)), { className: 'unit-tooltip', direction: 'top', offset: [0,-8] });
+        });
+
         var portraitsV = Array.isArray(visual.portraits) ? visual.portraits : [];
         portraitsV.forEach(function(p, pidx) {
           var baseLat = Number(p.lat);
@@ -6588,10 +7620,12 @@ loadData().catch(function (e) { console.error(e); });
 
         /* Yüksek yoğunluklu olaylar için kalıcı nabız halkası (pulse ring) */
         var opsForPulse = phase && Array.isArray(phase.operations) ? phase.operations : [];
-        opsForPulse.forEach(function(op) {
-          if (!op || !(op.intensity >= 0.9)) return;
+        var pulseCount = 0;
+        for(var pi = 0; pi < opsForPulse.length && pulseCount < 5; pi++){
+          var op = opsForPulse[pi];
+          if (!op || !(op.intensity >= 0.9)) continue;
           var loc = (Array.isArray(op.to) && op.to.length === 2) ? op.to : (Array.isArray(op.from) && op.from.length === 2 ? op.from : null);
-          if (!loc) return;
+          if (!loc) continue;
           var actColor = ACTOR_COLORS[op.actor] || '#ef4444';
           var pulseHtml =
             '<div style="position:relative;width:36px;height:36px;pointer-events:none">' +
@@ -6602,7 +7636,8 @@ loadData().catch(function (e) { console.error(e); });
           var pm2 = L.marker([Number(loc[0]), Number(loc[1])], { icon: pulseIcon, interactive: false, zIndexOffset: 800 });
           if (op.label) pm2.bindTooltip(escapeHtml(op.label), { className: 'unit-tooltip', direction: 'top' });
           pm2.addTo(leafletHistoryLayer);
-        });
+          pulseCount++;
+        }
       }
 
       function buildHistoryIntro(preset, startDate, endDate, phase){
@@ -6649,6 +7684,18 @@ loadData().catch(function (e) { console.error(e); });
         const backendBase = await resolveBackendBase();
         const q = options.query || 'middle east diplomacy OR ceasefire OR conflict OR negotiation';
         const introHtml = buildHistoryIntro(options.preset || null, startDate, endDate, options.phase || null);
+        const cacheKey = [
+          (options.preset && options.preset.title) || (currentHistoryPreset && currentHistoryPreset.title) || 'preset',
+          (options.phase && options.phase.id) || (getActiveHistoryPhase() && getActiveHistoryPhase().id) || currentHistoryPhaseIdx,
+          startDate,
+          endDate,
+          q
+        ].join('|');
+        if(historyEventsCache.has(cacheKey)){
+          const cached = historyEventsCache.get(cacheKey);
+          renderEventsList(cached.items || [], endDate, noteEl, introHtml);
+          return;
+        }
         const isFileMode = typeof location !== 'undefined' && location && location.protocol === 'file:';
         if (isFileMode || !backendBase) {
           var localItems = buildEmbeddedPhaseEvents(
@@ -6657,6 +7704,7 @@ loadData().catch(function (e) { console.error(e); });
             startDate,
             endDate
           );
+          historyEventsCache.set(cacheKey, { items: localItems });
           renderEventsList(localItems, endDate, noteEl, introHtml);
           return;
         }
@@ -6677,7 +7725,9 @@ loadData().catch(function (e) { console.error(e); });
           if(!res.ok || !json.success){
             throw new Error((json && json.error) ? json.error : `HTTP ${res.status}`);
           }
-          renderEventsList(json.data || [], endDate, noteEl, introHtml);
+          var remoteItems = json.data || [];
+          historyEventsCache.set(cacheKey, { items: remoteItems });
+          renderEventsList(remoteItems, endDate, noteEl, introHtml);
         } catch(err){
           if(requestToken && requestToken !== historyFetchToken) return;
           var fallbackItems = buildEmbeddedPhaseEvents(
@@ -6687,6 +7737,7 @@ loadData().catch(function (e) { console.error(e); });
             endDate
           );
           if (fallbackItems.length) {
+            historyEventsCache.set(cacheKey, { items: fallbackItems });
             renderEventsList(fallbackItems, endDate, noteEl, introHtml);
             return;
           }
@@ -6706,12 +7757,18 @@ loadData().catch(function (e) { console.error(e); });
             historyNote.textContent = 'Bir tarihi olay sec.';
           }
           renderHistoryStory(null);
+          renderHistoryStoryRail(null);
+          renderIntelCard(null, null);
+          renderTopStatusBar();
           return;
         }
         const preset = HISTORY_PRESETS[key];
         stopHistorySimulation();
         currentHistoryPreset = preset;
         currentHistoryPhaseIdx = getDefaultHistoryPhaseIdx(preset, key);
+        lastStoryRenderKey = '';
+        lastPhaseTabsKey = '';
+        historyEventsCache.clear();
         var titleEl = document.getElementById('historyPresetTitle');
         var subEl = document.getElementById('historyPresetSubtitle');
         if (titleEl && preset.title) titleEl.textContent = preset.title;
@@ -6723,12 +7780,14 @@ loadData().catch(function (e) { console.error(e); });
         setSelection(preset.lat, preset.lon);
         updateEventsBtn();
         await ensureLeafletMap();
+        renderHistoryStoryRail(preset);
         if (simEngine && simEngine._initialized) {
           simEngine.pause();
           simEngine.loadPreset(preset);
           simEngine.seekToPhase(currentHistoryPhaseIdx);
         }
         selectHistoryPhase(currentHistoryPhaseIdx, { fetchEvents: true, syncDate: false });
+        startCinematicTour(preset);
       }
 
       if (historyPreset) {
@@ -6757,40 +7816,25 @@ loadData().catch(function (e) { console.error(e); });
             simEngine = new window.__SimEngine();
             simEngine.init(leafletMap, worldGeojsonCache, function(idx, opts) {
               if (opts && opts.fromEngine) {
-                currentHistoryPhaseIdx = idx;
-                renderHistoryPhaseTabs(currentHistoryPreset);
-                renderHistoryStory(currentHistoryPreset);
-                var phase = getActiveHistoryPhase();
-                var win = phase && phase.eventWindow ? phase.eventWindow : null;
-                if(win && isIsoDateString(win.end) && dateInput){
-                  dateInput.value = win.end;
-                  updateEventsBtn();
-                }
-                if(historySimNote){
-                  var phases = getPresetPhases(currentHistoryPreset);
-                  var phaseName = phase ? phase.title : ('Faz ' + (idx+1));
-                  historySimNote.textContent = phaseName + ' (' + (idx+1) + '/' + phases.length + ')';
-                }
-                if(opts.fetchEvents && currentHistoryPreset){
-                  var ctx = getHistoryFetchContext(currentHistoryPreset);
-                  fetchRecentMiddleEastEvents({
-                    preset: currentHistoryPreset,
-                    phase: ctx.phase,
-                    query: ctx.query || currentHistoryPreset.query,
-                    startDate: ctx.startDate,
-                    endDate: ctx.endDate || currentHistoryPreset.date,
-                    lookbackDays: ctx.lookbackDays,
-                    noteEl: historyNote
-                  });
-                }
+                selectHistoryPhase(idx, {
+                  fromEngine: true,
+                  fetchEvents: !!opts.fetchEvents,
+                  syncDate: true,
+                  lightweight: true,
+                  animate: false
+                });
               }
             });
             simEngine._onPlayStateChange = function(isPlaying) {
               historySimRunning = isPlaying;
+              historyLightMode = isPlaying;
               if (historySimPlayBtn) historySimPlayBtn.textContent = isPlaying ? 'Duraklat' : 'Oynat';
             };
             simEngine._onComplete = function() {
               historySimRunning = false;
+              historyLightMode = false;
+              lastStoryRenderKey = '';
+              renderHistoryStory(currentHistoryPreset);
               if (historySimPlayBtn) historySimPlayBtn.textContent = 'Oynat';
               if (historySimNote) historySimNote.textContent = 'Similasyon tamamlandi.';
             };
@@ -6801,7 +7845,9 @@ loadData().catch(function (e) { console.error(e); });
           console.warn('SimEngine init failed, using fallback:', engineErr);
         }
 
+        renderHistoryStoryRail(preset);
         selectHistoryPhase(currentHistoryPhaseIdx, { fetchEvents: true, syncDate: false });
+        startCinematicTour(preset);
       })();
 
       // Oynat/Duraklat: delegates to engine if available, fallback to old setInterval
@@ -6829,7 +7875,8 @@ loadData().catch(function (e) { console.error(e); });
           historySimPlayBtn.textContent = 'Duraklat';
           const firstIdx = (currentHistoryPhaseIdx + 1) % phases.length;
           selectHistoryPhase(firstIdx, { fetchEvents: true });
-          historySimTimer = setInterval(() => {
+          const step = () => {
+            if(!historySimRunning) return;
             const p = getPresetPhases(currentHistoryPreset);
             const nextIdx = (currentHistoryPhaseIdx + 1) % p.length;
             selectHistoryPhase(nextIdx, { fetchEvents: true });
@@ -6837,8 +7884,13 @@ loadData().catch(function (e) { console.error(e); });
               stopHistorySimulation();
               historySimPlayBtn.textContent = 'Oynat';
               if(historySimNote) historySimNote.textContent = 'Similasyon tamamlandi.';
+              return;
             }
-          }, 3000);
+            const activeP = p[nextIdx] || null;
+            const dur = getHistoryPhaseDurationMs(currentHistoryPreset, activeP);
+            historySimTimer = setTimeout(step, dur);
+          };
+          historySimTimer = setTimeout(step, getHistoryPhaseDurationMs(currentHistoryPreset, phases[firstIdx]));
         });
       }
 
